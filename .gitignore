@@ -43,6 +43,10 @@ vignettes/*.pdf
 *.pdf
 *.png
 
+#exploreation scripts
+epinow_example.R
+
+
 # Raw data
 *.csv
 *.RDS
