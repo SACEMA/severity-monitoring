@@ -37,12 +37,3 @@ vignettes/*.pdf
 
 # R Environment Variables
 .Renviron
-
-# Figures
-*.jpeg
-*.pdf
-*.png
-
-# Raw data
-*.csv
-*.RDS
