@@ -46,9 +46,13 @@ out_flat_simple[['predictions']] %>% ggplot(aes(x = date)) +
 
 # specify delays and week effect = FALSE
 
-out_flat <- estimate_secondary(reports = dd_flat,
-                               delays= sec_delays,
-                               burn_in = 30,
-                               obs = obs_no_week)
+out_flat <- estimate_secondary(reports = dd_flat[1:80,],
+                               # delays= sec_delays,
+                               delays= delay_opts(),
+                               burn_in = 10,
+                               obs = obs_opts(week_effect = FALSE, 
+                                              scale = list(mean = 0.1, 
+                                                           sd = 0.01)),
+                               secondary = sec_type)
 
 plot(out_flat, primary = TRUE)
