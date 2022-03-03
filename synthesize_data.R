@@ -26,4 +26,4 @@ reported_data <- tibble(date = ymd('2021-01-01') + 0:99,
 
 reported_data$secondary = replace_na(reported_data$secondary, 0)
 
-saveRDS(reported_data, './data/flat-ts-fixed-proportion.RDS')
+saveRDS(reported_data, './data/flat-ts-fixed-proportion.rds')
