@@ -8,7 +8,7 @@ library(tidyverse)
 
 # ?estimate_secondary
 # -- setup --
-
+  
 dd_flat = readRDS('./data/flat-ts-fixed-proportion.rds')
 
 sec_delays = delay_opts(list(mean = log(5),
@@ -21,6 +21,12 @@ sec_delays = delay_opts(list(mean = log(5),
 obs_no_week = obs_opts(week_effect = FALSE)
 
 sec_type = secondary_opts('incidence')
+
+# plot delay distribution
+tmp <- rlnorm( 100000 , mean = log(5), sd = log(1.01))
+mean(tmp)
+
+hist(tmp)
 
 # run with data + default parameters
 
@@ -46,13 +52,21 @@ out_flat_simple[['predictions']] %>% ggplot(aes(x = date)) +
 
 # specify delays and week effect = FALSE
 
-out_flat <- estimate_secondary(reports = dd_flat[1:80,],
+out_flat <- estimate_secondary(reports = dd_flat,
                                # delays= sec_delays,
                                delays= delay_opts(),
                                burn_in = 10,
-                               obs = obs_opts(week_effect = FALSE, 
-                                              scale = list(mean = 0.1, 
-                                                           sd = 0.01)),
+                               obs = obs_opts(week_effect = FALSE,
+                                               scale = list(mean = 0.5,
+                                                           sd = 0.0001)),
                                secondary = sec_type)
 
-plot(out_flat, primary = TRUE)
+# plot(out_flat, primary = TRUE)
+
+out_flat[['predictions']] %>% ggplot(aes(x = date)) +
+  geom_line(aes(y = median, color = "Median secondary estimate"), lwd=2) + 
+  geom_line(aes(y = mean, color = "Mean secondary estimate"), lty = 3, lwd =2)+
+  geom_line(aes(y = primary, color = "Primary data")) +
+  geom_line(aes(y = secondary, color = "Secondary data")) +
+  theme(legend.title = element_blank()) +
+  labs(y="Counts", x = "Date", title = "obs_opts has scale set to: mean = 0.5, sd = 0.0001")
