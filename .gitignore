@@ -50,3 +50,4 @@ epinow_example.R
 # Raw data
 *.csv
 *.RDS
+*.rds
