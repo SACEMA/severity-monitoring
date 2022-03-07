@@ -11,6 +11,10 @@ library(tidyverse)
   
 dd_flat = readRDS('./data/flat-ts-fixed-proportion.rds')
 
+
+# we try to mimick our synthesized data, with a delay distribution 
+# as close as possible to a fixed delay of 5 days
+
 sec_delays = delay_opts(list(mean = log(5),
                              mean_sd = 0.00001,
                              sd =  log(1.01),
@@ -18,14 +22,14 @@ sec_delays = delay_opts(list(mean = log(5),
                              max = 10
                              ))
 
-obs_no_week = obs_opts(week_effect = FALSE)
+#week effect is fitted even when not present in data,
+# so remove when using non-weekly synth data
 
-sec_type = secondary_opts('incidence')
+obs_no_week = obs_opts(week_effect = FALSE)
 
 # plot delay distribution
 tmp <- rlnorm( 100000 , mean = log(5), sd = log(1.01))
 mean(tmp)
-
 hist(tmp)
 
 # run with data + default parameters
@@ -62,6 +66,8 @@ out_flat <- estimate_secondary(reports = dd_flat,
                                secondary = sec_type)
 
 # plot(out_flat, primary = TRUE)
+
+
 
 out_flat[['predictions']] %>% ggplot(aes(x = date)) +
   geom_line(aes(y = median, color = "Median secondary estimate"), lwd=2) + 
