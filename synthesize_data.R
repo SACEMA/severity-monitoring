@@ -14,10 +14,6 @@ prop_to_seconday <- 0.1 #fixed proportion of primary outcomes that become second
 flat_primary <- 10 #fixed number of primary outcomes per day
 
 
-
-
-
-
 #Create the fake data
 reported_data <- tibble(date = ymd('2021-01-01') + 0:99,
            primary = rep(flat_primary, length(date)),
