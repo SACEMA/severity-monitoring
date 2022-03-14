@@ -25,7 +25,7 @@ primary_ts <- generate_primary_linear(
 secondary_ts <- generate_secondary_fixed_ratio(
   primary = primary_ts,
   delay = in.fixed_delay,
-  ratio = in.prop_to_seconday
+  ratio = in.prop_to_secondary
 )
 
 # Add a date column
