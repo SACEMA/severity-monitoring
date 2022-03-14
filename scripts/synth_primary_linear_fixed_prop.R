@@ -11,7 +11,7 @@ library(lubridate)
 
 #Helpers
 source("./scripts/synth_data_params.R")
-source("./synth_data_functions.R")
+source("./functions/synth_data_functions.R")
 
 
 #Generate the primary time series
