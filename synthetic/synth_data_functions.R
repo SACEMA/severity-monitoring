@@ -12,8 +12,9 @@ generate_primary_linear <- function(length, base_inc, rate_of_increase){
 }
 
 generate_secondary_fixed_ratio <- function(primary, delay, ratio){
-  secondary <- rep(0, length(primary))
-  secondary[delay+1:length(secondary)] = primary[(delay+1:length(secondary))-delay]*ratio
+  tmp <- primary
+  tmp[c(1:delay)] <- 0
+  secondary = tmp*ratio
   return(secondary)
 }
 
