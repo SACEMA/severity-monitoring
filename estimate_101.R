@@ -6,7 +6,7 @@ library(EpiNow2)
 library(tidyverse)
 
 source('./functions/plotting_functions.R')
-source('./synthetic/synth_data_functions.R')
+source('./functions/synth_data_functions.R')
 
 
 # ?estimate_secondary
@@ -61,8 +61,8 @@ plot_est_sec_out(out_flat_simple[['predictions']], plot_title = "obs_opts week_e
 # specify delays and week effect = FALSE
 
 out_flat <- estimate_secondary(reports = dd_flat,
-                               delays= sec_delays,
-                               #delay_opts(),
+                               # delays= sec_delays,
+                               delays = delay_opts(),
                                burn_in = 10,
                                obs = obs_opts(week_effect = FALSE,
                                                scale = list(mean = 1,
