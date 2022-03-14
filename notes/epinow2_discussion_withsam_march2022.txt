@@ -1,0 +1,124 @@
+scaling parameter inherited from main epinow2 model, where it doesn't do much
+
+
+e.g. CFR
+
+naively cfr = 0.02
+
+
+
+without obs_opts 
+
+obs_opts scale values are the prior
+
+small sd means firm prior so can't fit
+
+in rt if you set it it's a prior and carries through
+
+obs_opts defines prior for ratio of secondary to primary, *at time of secondary*
+
+
+one is about p(observing primary) (phi used when negative binomial)
+one is about prior on ratio primary:secondary (scaling is per mcmc sample, so deterministic fraction you get per-obs noise of the over-dispersion)
+
+if you have fitting problems dropping from NB to poisson can help
+
+if you're ooking at something that's very correlated, you get very little overdispersion (so negative binomial isn't great), so using poisson is better.
+
+
+
+how to set proportion of latent infections are observed?
+
+can we just set to 100% for a "reference period"?
+
+I literally don't understand what's going on....... :'/
+
+
+if you think it's not just observation level noise
+
+i.e. if sum of observed primary & secondary obs doesn't add up  to primary, then 
+
+if you think there's an expectation level difference, then you need to use the scaling parameter
+
+not using for bed occupancy - assuming it's 100% recorded
+
+with ICU it's different because not every hospitalised case goes to ICU
+
+look at data. one thing is at different scale to the other thing
+
+
+
+where delay distribution and scaling both change then we cacn't recover all parameters correctly... can see that something is changing but can't detect which one.
+
+more stable the growth rate the harder it is to identify what's happening
+
+if growth rate in primary observation is changing a bit then you can ID parameters
+
+same time delay and fraction of events, steady growth rate of primary, delayed secondary with identical growth rate
+
+can't id whether growth rate or ratio has changed.
+
+relates to prior choice and window length etc.
+
+can't find a set of parameterisations which work in all scenarios.
+
+check branch of epinow2. can specify all these things with gaussian processes
+
+fit is an RStan object. classic RStan object
+
+a bunch of lists of posterior draws
+
+the best way of interacting with is is using the "posterior" package by paul someone
+
+SAM has taken it, given it nicer names, and interacted via the R code.
+
+logic of the STAN model
+
+Q: are delays being fitted at all? is delay_opts() giving a prior, or setting a fixed thing for some variability?
+Yes it's a prior and fits the delay distribution in the model. logmean and sd of lognormal
+if you don't to do this then you can fit a regression
+
+in clean system prior can be uninformative
+
+issue could be that lognormal isn't a good distribution to fit, then will be tricky if bad prior.
+
+if you don't want to estimate delay distribution, then this ( estimate_secondary() ) is a less-good fit. instead you could do a regression.
+
+
+if you mis-specify delay distribution, then CFR changes
+
+literature delay distribution can be wrong then leads to bad CFR change
+
+epidemic phase bias (see epidemic growing or shrinking when not the case)
+
+
+can fit a static delay distribution, then gaussian process to the CFR.
+
+calculate delays from linelist and enter into delay_opts() 
+
+havent' figured out how to do this with windows of time...
+
+can turn off fitting for delay distribution.
+
+would have to adjust some of the STAN code.
+
+or you could just use fitted delay as very informative prior (probably better)
+
+(and leave CFR to be uninformed)
+
+
+bars related to the ribbon, points show primary
+
+week effect is a dirchlet prior, so better to leave uninformed, because dirichlet priors are hard to specify
+
+SAM was taking upstream dataset and applying a bunch of scenarios to that dataset
+
+similar to what they did with estimate_infections() in MMED
+
+
+
+sam has fixed TS of primary, then applies various assumptions about ratio between primary and secondary
+
+but this doesn't work when growth rate isn't changing in the primary data
+
+no change in growth rate makes it hard to identify other changes
