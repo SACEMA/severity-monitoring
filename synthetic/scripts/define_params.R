@@ -8,9 +8,11 @@ library(EpiNow2)
 
 # params for data generation
 in.fixed_delay <- 5 #delay until secondary outcomes become observable
-in.prop_to_seconday <- 0.1 #fixed proportion of primary outcomes that become secondary outcomes
+in.prop_to_secondary <- 0.1 #fixed proportion of primary outcomes that become secondary outcomes after a first time point
+in.prop_to_secondary2 <- 0.2 #fixed proportion of primary outcomes that become secondary outcomes after a second time point
 in.flat_primary <- 10 #fixed number of primary outcomes per day
-
+start_date <- '2022-01-01' #First date of time series
+ts_length <- 50
 
 # (matching) params for estimate_secondary
 sec_delays = delay_opts(list(mean = log(5),
