@@ -51,3 +51,5 @@ epinow_example.R
 *.csv
 *.RDS
 *.rds
+
+*.html
