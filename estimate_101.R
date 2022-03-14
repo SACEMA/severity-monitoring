@@ -5,14 +5,14 @@
 library(EpiNow2)
 library(tidyverse)
 
-source('plotting_functions.R')
-source('synth_data_functions.R')
+source('./functions/plotting_functions.R')
+source('./synthetic/synth_data_functions.R')
 
 
 # ?estimate_secondary
 # -- setup --
 
-dd_flat = readRDS('./data/flat-ts-fixed-proportion.rds')
+dd_flat = readRDS('./data/flat_constant.rds')
 
 
 # we try to mimick our synthesized data, with a delay distribution 
