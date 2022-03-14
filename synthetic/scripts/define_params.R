@@ -1,0 +1,28 @@
+# specify parameters, for synthesizing data and running estimate_secondary on 
+# the synthesized data, and save these to file
+# March 2022
+## Question: would it be better to save the parameters (in and out) as single RDS
+# containing a list (e.g.) with "in" and "out" sublists?
+
+library(EpiNow2)
+
+# params for data generation
+in.fixed_delay <- 5 #delay until secondary outcomes become observable
+in.prop_to_seconday <- 0.1 #fixed proportion of primary outcomes that become secondary outcomes
+in.flat_primary <- 10 #fixed number of primary outcomes per day
+
+
+# (matching) params for estimate_secondary
+sec_delays = delay_opts(list(mean = log(5),
+                             mean_sd = 0.00001,
+                             sd =  log(1.01),
+                             sd_sd = 0.0000001,
+                             max = 10
+                             ))
+
+obs_process <- obs_opts(week_effect = FALSE,
+                scale = list(mean = 1,
+                             sd = 10))
+
+burn_in_length <- 10
+
