@@ -12,7 +12,7 @@ source('./synthetic/synth_data_functions.R')
 # ?estimate_secondary
 # -- setup --
 
-dd_flat = readRDS('./data/flat_constant.rds')
+dd_flat = readRDS('./synthetic/data/flat_constant.rds')
 
 
 # we try to mimick our synthesized data, with a delay distribution 
