@@ -5,10 +5,13 @@
 library(EpiNow2)
 library(tidyverse)
 
+source('plotting_functions.R')
+source('synth_data_functions.R')
+
 
 # ?estimate_secondary
 # -- setup --
-  
+
 dd_flat = readRDS('./data/flat-ts-fixed-proportion.rds')
 
 
@@ -43,27 +46,27 @@ plot(out_flat_default, primary = TRUE)
 
 out_flat_simple <- estimate_secondary(reports = dd_flat,
                                        obs = obs_no_week,
-                                       delays = delay_opts(),
-                                      secondary = sec_type)
+                                       delays = delay_opts())
 
-plot(out_flat_simple, primary = TRUE)
+# plot(out_flat_simple, primary = TRUE)
 
-out_flat_simple[['predictions']] %>% ggplot(aes(x = date)) +
-  geom_line(aes(y = median)) + 
-  geom_line(aes(y = primary), color = 'blue') +
-  geom_line(aes(y = secondary), color = 'green')
+plot_est_sec_out(out_flat_simple[['predictions']], plot_title = "obs_opts week_effect = FALSE; default otherwise")
+
+# out_flat_simple[['predictions']] %>% ggplot(aes(x = date)) +
+  # geom_line(aes(y = median)) + 
+  # geom_line(aes(y = primary), color = 'blue') +
+  # geom_line(aes(y = secondary), color = 'green')
 
 
 # specify delays and week effect = FALSE
 
 out_flat <- estimate_secondary(reports = dd_flat,
-                               # delays= sec_delays,
-                               delays= delay_opts(),
+                               delays= sec_delays,
+                               #delay_opts(),
                                burn_in = 10,
                                obs = obs_opts(week_effect = FALSE,
-                                               scale = list(mean = 0.5,
-                                                           sd = 0.0001)),
-                               secondary = sec_type)
+                                               scale = list(mean = 1,
+                                                           sd = 10)))
 
 # plot(out_flat, primary = TRUE)
 
@@ -75,4 +78,4 @@ out_flat[['predictions']] %>% ggplot(aes(x = date)) +
   geom_line(aes(y = primary, color = "Primary data")) +
   geom_line(aes(y = secondary, color = "Secondary data")) +
   theme(legend.title = element_blank()) +
-  labs(y="Counts", x = "Date", title = "obs_opts has scale set to: mean = 0.5, sd = 0.0001")
+  labs(y="Counts", x = "Date", title = "obs_opts has scale set to: mean = 1, sd = 10")
