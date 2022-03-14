@@ -10,14 +10,12 @@ library(tidyverse)
 ) else commandArgs(trailingOnly = TRUE)
 
 dd <- readRDS(.args[1])
-params <- readRDS(.args[2]) # must specify: sec_delays, obs, burn_in
+load(.args[2]) # must include variables: sec_delays, obs_process, burn_in_length
 
 out <- estimate_secondary(dd,
                           delays = sec_delays,
-                          obs = obs,
-                          burn_in = burn_in
+                          obs = obs_process,
+                          burn_in = burn_in_length
                           )
 
 saveRDS(out, file = .args[3])
-
-
