@@ -41,7 +41,6 @@ out_flat_default <- estimate_secondary(reports = dd_flat)
 
 plot(out_flat_default, primary = TRUE)
 
-
 # run with data + no week + no delay parameters
 
 out_flat_simple <- estimate_secondary(reports = dd_flat,
@@ -50,13 +49,13 @@ out_flat_simple <- estimate_secondary(reports = dd_flat,
 
 # plot(out_flat_simple, primary = TRUE)
 
-plot_est_sec_out(out_flat_simple[['predictions']], plot_title = "obs_opts week_effect = FALSE; default otherwise")
+plot_est_sec_out(out_flat_simple[['predictions']],
+                 plot_title = "obs_opts week_effect = FALSE; default otherwise")
 
 # out_flat_simple[['predictions']] %>% ggplot(aes(x = date)) +
   # geom_line(aes(y = median)) + 
   # geom_line(aes(y = primary), color = 'blue') +
   # geom_line(aes(y = secondary), color = 'green')
-
 
 # specify delays and week effect = FALSE
 
@@ -78,4 +77,5 @@ out_flat[['predictions']] %>% ggplot(aes(x = date)) +
   geom_line(aes(y = primary, color = "Primary data")) +
   geom_line(aes(y = secondary, color = "Secondary data")) +
   theme(legend.title = element_blank()) +
-  labs(y="Counts", x = "Date", title = "obs_opts has scale set to: mean = 1, sd = 10")
+  labs(y="Counts", x = "Date",
+       title = "obs_opts has scale set to: mean = 1, sd = 10")
