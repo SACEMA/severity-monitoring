@@ -13,6 +13,7 @@ in.prop_to_secondary2 <- 0.2 #fixed proportion of primary outcomes that become s
 in.flat_primary <- 10 #fixed number of primary outcomes per day
 start_date <- '2022-01-01' #First date of time series
 ts_length <- 50
+tchange_prim <- round(ts_length/2) #time to change observed secondary outcomes from ratio1 to ratio 2
 
 # (matching) params for estimate_secondary
 sec_delays = delay_opts(list(mean = log(5),
