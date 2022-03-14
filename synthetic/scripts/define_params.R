@@ -26,3 +26,11 @@ obs_process <- obs_opts(week_effect = FALSE,
 
 burn_in_length <- 10
 
+save(in.fixed_delay,
+       in.prop_to_seconday,
+       in.prop_to_seconday,
+       sec_delays,
+       obs_process,
+       burn_in_length,
+     file = file.path("synthetic/data", "params.RData"))
+
