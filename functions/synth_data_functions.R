@@ -19,8 +19,9 @@ generate_secondary_fixed_ratio <- function(primary, delay, ratio){
 }
 
 generate_secondary_two_ratio <- function(primary, delay, ratio1, ratio2, tchange_prim){
-  secondary <- rep(0, length(primary))
-  secondary[(1:tchange_prim)+delay] = primary[1:tchange_prim]*ratio1
-  secondary[((tchange_prim+1):(length(secondary)-delay))+delay] =  primary[((tchange_prim+1):(length(primary)-delay))]*ratio2
+  secondary_init <- rep(0, times = delay)
+  secondary_tmp1 <- primary[(delay + 1):tchange_prim]*ratio1 #apply ratio1 to the first part of the primary ts after the delay
+  secondary_tmp2 <- primary[(tchange_prim + 1): length(primary)]*ratio2 #Change the observation process to use ratio 2 after tchange_prim
+  secondary <- c(secondary_init, secondary_tmp1, secondary_tmp2)
   return(secondary)
 }
