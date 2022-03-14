@@ -6,7 +6,7 @@ library(tidyverse)
 .args <- if (interactive()) c(
   file.path('synthetic/data', 'flat_constant.rds'), # input
   file.path('synthetic/data', 'params.RData'),
-  file.path('synthetic/output/raw', 'flat_constant.rds') # output
+  file.path('synthetic/outputs/full', 'flat_constant.rds') # output
 ) else commandArgs(trailingOnly = TRUE)
 
 dd <- readRDS(.args[1])
@@ -18,4 +18,5 @@ out <- estimate_secondary(dd,
                           burn_in = burn_in_length
                           )
 
-saveRDS(out, file = .args[3])
+saveRDS(out, .args[3])
+
