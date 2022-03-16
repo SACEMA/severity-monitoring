@@ -75,15 +75,13 @@
 3. delay_opts():
 	- default for now
 ## Outputs:
-
-	- plots (plot b is more important):
-		a) 	data: synthesized data raw
+1. plots (plot b is more important):
+	a) 	data: synthesized data raw
 			includes TS of: primary true, primary observed, secondary true, secondary observed
-		b)	data: data observed, outputs from estimate_secondary
+	b)	data: data observed, outputs from estimate_secondary
 			includes TS of: primary observed, secondary observed, secondary_estimated with 97.5% CI's
-	- numbers:
-		?
-
+2. Values
+		
 ## Rmarkdown document:
 1. 3 sentence intro
 2. for each chosen data scenario (i.e. combination of 4 dimensions with numbers chosen)
