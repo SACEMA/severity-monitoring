@@ -122,3 +122,67 @@ sam has fixed TS of primary, then applies various assumptions about ratio betwee
 but this doesn't work when growth rate isn't changing in the primary data
 
 no change in growth rate makes it hard to identify other changes
+
+
+Carl:
+
+think about elements that you are composing - given some baseline primary series, we are going to create secondary cases from it in terms of some fixed delay and proportion
+so we feed it primary series, and a fixed delay and proportion = secondary cases
+
+can give it a variable delay, which gets applied to primary thing
+
+i.e. have one function for fixed delay + fixed proportion
+
+describe the set of transformations that we are interested in doing here.
+
+e.g. elts say we want to do tsomething which arfects the change in primary reporting, with some delay from the start.
+
+
+it would be useful for yall to think in terms of the verbs of what you want ot have go on with the time series
+things like
+
+the primary case series changes at some fixed delay from teh start of the series, to have xyz change in reporting
+
+so we have synthetic primary which is
+flat
+stochastic flat
+increasing
+decreasing
+flat then increasing
+flat then decreasing
+increasing then decreasing
+decreasing then increasing
+increasing then increasing more
+decreaseing then decreasing more
+
+we want to set up test bed
+feed basically three types of primary outcomes
+
+steady, growing, or declining
+
+apply various transformations to obtain secondary *and* observed primary.
+
+
+i.e. build "true" reference datasets,
+
+then transform to get *observed primary*, *observed secondary*, 
+
+insteal of enumerating them, we enumerate few scenarios, and few transformations
+
+do one thing from start to finish.
+
+
+
+would be really useful:
+
+- look at this (what we have) in action
+- get "on paper" something that look like a list of the things that we want. what "dimensions" we are thinking about, and what are the *values* on those dimensions
+	- i.e. a list of the axes on which we are thinking about creating the synthetic data.
+- put this in the readme. README can have checkboxes to track comeplete/incomplete.
+
+
+dims:
+- what's going on with primary series
+- true epidemic (or observation) noise
+- what is going on with secondary rate
+	- how fast is secondary rate changing?
