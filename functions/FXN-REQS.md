@@ -47,7 +47,7 @@ D4():
 	
 	out: data frame with four columns: primary_underlying, secondary_underlying, primary, secondary
 	
-add dates:
+add dates():
 	
 	in: data frame with four columns: primary_underlying, secondary_underlying, primary, secondary
 	
@@ -55,15 +55,15 @@ add dates:
 
 
 ## Function list
-- [ ] D1 a: gen_flat_prim
-- [ ] D1 b & c:	gen_linear_prim
-- [ ] D1 d & e:	gen_exp_prim
-- [ ] D2 a: gen_const_sec
-- [ ] D2 b: gen_grad_change_sec
-- [ ] D3 a: obs_const_prim
-- [ ] D3 b: obs_grad_change_prim
-- [ ] D4 a: obs_const_sec
-- [ ] D4 b: obs_grad_change_sec
+- [ ] D1 a: gen_flat_prim()
+- [ ] D1 b & c:	gen_linear_prim()
+- [ ] D1 d & e:	gen_exp_prim()
+- [ ] D2 a: gen_const_sec()
+- [ ] D2 b: gen_grad_change_sec()
+- [ ] D3 a: obs_const_prim()
+- [ ] D3 b: obs_grad_change_prim()
+- [ ] D4 a: obs_const_sec()
+- [ ] D4 b: obs_grad_change_sec()
 
 
 ## To Do:
