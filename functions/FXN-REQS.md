@@ -55,9 +55,9 @@ add dates():
 
 
 ## Function list
-- [ ] D1 a: gen_flat_prim()
-- [ ] D1 b & c:	gen_linear_prim()
-- [ ] D1 d & e:	gen_exp_prim()
+- [x] D1 a: gen_flat_prim()
+- [x] D1 b & c:	gen_linear_prim()
+- [x] D1 d & e:	gen_exp_prim()
 - [ ] D2 a: gen_const_sec()
 - [ ] D2 b: gen_grad_change_sec()
 - [ ] D3 a: obs_const_prim()
