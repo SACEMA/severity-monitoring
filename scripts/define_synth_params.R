@@ -7,6 +7,7 @@
 library(EpiNow2)
 
 # params for data generation
+init_primary <- 50 #Initial number of primary cases
 in.fixed_delay <- 5 #delay until secondary outcomes become observable
 in.prop_to_secondary <- 0.1 #fixed proportion of primary outcomes that become secondary outcomes after a first time point
 in.prop_to_secondary2 <- 0.2 #fixed proportion of primary outcomes that become secondary outcomes after a second time point
