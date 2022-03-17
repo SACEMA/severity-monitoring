@@ -1,27 +1,61 @@
-# functions to synthesize test-tube incidence data for severity monitoring project
+# Functions to synthesize test-tube incidence data for severity monitoring project
 # March 2022
 # JB, JA, CABP, JRCP
 
 
-generate_primary_flat <- function(length, incidence){
-  return(rep(incidence, length))
+#' Generate a time series with the same incidence per time
+#'
+#' @param init_primary Initial number of cases
+#' @param ts_length Desired length of the time series
+#'
+#' @return A vector of outcomes
+#' @export
+#'
+#' @examples gen_flat_prim(50, 50)
+gen_flat_prim <- function(init_primary, ts_length){
+  
+  time_series <- rep(init_primary, ts_length)
+  return(time_series)
 }
 
-generate_primary_linear <- function(length, base_inc, rate_of_increase){
-  return(base_inc + (1:length)*rate_of_increase)
+
+#' Generate a linearly increasing time series 
+#' @param init_primary Initial number of cases
+#' @param ts_length Desired length of the time series
+#' @param tchange1_prim Time point where the time series starts to increase linearly
+#' @param change_rate_linear_prim Linear rate of change 
+#'
+#' @return A vector of outcomes
+#' @export
+#'
+#' @examples gen_linear_prim(100, 50, 3, 0.1)
+gen_linear_prim <- function(init_primary, 
+                            ts_length, 
+                            tchange1_prim, 
+                            change_rate_linear_prim
+                            ){
+  t_diff <- ts_length - tchange1_prim
+  constant_ts <- rep(init_primary, tchange1_prim)
+  increasing_ts <- init_primary + change_rate_linear_prim*seq(1, t_diff, 1)
+  time_series <- c(constant_ts, increasing_ts)
+  return(time_series)
+
 }
 
-generate_secondary_fixed_ratio <- function(primary, delay, ratio){
-  tmp <- primary
-  tmp[c(1:delay)] <- 0
-  secondary = tmp*ratio
-  return(secondary)
-}
-
-generate_secondary_two_ratio <- function(primary, delay, ratio1, ratio2, tchange_prim){
-  secondary_init <- rep(0, times = delay)
-  secondary_tmp1 <- primary[(delay + 1):tchange_prim]*ratio1 #apply ratio1 to the first part of the primary ts after the delay
-  secondary_tmp2 <- primary[(tchange_prim + 1): length(primary)]*ratio2 #Change the observation process to use ratio 2 after tchange_prim
-  secondary <- c(secondary_init, secondary_tmp1, secondary_tmp2)
-  return(secondary)
+#' Generate an exponentially increasing time series 
+#'
+#' @param init_primary Initial number of cases
+#' @param ts_length Desired length of the time series
+#' @param change_rate_exponential_prim Exponential rate of change 
+#'
+#' @return
+#' @export
+#'
+#' @examples gen_exp_prim(50, 50, 0.1)
+gen_exp_prim <- function(init_primary, 
+                         ts_length, 
+                         change_rate_exponential_prim
+                         ){
+  time_series <- init_primary*(exp(change_rate_exponential_prim*seq(0, ts_length - 1, 1)))
+  return(time_series)
 }
