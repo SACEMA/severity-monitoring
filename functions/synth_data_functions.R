@@ -209,12 +209,5 @@ obs_grad_change_sec_D4 <- function(dd,
 
 }
   
-  
-# gen_grad_change_prop <- function(ts, # just eats a vector - needs wrapper function gen_grad_change_sec() to fit schema in functions/FXN-REQS.md
-#                                  prop1,
-#                                  prop2,
-#                                  t_change_start,
-#                                  duration_change,
-#                                  delay,
-#                                  baseval = 0)
-
+#Save the function definitions to file  
+save.image(file = './synthetic/data/synth_data_functions.RData')
