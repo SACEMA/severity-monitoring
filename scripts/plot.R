@@ -2,7 +2,6 @@
 
 load('./functions/plotting_functions.RData')
 
-
 .args <- if (interactive()) c(
   file.path('synthetic/outputs/full', 'flat_constant.rds'), # input
   file.path('synthetic/outputs/figures', 'flat_constant.png') # output
