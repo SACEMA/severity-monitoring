@@ -48,9 +48,11 @@ gen_grad_change_prop <- function(ts, # just eats a vector - needs wrapper functi
 
 get_const_prop_with_delay <- function(ts, prop, delay){ # same as gen_const_sec but inputs/outputs unnamed vector instead of case-specific dataframe
   tslen <- length(ts)
-  return(c(rep(0,delay), prop*ts[1:tslen-delay]))
+  return(c(rep(0,delay), prop*ts[1:(tslen-delay)]))
 }
 
+# tmp <- rep(10,100)
+# get_const_prop_with_delay(tmp, .2 , 20)
 
 ### wrapper functions
 
@@ -98,3 +100,16 @@ obs_const_sec <- function(dd, prop, delay){
   return(dd)
 }
 
+
+obs_grad_change_prim <- function(dd, # just eats a vector - needs wrapper function gen_grad_change_sec() to fit schema in functions/FXN-REQS.md
+                                 prop1,
+                                 prop2,
+                                 t_change_start,
+                                 duration_change,
+                                 delay,
+                                 baseval = 0){
+  tslen <- nrow(dd)
+  dd$primary <- 
+
+  
+}
