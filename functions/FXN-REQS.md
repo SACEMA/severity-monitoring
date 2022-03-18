@@ -82,17 +82,19 @@ add dates():
 
 
 ## To Do
-- [] 40 make targets (test bed data scenarios)
+- [ ] 40 make targets (test bed data scenarios)
+- [ ] makefile
 
 James:
 - [x] add wrapper functions for increasing and decreasing linear and exponential primary series
 - [x] save function definitions to an a .RData file for later use  
-- [] define_synth_params.R creates ./synthetic/data/synth_params.RData
+- [ ] define_synth_params.R creates ./synthetic/data/synth_params.RData
 
 Jeremy:
-- [] get_sec_est.R reads  synth_params.RData and <scenario_name>.rds and saves /synthetic/outputs/full/<scenario_name>_out.rds
-- [] plot_sec_est.R reads scenario_name_out.rds and plots, then saves /synthetic/outputs/figures/scenario_name.png
 - [x] innovate create_scenario.R: takes in 7 arguments: 1-4 specify dimensions, 5 specifies parameters, 6 specifies function-definition-file, 7 specifies scenario filename
-- [] makefile
+- [ ] get_sec_est.R reads  synth_params.RData and <scenario_name>.rds (defined in makefile) and saves /synthetic/outputs/full/<scenario_name>_out.rds
+- [ ] plot_sec_est.R reads scenario_name_out.rds and plots, then saves /synthetic/outputs/figures/scenario_name.png
+
+
 
 Work plan: each to work on separate branch and consolidate/merge after review at next meeting
