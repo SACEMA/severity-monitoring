@@ -9,7 +9,9 @@
 #' @export
 #'
 #' @examples gen_flat_prim(50, 50)
-gen_flat_prim_D1 <- function(init_primary, ts_length) {
+gen_flat_prim_D1 <- function(init_primary = init_primary, 
+                             ts_length = ts_length
+                             ) {
   time_series <- rep(init_primary, ts_length)
   ts_df <- data.frame(primary_underlying = time_series)
   return(ts_df)
