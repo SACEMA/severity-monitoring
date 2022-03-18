@@ -1,6 +1,6 @@
 # plot output from estimate_secondary
 
-source('./functions/plotting_functions.R')
+load('./functions/plotting_functions.RData')
 
 .args <- if (interactive()) c(
   file.path('synthetic/outputs/full', 'flat_constant.rds'), # input

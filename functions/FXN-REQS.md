@@ -69,8 +69,10 @@ add dates():
 	out: data frame with five columns: date, primary_underlying, secondary_underlying, primary, secondary
 
 - [x] D1 a: gen_flat_prim_D1()
-- [x] D1 b & c:	gen_linear_prim_D1()
-- [x] D1 d & e:	gen_exp_prim_D1()
+- [x] D1 b: gen_linear_up_prim_D1()
+- []  D1 c:	gen_linear_down_prim_D1()
+- [x] D1 d: gen_exp_prim_D1()
+- []  D1 e: gen_decay_prim_D1()
 - [x] D2 a: gen_const_sec_D2()
 - [x] D2 b: gen_grad_change_sec_D2()
 - [x] D3 a: obs_const_prim_D3()
@@ -81,10 +83,6 @@ add dates():
 
 ## To Do:
 
-[] 40 scripts, each takes:
-	- cmdargs input of params RData file
-	- filename to save parameter to
-
 [] 40 make targets! for scenario data
 
 James:
@@ -93,7 +91,7 @@ James:
 Jeremy:
 [] get_sec_est.R reads  synth_params.RData and <scenario_name>.rds and saves /synthetic/outputs/full/<scenario_name>_out.rds
 [] plot_sec_est.R reads scenario_name_out.rds and plots, then saves /synthetic/outputs/figures/scenario_name.png
-[] innovate create_scenario.R: takes in 7 arguments: 1-4 specify dimensions, 5 specifies parameters, 6 specifies function-definition-file, 7 specifies scenario filename
+[x] innovate create_scenario.R: takes in 7 arguments: 1-4 specify dimensions, 5 specifies parameters, 6 specifies function-definition-file, 7 specifies scenario filename
 [] makefile
 
 Work plan: each to work on separate branch and consolidate/merge after review at next meeting
