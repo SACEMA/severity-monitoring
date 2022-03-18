@@ -14,7 +14,8 @@
 #' @examples gen_flat_prim(50, 50)
 gen_flat_prim <- function(init_primary, ts_length) {
   time_series <- rep(init_primary, ts_length)
-  return(time_series)
+  ts_df <- data.frame(primary_underlying = time_series)
+  return(ts_df)
 }
 
 
@@ -36,7 +37,8 @@ gen_linear_prim <- function(init_primary,
   constant_ts <- rep(init_primary, tchange1_prim)
   increasing_ts <- init_primary + change_rate_linear_prim * seq(1, t_diff, 1)
   time_series <- c(constant_ts, increasing_ts)
-  return(time_series)
+  ts_df <- data.frame(primary_underlying = time_series)
+  return(ts_df)
 }
 
 #' Generate an exponentially increasing time series
@@ -62,15 +64,7 @@ gen_exp_prim <- function(init_primary,
   constant_ts <- rep(init_primary, tchange1_prim)
   exp_ts <- init_primary * (exp(change_rate_exponential_prim * seq(1, ts_length - tchange1_prim, 1)))
   time_series <- c(constant_ts, exp_ts)
-  return(time_series)
+  ts_df <- data.frame(primary_underlying = time_series)
+  return(ts_df)
 }
 
-
-# obs_grad_change_prim <- function(primary_ts) {
-# 
-# }
-# 
-# 
-# obs_grad_change_sec <- function(secondary_ts) {
-# 
-# }
