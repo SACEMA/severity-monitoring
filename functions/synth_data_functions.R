@@ -9,7 +9,7 @@
 #' @export
 #'
 #' @examples gen_flat_prim(50, 50)
-gen_flat_prim <- function(init_primary, ts_length) {
+gen_flat_prim_D1 <- function(init_primary, ts_length) {
   time_series <- rep(init_primary, ts_length)
   ts_df <- data.frame(primary_underlying = time_series)
   return(ts_df)
@@ -26,7 +26,7 @@ gen_flat_prim <- function(init_primary, ts_length) {
 #' @export
 #'
 #' @examples gen_linear_prim(100, 50, 3, 0.1)
-gen_linear_prim <- function(init_primary,
+gen_linear_prim_D1 <- function(init_primary,
                             ts_length,
                             tchange1_prim,
                             change_rate_linear_prim) {
@@ -49,7 +49,7 @@ gen_linear_prim <- function(init_primary,
 #' @export
 #'
 #' @examples gen_exp_prim(50, 50, 0.1)
-gen_exp_prim <- function(init_primary,
+gen_exp_prim_D1 <- function(init_primary,
                          ts_length,
                          change_rate_exponential_prim,
                          tchange1_prim) {
@@ -66,9 +66,7 @@ gen_exp_prim <- function(init_primary,
 }
 
 
-## end old functions ##
-
-# functions defining the actual transformations on generic vectors
+### functions defining the underlying transformations on generic vectors ###
 
 gen_grad_change_prop <- function(ts, # just eats a vector - needs wrapper function gen_grad_change_sec() to fit schema in functions/FXN-REQS.md
                                  prop1,
@@ -99,7 +97,7 @@ get_const_prop_with_delay <- function(ts, prop, delay){ # same as gen_const_sec 
 ### wrapper functions
 
 
-gen_const_sec <-  function(dd, prop, delay){
+gen_const_sec_D2 <-  function(dd, prop, delay){
   tslen <- nrow(dd)
   dd$secondary_underlying <- get_const_prop_with_delay(ts = dd$primary_underlying,
                                                        prop = prop, 
@@ -109,7 +107,7 @@ gen_const_sec <-  function(dd, prop, delay){
 
 
 
-gen_grad_change_sec <- function(dd, 
+gen_grad_change_sec_D2 <- function(dd, 
                                  prop1,
                                  prop2,
                                  t_change_start,
@@ -128,14 +126,14 @@ gen_grad_change_sec <- function(dd,
 
 
 
-obs_const_prim <- function(dd, prop, delay){ # wrapper for get_const_prop_with_delay
+obs_const_prim_D3 <- function(dd, prop, delay){ # wrapper for get_const_prop_with_delay
   dd$primary <- get_const_prop_with_delay( dd$primary_underlying,
                                            prop = prop, 
                                            delay = delay)
   return(dd)
 }
   
-obs_const_sec <- function(dd, prop, delay){
+obs_const_sec_D4 <- function(dd, prop, delay){
   dd$secondary <- get_const_prop_with_delay(dd$secondary_underlying,
                                             prop = prop,
                                             delay = delay)
@@ -159,7 +157,7 @@ obs_const_sec <- function(dd, prop, delay){
 #' @export
 #'
 #' @examples
-obs_grad_change_prim <- function(dd,
+obs_grad_change_prim_D3 <- function(dd,
                                  prop1,
                                  prop2,
                                  t_change_start,
@@ -192,7 +190,7 @@ obs_grad_change_prim <- function(dd,
 #' @export
 #'
 #' @examples
-obs_grad_change_sec <- function(dd, 
+obs_grad_change_sec_D4 <- function(dd, 
                                 prop1,
                                 prop2,
                                 t_change_start,
