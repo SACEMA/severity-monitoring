@@ -1,7 +1,3 @@
-# functions for plotting outputs of estimate_secondary
-# March 2022
-# JB, JA, JRCP, CABP
-
 plot_est_sec_out <- function(predictions,
                              plot_title = "obs_opts has scale set to: mean = 0.5, sd = 0.0001"){
   predictions %>% 
@@ -14,3 +10,6 @@ plot_est_sec_out <- function(predictions,
     labs(y="Counts", x = "Date", title = plot_title)
   
 }
+
+
+save(ls(), 'plotting_functions.RData')
