@@ -7,6 +7,21 @@
 - linear rate of change for primary incidence (change_rate_linear_prim)
 - exponential growth rate for primary incidence (change_rate_exponential_prim)
 - length of the time series (ts_length)
+- proportion sec gen (prop_sec_gen)
+- proportion sec obs (prop_sec_obs)
+- proportion primary obs (prop_prim_obs)
+- prop2_sec_gen
+- prop2_sec_obs
+- prop2_prim_obs
+- delay_sec_gen
+- delay_prim_obs
+- delay_sec_obs
+- tchange_sec_gen
+- tchange_sec_obs
+- tchange_prim_obs
+- dur_change_sec_gen
+- dur_change_sec_obs
+- dur_change_prim_obs
 
 ## Variable names for parameters:
 Generate in synth_parameters.R which saves to synth_parameters.RData
@@ -53,7 +68,6 @@ add dates():
 	
 	out: data frame with five columns: date, primary_underlying, secondary_underlying, primary, secondary
 
-
 - [x] D1 a: gen_flat_prim_D1()
 - [x] D1 b & c:	gen_linear_prim_D1()
 - [x] D1 d & e:	gen_exp_prim_D1()
@@ -66,5 +80,18 @@ add dates():
 
 
 ## To Do:
+
+[] 40 scripts, each takes:
+	- cmdargs input of params RData file
+	- filename to save parameter to
+
+[] 40 make targets! for scenario data
+
+James:
+[] define_synth_params.R creates ./synthetic/data/synth_params.RData
+
+
+Jeremy:
+[] get_sec_est.R reads  synth_params.RData
 
 Work plan: each to work on separate branch and consolidate/merge after review at next meeting
