@@ -329,29 +329,29 @@ obs_grad_change_sec_D4 <- function(dd,
 
 # Function definitions
 d1_functions <- list(
-  a = gen_flat_prim_D1,
-  b = gen_linear_up_prim_D1,
-  c = gen_linear_down_prim_D1,
-  d = gen_exp_up_prim_D1,
-  e = gen_exp_down_prim_D1
+  a = 'gen_flat_prim_D1',
+  b = 'gen_linear_up_prim_D1',
+  c = 'gen_linear_down_prim_D1',
+  d = 'gen_exp_up_prim_D1',
+  e = 'gen_exp_down_prim_D1'
 )
 
 
 d2_functions <- list(
-  a = gen_const_sec_D2,
-  b = gen_grad_change_sec_D2
+  a = 'gen_const_sec_D2',
+  b = 'gen_grad_change_sec_D2'
 )
 
 
 d3_functions <- list(
-  a = obs_const_prim_D3,
-  b = obs_grad_change_prim_D3
+  a = 'obs_const_prim_D3',
+  b = 'obs_grad_change_prim_D3'
 )
 
 
 d4_functions <- list(
-  a = obs_const_sec_D4,
-  obs_grad_change_sec_D4
+  a = 'obs_const_sec_D4',
+  'obs_grad_change_sec_D4'
 )
 
 
