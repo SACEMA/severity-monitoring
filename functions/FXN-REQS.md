@@ -69,8 +69,10 @@ add dates():
 	out: data frame with five columns: date, primary_underlying, secondary_underlying, primary, secondary
 
 - [x] D1 a: gen_flat_prim_D1()
-- [x] D1 b & c:	gen_linear_prim_D1()
-- [x] D1 d & e:	gen_exp_prim_D1()
+- [x] D1 b: gen_linear_up_prim_D1()
+- []  D1 c:	gen_linear_down_prim_D1()
+- [x] D1 d: gen_exp_prim_D1()
+- []  D1 e: gen_decay_prim_D1()
 - [x] D2 a: gen_const_sec_D2()
 - [x] D2 b: gen_grad_change_sec_D2()
 - [x] D3 a: obs_const_prim_D3()
