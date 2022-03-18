@@ -1,7 +1,4 @@
-# Functions to synthesize test-tube incidence data for severity monitoring project
-# March 2022
-# JB, JA, CABP, JRCP
-
+## old synth data functions ##
 
 #' Generate a time series with the same incidence per time
 #'
@@ -68,3 +65,93 @@ gen_exp_prim <- function(init_primary,
   return(ts_df)
 }
 
+
+## end old functions ##
+
+# functions defining the actual transformations on generic vectors
+
+gen_grad_change_prop <- function(ts, # just eats a vector - needs wrapper function gen_grad_change_sec() to fit schema in functions/FXN-REQS.md
+                                 prop1,
+                                 prop2,
+                                 t_change_start,
+                                 duration_change,
+                                 delay,
+                                 baseval = 0){
+  tslen <- length(ts)
+  grad_props <- seq(prop1, prop2, length.out = duration_change)
+  out_vec <- c(rep(baseval,delay),
+               prop1*ts[1:(t_change_start-1)],
+               grad_props*ts[t_change_start :(t_change_start + duration_change - 1)],
+               prop2*ts[(t_change_start + duration_change) : (tslen - delay)]
+               )
+  return(out_vec)
+}
+
+
+get_const_prop_with_delay <- function(ts, prop, delay){ # same as gen_const_sec but inputs/outputs unnamed vector instead of case-specific dataframe
+  tslen <- length(ts)
+  return(c(rep(0,delay), prop*ts[1:(tslen-delay)]))
+}
+
+# tmp <- rep(10,100)
+# get_const_prop_with_delay(tmp, .2 , 20)
+
+### wrapper functions
+
+
+gen_const_sec <-  function(dd, prop, delay){
+  tslen <- nrow(dd)
+  dd$secondary_underlying <- get_const_prop_with_delay(ts = dd$primary_underlying,
+                                                       prop = prop, 
+                                                       delay = delay)
+  return(dd)
+}
+
+
+
+gen_grad_change_sec <- function(dd, 
+                                 prop1,
+                                 prop2,
+                                 t_change_start,
+                                 duration_change,
+                                 delay,
+                                 baseval = 0){
+  dd$secondary_underlying <- gen_grad_change_prop(dd$primary_underlying,
+                                                  prop1 = prop1,
+                                                  prop2 = prop2,
+                                                  t_change_start = t_change_start,
+                                                  duration_change = duration_change,
+                                                  delay = delay,
+                                                  baseval = baseval)
+  return(dd)
+}
+
+
+
+obs_const_prim <- function(dd, prop, delay){ # wrapper for get_const_prop_with_delay
+  dd$primary <- get_const_prop_with_delay( dd$primary_underlying,
+                                           prop = prop, 
+                                           delay = delay)
+  return(dd)
+}
+  
+obs_const_sec <- function(dd, prop, delay){
+  dd$secondary <- get_const_prop_with_delay(dd$secondary_underlying,
+                                            prop = prop,
+                                            delay = delay)
+  return(dd)
+}
+
+
+obs_grad_change_prim <- function(dd, # just eats a vector - needs wrapper function gen_grad_change_sec() to fit schema in functions/FXN-REQS.md
+                                 prop1,
+                                 prop2,
+                                 t_change_start,
+                                 duration_change,
+                                 delay,
+                                 baseval = 0){
+  tslen <- nrow(dd)
+  dd$primary <- 
+
+  
+}
