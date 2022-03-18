@@ -107,6 +107,7 @@ gen_const_sec_D2 <-  function(dd, prop, delay){
 
 
 
+
 gen_grad_change_sec_D2 <- function(dd, 
                                  prop1,
                                  prop2,
