@@ -143,15 +143,79 @@ obs_const_sec <- function(dd, prop, delay){
 }
 
 
-obs_grad_change_prim <- function(dd, # just eats a vector - needs wrapper function gen_grad_change_sec() to fit schema in functions/FXN-REQS.md
+#' Observation process wrapper primary
+#'
+#'
+#' @param dd Data frame with column *primary_underlying*
+#' @param prop1 Initial proportion to observe (after *delay*)
+#' @param prop2 Final proportion to observe
+#' @param t_change_start Time (in *primary_underlying*) when proportion begins to change
+#' @param duration_change Time taken for proportion to change from *prop1* to *prop2*
+#' @param delay Delay between event and observation of event, i.e. between *primary_underlying* and *primary*
+#' @param baseval Default 0. Value to use at the beggining of the observed TS (*primary*)
+#' @details 
+#' Wrapper for gen_grad_change_prop which eats a data frame as per schema in functions/FXN-REQS.md
+#' @return Dataframe *dd* with added column *primary*
+#' @export
+#'
+#' @examples
+obs_grad_change_prim <- function(dd,
                                  prop1,
                                  prop2,
                                  t_change_start,
                                  duration_change,
                                  delay,
                                  baseval = 0){
-  tslen <- nrow(dd)
-  dd$primary <- 
-
-  
+  dd$primary <- gen_grad_change_prop(dd$primary_underlying,
+                                     prop1 = prop1,
+                                     prop2 = prop2,
+                                     t_change_start = t_change_start,
+                                     duration_change = duration_change,
+                                     delay = delay,
+                                     baseval = baseval)
+  return(dd)
 }
+
+#' Observation process wrapper secondary
+#'
+#'
+#' @param dd Data frame with column *secondary_underlying*
+#' @param prop1 Initial proportion to observe (after *delay*)
+#' @param prop2 Final proportion to observe
+#' @param t_change_start Time (in *secondary_underlying*) when proportion begins to change
+#' @param duration_change Time taken for proportion to change from *prop1* to *prop2*
+#' @param delay Delay between event and observation of event, i.e. between *secondary_underlying* and *secondary*
+#' @param baseval Default 0. Value to use at the beggining of the observed TS (*secondary*)
+#' @details 
+#' Wrapper for gen_grad_change_prop which eats a data frame as per schema in functions/FXN-REQS.md
+#' @return Dataframe *dd* with added column *secondary*
+#' @export
+#'
+#' @examples
+obs_grad_change_sec <- function(dd, 
+                                prop1,
+                                prop2,
+                                t_change_start,
+                                duration_change,
+                                delay,
+                                baseval = 0){
+  dd$secondary <- gen_grad_change_prop(dd$secondary_underlying,
+                                       prop1 = prop1,
+                                       prop2 = prop2,
+                                       t_change_start = t_change_start,
+                                       duration_change = duration_change,
+                                       delay = delay,
+                                       baseval = baseval)
+  return(dd)
+
+}
+  
+  
+# gen_grad_change_prop <- function(ts, # just eats a vector - needs wrapper function gen_grad_change_sec() to fit schema in functions/FXN-REQS.md
+#                                  prop1,
+#                                  prop2,
+#                                  t_change_start,
+#                                  duration_change,
+#                                  delay,
+#                                  baseval = 0)
+

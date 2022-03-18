@@ -54,20 +54,17 @@ add dates():
 	out: data frame with five columns: date, primary_underlying, secondary_underlying, primary, secondary
 
 
-- [x] D1 a: gen_flat_prim()
-- [x] D1 b & c:	gen_linear_prim()
-- [x] D1 d & e:	gen_exp_prim()
-- [x] D2 a: gen_const_sec()
-- [x] D2 b: gen_grad_change_sec()
-- [x] D3 a: obs_const_prim()
-- [ ] D3 b: obs_grad_change_prim()
-- [x] D4 a: obs_const_sec()
-- [ ] D4 b: obs_grad_change_sec()
+- [x] D1 a: gen_flat_prim_D1()
+- [x] D1 b & c:	gen_linear_prim_D1()
+- [x] D1 d & e:	gen_exp_prim_D1()
+- [x] D2 a: gen_const_sec_D2()
+- [x] D2 b: gen_grad_change_sec_D2()
+- [x] D3 a: obs_const_prim_D3()
+- [x] D3 b: obs_grad_change_prim_D3()
+- [x] D4 a: obs_const_sec_D4()
+- [x] D4 b: obs_grad_change_sec_D4()
 
 
 ## To Do:
-James: 1,2,3,7,9
-
-Jeremy: 4,5,6,8
 
 Work plan: each to work on separate branch and consolidate/merge after review at next meeting
