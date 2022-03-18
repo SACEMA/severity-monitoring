@@ -58,11 +58,11 @@ add dates():
 - [ ] D1 a: gen_flat_prim()
 - [ ] D1 b & c:	gen_linear_prim()
 - [ ] D1 d & e:	gen_exp_prim()
-- [ ] D2 a: gen_const_sec()
-- [ ] D2 b: gen_grad_change_sec()
-- [ ] D3 a: obs_const_prim()
+- [x] D2 a: gen_const_sec()
+- [x] D2 b: gen_grad_change_sec()
+- [x] D3 a: obs_const_prim()
 - [ ] D3 b: obs_grad_change_prim()
-- [ ] D4 a: obs_const_sec()
+- [x] D4 a: obs_const_sec()
 - [ ] D4 b: obs_grad_change_sec()
 
 
