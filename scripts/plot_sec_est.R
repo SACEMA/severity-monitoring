@@ -3,8 +3,8 @@
 load('./functions/plotting_functions.RData')
 
 .args <- if (interactive()) c(
-  file.path('synthetic/outputs/full', 'flat_constant.rds'), # input
-  file.path('synthetic/outputs/figures', 'flat_constant.png') # output
+  file.path('synthetic/outputs/full', 'flat_const_const_const.rds'), # input
+  file.path('synthetic/outputs/figures', 'flat_const_const_const.png') # output
 ) else commandArgs(trailingOnly = TRUE)
 
 dd <- readRDS(.args[1])

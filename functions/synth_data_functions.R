@@ -9,10 +9,10 @@
 #' @export
 #'
 #' @examples gen_flat_prim(50, 50)
-gen_flat_prim_D1 <- function(init_primary = init_primary, 
-                             ts_length = ts_length
+gen_flat_prim_D1 <- function(init_primary_int = init_primary, 
+                             ts_length_int = ts_length
                              ) {
-  time_series <- rep(init_primary, ts_length)
+  time_series <- rep(init_primary_int, ts_length_int)
   ts_df <- data.frame(primary_underlying = time_series)
   return(ts_df)
 }
@@ -51,15 +51,15 @@ gen_linear_prim <- function(init_primary,
 #' @export
 #'
 #' @examples gen_linear_up_prim_D1(100, 50, 3, 0.1)
-gen_linear_up_prim_D1 <- function(init_primary = init_primary,
-                                  ts_length = ts_length,
-                                  tchange1_prim = tchange1_prim,
-                                  change_rate_linear_prim = linear_up_rate) {
+gen_linear_up_prim_D1 <- function(init_primary_int = init_primary,
+                                  ts_length_int = ts_length,
+                                  tchange1_prim_int = tchange1_prim,
+                                  change_rate_linear_prim_int = linear_up_rate) {
   ts_df <- gen_linear_prim(
-    init_primary = init_primary,
-    ts_length = ts_length,
-    tchange1_prim = tchange1_prim,
-    change_rate_linear_prim = linear_up_rate
+    init_primary = init_primary_int,
+    ts_length = ts_length_int,
+    tchange1_prim = tchange1_prim_int,
+    change_rate_linear_prim = change_rate_linear_prim_int
   )
   return(ts_df)
 }
@@ -77,15 +77,15 @@ gen_linear_up_prim_D1 <- function(init_primary = init_primary,
 #' @export
 #'
 #' @examples gen_linear_up_prim_D1(100, 50, 3, -0.1)
-gen_linear_down_prim_D1 <- function(init_primary = init_primary,
-                                    ts_length = ts_length,
-                                    tchange1_prim = tchange1_prim,
-                                    change_rate_linear_prim = linear_down_rate) {
+gen_linear_down_prim_D1 <- function(init_primary_int = init_primary,
+                                    ts_length_int = ts_length,
+                                    tchange1_prim_int = tchange1_prim,
+                                    change_rate_linear_prim_int = linear_down_rate) {
   ts_df <- gen_linear_prim(
-    init_primary = init_primary,
-    ts_length = ts_length,
-    tchange1_prim = tchange1_prim,
-    change_rate_linear_prim = linear_down_rate
+    init_primary = init_primary_int,
+    ts_length = ts_length_int,
+    tchange1_prim = tchange1_prim_int,
+    change_rate_linear_prim = change_rate_linear_prim_int
   )
   return(ts_df)
 }
@@ -130,19 +130,19 @@ gen_exp_prim <- function(init_primary,
 #' @export
 #'
 #' @examples gen_exp_up_prim_D1(50, 50, 0.1, 20)
-gen_exp_up_prim_D1 <- function(init_primary = init_primary,
-                               ts_length = ts_length,
-                               change_rate_exponential_prim = exp_up_rate,
-                               tchange1_prim = tchange1_prim) {
-  if (tchange1_prim >= ts_length) {
+gen_exp_up_prim_D1 <- function(init_primary_int = init_primary,
+                               ts_length_int = ts_length,
+                               change_rate_exponential_prim_int = exp_up_rate,
+                               tchange1_prim_int = tchange1_prim) {
+  if (tchange1_prim_int >= ts_length_int) {
     stop("time point of change cannot be beyond the length of the time series")
   }
 
   ts_df <- gen_exp_prim(
-    init_primary = init_primary,
-    ts_length = ts_length,
-    change_rate_exponential_prim = change_rate_exponential_prim,
-    tchange1_prim = tchange1_prim
+    init_primary = init_primary_int,
+    ts_length = ts_length_int,
+    change_rate_exponential_prim = change_rate_exponential_prim_int,
+    tchange1_prim = tchange1_prim_int
   )
   return(ts_df)
 }
@@ -159,19 +159,19 @@ gen_exp_up_prim_D1 <- function(init_primary = init_primary,
 #' @export
 #'
 #' @examples gen_exp_up_prim_D1(50, 50, -0.1, 20)
-gen_exp_down_prim_D1 <- function(init_primary = init_primary,
-                                 ts_length = ts_length,
-                                 change_rate_exponential_prim = exp_up_rate,
-                                 tchange1_prim = tchange1_prim) {
-  if (tchange1_prim >= ts_length) {
+gen_exp_down_prim_D1 <- function(init_primary_int = init_primary,
+                                 ts_length_int = ts_length,
+                                 change_rate_exponential_prim_int = exp_up_rate,
+                                 tchange1_prim_int = tchange1_prim) {
+  if (tchange1_prim_int >= ts_length_int) {
     stop("time point of change cannot be beyond the length of the time series")
   }
 
   ts_df <- gen_exp_prim(
-    init_primary = init_primary,
-    ts_length = ts_length,
-    change_rate_exponential_prim = change_rate_exponential_prim,
-    tchange1_prim = tchange1_prim
+    init_primary = init_primary_int,
+    ts_length = ts_length_int,
+    change_rate_exponential_prim = change_rate_exponential_prim_int,
+    tchange1_prim = tchange1_prim_int
   )
   return(ts_df)
 }
@@ -208,7 +208,9 @@ get_const_prop_with_delay <- function(ts, prop, delay) { # same as gen_const_sec
 ### wrapper functions
 
 
-gen_const_sec_D2 <- function(dd, prop, delay) {
+gen_const_sec_D2 <- function(dd,
+                             prop = prop_sec_gen,
+                             delay = delay_sec_gen) {
   tslen <- nrow(dd)
   dd$secondary_underlying <- get_const_prop_with_delay(
     ts = dd$primary_underlying,
@@ -222,11 +224,11 @@ gen_const_sec_D2 <- function(dd, prop, delay) {
 
 
 gen_grad_change_sec_D2 <- function(dd,
-                                   prop1,
-                                   prop2,
-                                   t_change_start,
-                                   duration_change,
-                                   delay,
+                                   prop1 = prop_sec_gen,
+                                   prop2 = prop2_sec_gen,
+                                   t_change_start = tchange_sec_gen,
+                                   duration_change = dur_change_sec_gen,
+                                   delay = delay_sec_gen,
                                    baseval = 0) {
   dd$secondary_underlying <- gen_grad_change_prop(dd$primary_underlying,
     prop1 = prop1,
@@ -241,7 +243,9 @@ gen_grad_change_sec_D2 <- function(dd,
 
 
 
-obs_const_prim_D3 <- function(dd, prop, delay) { # wrapper for get_const_prop_with_delay
+obs_const_prim_D3 <- function(dd,
+                              prop = prop_prim_obs,
+                              delay = delay_prim_obs) { # wrapper for get_const_prop_with_delay
   dd$primary <- get_const_prop_with_delay(dd$primary_underlying,
     prop = prop,
     delay = delay
@@ -267,11 +271,11 @@ obs_const_prim_D3 <- function(dd, prop, delay) { # wrapper for get_const_prop_wi
 #'
 #' @examples
 obs_grad_change_prim_D3 <- function(dd,
-                                    prop1,
-                                    prop2,
-                                    t_change_start,
-                                    duration_change,
-                                    delay,
+                                    prop1 = prop_prim_obs,
+                                    prop2 = prop2_prim_obs,
+                                    t_change_start = tchange_prim_obs,
+                                    duration_change = dur_change_prim_obs,
+                                    delay = delay_prim_obs,
                                     baseval = 0) {
   dd$primary <- gen_grad_change_prop(dd$primary_underlying,
     prop1 = prop1,
@@ -284,7 +288,9 @@ obs_grad_change_prim_D3 <- function(dd,
   return(dd)
 }
 
-obs_const_sec_D4 <- function(dd, prop, delay) {
+obs_const_sec_D4 <- function(dd,
+                             prop = prop_sec_obs,
+                             delay = delay_sec_obs) {
   dd$secondary <- get_const_prop_with_delay(dd$secondary_underlying,
     prop = prop,
     delay = delay
@@ -311,11 +317,11 @@ obs_const_sec_D4 <- function(dd, prop, delay) {
 #'
 #' @examples
 obs_grad_change_sec_D4 <- function(dd,
-                                   prop1,
-                                   prop2,
-                                   t_change_start,
-                                   duration_change,
-                                   delay,
+                                   prop1 = prop_sec_obs,
+                                   prop2 = prop2_sec_obs,
+                                   t_change_start = tchange_sec_obs,
+                                   duration_change = dur_change_sec_obs,
+                                   delay = delay_sec_obs,
                                    baseval = 0) {
   dd$secondary <- gen_grad_change_prop(dd$secondary_underlying,
     prop1 = prop1,
@@ -327,6 +333,12 @@ obs_grad_change_sec_D4 <- function(dd,
   )
   return(dd)
 }
+
+
+add_dates <- function(dd, date_start=start_date){
+  dd$date = start_date + (1:nrow(dd))
+  return(dd)
+  }
 
 
 # Function definitions
@@ -353,7 +365,7 @@ d3_functions <- list(
 
 d4_functions <- list(
   a = 'obs_const_sec_D4',
-  'obs_grad_change_sec_D4'
+  b = 'obs_grad_change_sec_D4'
 )
 
 
