@@ -1,8 +1,16 @@
-.args <- if(interactive){
-c("a","a","a","a")
+.args <- if(interactive()){
+c("a",
+  "a",
+  "a",
+  "a",
+  "./synthetic/data/synth_params.RData",
+  "./synthetic/data/synth_data_functions.RData"
+  )
 }else{commandArgs(trailingOnly = TRUE)}
 
-load(.args[[5]])
+load(.args[[5]])  # parameter names and values
+load(.args[[6]])  # function names with default parameters named,
+                  # and list with letter = "function_name"
 
 # generically rename generation and observation functions according to the scenario description received via commandArgs()
 d1_fxn <- get(d1_functions[[.args[[1]]]]) # dimension 1 functional form
