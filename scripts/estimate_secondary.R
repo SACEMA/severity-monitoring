@@ -4,9 +4,9 @@ library(EpiNow2)
 library(tidyverse)
 
 .args <- if (interactive()) c(
-  file.path('./synthetic/data', 'flat_constant.rds'), # input
-  file.path('./synthetic/data', 'params.RData'),
-  file.path('./synthetic/outputs/full', 'flat_constant.rds') # output
+  file.path('./synthetic/data', 'flat_const_const_const.rds'), # input
+  file.path('./synthetic/data', 'estimation_params.RData'),
+  file.path('./synthetic/outputs/full', 'flat_const_const_const.rds') # output
 ) else commandArgs(trailingOnly = TRUE)
 
 dd <- readRDS(.args[1])
