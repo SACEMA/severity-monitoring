@@ -1,3 +1,13 @@
+#' Plot basic output from estimate_secondary
+#'
+#' @param predictions As in, estimate_secondary()[['predictions']]
+#' @param plot_title plot title
+#' @description Basic plot, showing primary and secondary input time series, 
+#' as well as median and mean time series of fit from estimate_secondary().
+#' @return
+#' @export
+#'
+#' @examples
 plot_est_sec_out <- function(predictions,
                              plot_title = "obs_opts has scale set to: mean = 0.5, sd = 0.0001"){
   predictions %>% 
