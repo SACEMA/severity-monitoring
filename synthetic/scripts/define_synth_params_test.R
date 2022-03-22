@@ -21,6 +21,6 @@ tchange_prim_obs = 150
 dur_change_sec_gen = 20
 dur_change_sec_obs = 20
 dur_change_prim_obs = 20
+start_date = as.Date('2000-01-01')
 
-
-save(ls(),"./synthetic/data/synth_params.RData")
+save(list=ls(),file = "./synthetic/data/synth_params.RData")

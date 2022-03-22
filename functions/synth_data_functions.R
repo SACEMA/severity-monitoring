@@ -335,6 +335,12 @@ obs_grad_change_sec_D4 <- function(dd,
 }
 
 
+add_dates <- function(dd, date_start=start_date){
+  dd$date = start_date + (1:nrow(dd))
+  return(dd)
+  }
+
+
 # Function definitions
 d1_functions <- list(
   a = 'gen_flat_prim_D1',
