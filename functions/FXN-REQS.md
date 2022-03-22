@@ -96,5 +96,4 @@ Jeremy:
 - [ ] plot_sec_est.R reads scenario_name_out.rds and plots, then saves /synthetic/outputs/figures/scenario_name.png
 
 
-
 Work plan: each to work on separate branch and consolidate/merge after review at next meeting
