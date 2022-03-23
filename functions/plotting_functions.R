@@ -1,3 +1,5 @@
+.args <- if(interactive()){c('./functions/plotting_functions.RData')}else{commandArgs(trailingOnly=TRUE)}
+
 #' Plot basic output from estimate_secondary
 #'
 #' @param predictions As in, estimate_secondary()[['predictions']]
@@ -22,4 +24,4 @@ plot_est_sec_out <- function(predictions,
 }
 
 
-save(ls(), 'plotting_functions.RData')
+save(list = ls(), file = tail(.args,1))

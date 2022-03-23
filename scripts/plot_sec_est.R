@@ -1,14 +1,15 @@
 # plot output from estimate_secondary
-
-load('./functions/plotting_functions.RData')
-
+library(tidyverse)
 .args <- if (interactive()) c(
   file.path('synthetic/outputs/full', 'flat_const_const_const.rds'), # input
+  file.path('functions','plotting_functions.RData'),
   file.path('synthetic/outputs/figures', 'flat_const_const_const.png') # output
 ) else commandArgs(trailingOnly = TRUE)
 
-dd <- readRDS(.args[1])
+load(.args[[2]])
+
+dd <- readRDS(.args[[1]])
 
 fig <- plot_est_sec_out(predictions = dd[['predictions']])
 
-ggsave(.args[2], plot = fig, width = 12, height = 8)
+ggsave(tail(.args,1), plot = fig, width = 12, height = 8)
