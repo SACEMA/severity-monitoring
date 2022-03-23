@@ -1,0 +1,28 @@
+.args <- if(interactive()){ c("./synthetic/data/synth_params.RData")}else{commandArgs(trailingOnly = TRUE)}
+
+init_primary = 1000
+tchange1_prim = 2
+dur_change_prim = 40
+linear_up_rate = 1.1
+linear_down_rate = -1.05
+exp_up_rate = 1.01
+exp_down_rate = -1.01
+ts_length = 200
+prop_sec_gen = 0.1
+prop_sec_obs = 1
+prop_prim_obs = 1
+prop2_sec_gen = 0.2
+prop2_sec_obs = 0.7
+prop2_prim_obs = 0.5
+delay_sec_gen = 7
+delay_prim_obs = 1
+delay_sec_obs = 1
+tchange_sec_gen = 40
+tchange_sec_obs = 80
+tchange_prim_obs = 150
+dur_change_sec_gen = 20
+dur_change_sec_obs = 20
+dur_change_prim_obs = 20
+start_date = as.Date('2000-01-01')
+
+save(list=ls(),file = tail(.args,1)) 

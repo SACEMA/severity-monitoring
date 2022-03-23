@@ -1,5 +1,4 @@
-## old synth data functions ##
-
+.args <- if(interactive()){c("./synthetic/data/synth_data_functions.RData")}else{commandArgs(trailingOnly = TRUE)}
 #' Generate a time series with the same incidence per time
 #'
 #' @param init_primary Initial number of cases
@@ -336,7 +335,7 @@ obs_grad_change_sec_D4 <- function(dd,
 
 
 add_dates <- function(dd, date_start=start_date){
-  dd$date = start_date + (1:nrow(dd))
+  dd$date = start_date + (0:(nrow(dd) - 1))
   return(dd)
   }
 
@@ -370,4 +369,5 @@ d4_functions <- list(
 
 
 # Save the function definitions to file
-save.image(file = "./synthetic/data/synth_data_functions.RData")
+
+save(list = ls(), file = tail(.args,1))
