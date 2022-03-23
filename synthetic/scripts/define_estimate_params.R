@@ -16,21 +16,21 @@ in.fixed_delay <- 5 #delay until secondary outcomes become observable
 in.prop_to_secondary <- 0.1 #fixed proportion of primary outcomes that become secondary outcomes after a first time point
 in.prop_to_secondary2 <- 0.2 #fixed proportion of primary outcomes that become secondary outcomes after a second time point
 in.flat_primary <- 10 #fixed number of primary outcomes per day
-start_date <- '2022-01-01' #First date of time series
-ts_length <- 50
-tchange_prim <- round(ts_length/2) #time to change observed secondary outcomes from ratio1 to ratio 2
+#start_date <- '2022-01-01' #First date of time series
+#ts_length <- 50
+#tchange_prim <- round(ts_length/2) #time to change observed secondary outcomes from ratio1 to ratio 2
 
 # (matching) params for estimate_secondary
-sec_delays = delay_opts(list(mean = log(5),
-                             mean_sd = 0.00001,
-                             sd =  log(1.01),
-                             sd_sd = 0.0000001,
-                             max = 10
-                             ))
+sec_delays = delay_opts()#list(mean = log(5),
+                         #    mean_sd = 0.00001,
+                         #    sd =  log(1.01),
+                         #    sd_sd = 0.0000001,
+                         #    max = 10
+                         #    ))
 
 obs_process <- obs_opts(week_effect = FALSE,
                 scale = list(mean = 1,
-                             sd = 10))
+                             sd = 1))
 
 burn_in_length <- 10
 
