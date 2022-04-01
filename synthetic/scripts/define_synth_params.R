@@ -25,4 +25,4 @@ dur_change_sec_obs = 20
 dur_change_prim_obs = 20
 start_date = as.Date('2000-01-01')
 
-save(list=ls(),file = tail(.args,1)) 
+save(list=ls(),file = tail(.args,1))
