@@ -1,6 +1,31 @@
-# up_twovals_twovals_twovals
+#VAR1d := up down flat
+#VAR2D := onevale twoval
 
-./outputs/figures/up_twovals_twovals.png : ../scripts/plot_sec_est.R ./outputs/full/up_twovals_twovals_twovals.rds ../functions/plotting_functions.RData
+#$(foreach v1,${VAR1D},...)
+
+#${v1}_${v2}
+
+
+
+
+all: figure_nameso
+
+${FIGDIR}/%.png : thescript.R %.thedata
+
+./outputs/figures/%.png : ../scripts/plot_sec_est.R ./outputs/full/%.rds ../functions/plotting_functions.RData
+	$*
+
+# in the terminal, we type:
+# make ./outputs/figures/hello_plot.png
+# then make will check the dependencies:
+# ../scripts/plot_sec_est.R ./outputs/full/hello_plot.rds ../functions/plotting_functions.RData
+# ./outputs/full/hello_plot.rds will match with ./outputs/full/%.rds
+# inside the shell commands for a pattern-matched make target, we can access "the pattern match" via $*
+#
+
+
+
+./outputs/figures/up_twovals_twovals_twovals.png : ../scripts/plot_sec_est.R ./outputs/full/up_twovals_twovals_twovals.rds ../functions/plotting_functions.RData
 	Rscript $^ $@
 
 ./outputs/full/up_twovals_twovals_twovals.rds : ../scripts/estimate_secondary.R ./data/up_twovals_twovals_twovals.rds ./data/estimation_params.RData
