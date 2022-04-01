@@ -1,6 +1,30 @@
-# up_twovals_twovals_twovals
+#VAR1d := up down flat
+#VAR2D := onevale twoval
+#$(foreach v1,${VAR1D},...)
+#${v1}_${v2}
 
-./outputs/figures/up_twovals_twovals.png : ../scripts/plot_sec_est.R ./outputs/full/up_twovals_twovals_twovals.rds ../functions/plotting_functions.RData
+#all : up_twovals_twovals_twovals.png down_const_const_twovals.png # why doesn't this work again?
+
+#all: figure_nameso
+
+#${FIGDIR}/%.png : thescript.R %.thedata
+
+#./outputs/figures/%.png : ../scripts/plot_sec_est.R ./outputs/full/%.rds ../functions/plotting_functions.RData
+	$*
+
+# in the terminal, we type:
+# make ./outputs/figures/hello_plot.png
+# then make will check the dependencies:
+# ../scripts/plot_sec_est.R ./outputs/full/hello_plot.rds ../functions/plotting_functions.RData
+# ./outputs/full/hello_plot.rds will match with ./outputs/full/%.rds
+# inside the shell commands for a pattern-matched make target, we can access "the pattern match" via $*
+#
+# we can also use $(subst _, ,$*) to get from (% =) d1_d2_d3_d4 to args d1 d2 d3 d4 (i.e. with spaces)
+# we also can/should use variables for our directories
+# ?think about locations of certain scripts etc?
+
+
+./outputs/figures/up_twovals_twovals_twovals.png : ../scripts/plot_sec_est.R ./outputs/full/up_twovals_twovals_twovals.rds ../functions/plotting_functions.RData
 	Rscript $^ $@
 
 ./outputs/full/up_twovals_twovals_twovals.rds : ../scripts/estimate_secondary.R ./data/up_twovals_twovals_twovals.rds ./data/estimation_params.RData
