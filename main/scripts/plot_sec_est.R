@@ -7,11 +7,26 @@ library(tidyverse)
   file.path('synthetic/outputs/figures', 'flat_const_const_const.png') # output
 ) else commandArgs(trailingOnly = TRUE)
 
+#load the data functions
 load(.args[[2]])
 
-dd_in <- readRDS(.args[[3]])
-dd <- readRDS(.args[[1]])
+#load the predictions
+dd_raw <- readRDS(.args[[3]])
 
-fig <- plot_est_sec_out(predictions = dd[['predictions']], data_raw = dd_in)
+#load the raw data
+dd_pred <- readRDS(.args[[1]]) 
+
+dd_pred <- dd_pred$predictions %>% 
+  as_tibble()
+
+
+#combine the raw and prediction data
+dd <- left_join(dd_raw, dd_pred, 
+                by = c('date', 'primary', 'primary_underlying', 
+                       'secondary', 'secondary_underlying'
+                       )
+                )
+
+fig <- plot_est_sec_out(dat = dd)
 
 ggsave(tail(.args,1), plot = fig, width = 12, height = 8)
