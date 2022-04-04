@@ -87,5 +87,5 @@ DATADIR := ./data
 ./data/estimation_params.RData : ./scripts/define_estimate_params.R
 	Rscript $^ $@
 
-../main/functions/plotting_functions.RData : ../main/functions/plotting_functions.R
+../main/data/plotting_functions.RData : ../main/functions/plotting_functions.R
 	Rscript $^ $@
