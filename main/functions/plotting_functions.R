@@ -16,11 +16,10 @@
 #' @export
 #'
 #' @examples
-plot_est_sec_out <- function(predictions,
-                             data_raw,
+plot_est_sec_out <- function(dat,
                              plot_title = "obs_opts has scale set to: mean = 0.5, sd = 0.0001") {
   ggplot(
-    data = predictions,
+    data = dat,
     aes(x = date)
   ) +
     geom_line(aes(
@@ -46,17 +45,16 @@ plot_est_sec_out <- function(predictions,
       color = "Secondary data"
     )) +
     geom_line(
-      data = data_raw,
       aes(
-        x = date,
         y = primary_underlying,
         color = "Underlying primary data"
       )
     ) +
     geom_line(
-      x = date,
-      y = secondary_underlying,
-      color = "Underlying secondary data"
+      aes(
+        y = secondary_underlying,
+        color = "Underlying secondary data"
+      )
     ) +
     theme(legend.title = element_blank()) +
     labs(y = "Counts", x = "Date", title = plot_title)
