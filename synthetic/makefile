@@ -3,6 +3,10 @@ FIGDIR := ./outputs/figures
 FULLOUTDIR := ./outputs/full
 DATADIR := ./data
 
+
+.PRECIOUS: ./outputs/full/%.rds 
+.PRECIOUS: ./data/%.rds
+
 #VAR1d := up down flat
 #VAR2D := onevale twoval
 #$(foreach v1,${VAR1D},...)
