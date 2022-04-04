@@ -4,10 +4,6 @@
   commandArgs(trailingOnly = TRUE)
 }
 
-predictions <- .args[1]
-data_raw <- .args[2]
-
-
 #' Plot basic output from estimate_secondary
 #'
 #' @param predictions As in, estimate_secondary()[['predictions']]
