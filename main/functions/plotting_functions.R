@@ -17,7 +17,7 @@
 #'
 #' @examples
 plot_est_sec_out <- function(dat,
-                             plot_title = "obs_opts has scale set to: mean = 0.5, sd = 0.0001") {
+                             plot_title = "obs_opts has prior of mean = 1 and sd = 1; default delay_opts()") {
   ggplot(
     data = dat,
     aes(x = date)
