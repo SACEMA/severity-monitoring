@@ -3,7 +3,7 @@ FIGDIR := ./outputs/figures
 FULLOUTDIR := ./outputs/full
 DATADIR := ./data
 
-VAR1d := up down flat
+#VAR1d := up down flat
 #VAR2D := onevale twoval
 #$(foreach v1,${VAR1D},...)
 #${v1}_${v2}
@@ -32,7 +32,7 @@ VAR1d := up down flat
 	Rscript $^ $@
 
 ./data/%.rds : ./scripts/create_scenario.R ./data/synth_params.RData ./data/synth_data_functions.RData
-	Rscript $^ $@ a b b b
+	Rscript $^ $@ $(subst _, ,$*)
 
 #./outputs/figures/up_twovals_twovals_twovals.png : ../scripts/plot_sec_est.R ./outputs/full/up_twovals_twovals_twovals.rds ../functions/plotting_functions.RData
 #	Rscript $^ $@
