@@ -1,7 +1,7 @@
 # to-do
 
-- [ ] update makefile to produce d1_d2_d3_d4.png targets and dependencies with pattern matching (i.e. have one set of pattern-matching targets/rules for making all figures) (Jeremy: Draft + James review)
-- [ ] update makefile to use variable names for folders (Jeremy)
+- [x] update makefile to produce d1_d2_d3_d4.png targets and dependencies with pattern matching (i.e. have one set of pattern-matching targets/rules for making all figures) (Jeremy: Draft + James review)
+- [nd] update makefile to use variable names for folders (Jeremy)
 - [x] check / potentially rearrange locations for scripts involved in synthetic stuff. synthetic stuff should all be ./synthetic. only common stuff like plot_script.R and est_sec.R should be in ./main/scripts. common functions should be defined in ./main/functions/function_group.R and common defined functions should be saved in ./main/data/function_group.RData. Synthetic-specific functions should be defined in ./synthetic/scripts and their definitions (function_group.RData files) should be saved in ./synthetic/data (Together)
 	- [ ] fix directory references in makefile and in if(interactive()) within R scripts (Jeremy)
 - [ ] change "list-names" of "function-names" in synth_data_functions.R from alphabet to up/down/const/etc naming convention (James)
