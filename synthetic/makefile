@@ -25,7 +25,7 @@ DATADIR := ./data
 # inside the shell commands for a pattern-matched make target, we can access "the pattern match" via $*
 # we can also use $(subst _, ,$*) to get from (% =) d1_d2_d3_d4 to args d1 d2 d3 d4 (i.e. with spaces)
 
-./outputs/figures/%.png : ../main/scripts/plot_sec_est.R ./outputs/full/%.rds ./data/%.rds ../main/data/plotting_functions.RData
+./outputs/figures/%.png : ../main/scripts/plot_sec_est.R ./outputs/full/%.rds ../main/data/plotting_functions.RData ./data/%.rds 
 	Rscript $^ $@
 
 ./outputs/full/%.rds : ../main/scripts/estimate_secondary.R ./data/%.rds ./data/estimation_params.RData
@@ -87,5 +87,5 @@ DATADIR := ./data
 ./data/estimation_params.RData : ./scripts/define_estimate_params.R
 	Rscript $^ $@
 
-../functions/plotting_functions.RData : ../main/functions/plotting_functions.R
+../main/functions/plotting_functions.RData : ../main/functions/plotting_functions.R
 	Rscript $^ $@
