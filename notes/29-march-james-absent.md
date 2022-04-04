@@ -1,17 +1,17 @@
 # to-do
 
-- [] update makefile to produce d1_d2_d3_d4.png targets and dependencies with pattern matching (i.e. have one set of pattern-matching targets/rules for making all figures)
-- [] update makefile to use variable names for folders
-- [] check / potentially rearrange locations for scripts involved in synthetic stuff. synthetic stuff should all be ./synthetic. only common stuff like plot_script.R and est_sec.R should be in ./scripts. common functions should be defined in ./functions/function_group.R and common defined functions should be saved in ./functions/function_group.RData. Synthetic-specific functions should be defined in ./synthetic/scripts and their definitions (function_group.RData files) should be saved in ./synthetic/data
-- [] fix directory references in makefile and in if(interactive()) within R scripts
-- [] change "list-names" of "function-names" in synth_data_functions.R from alphabet to up/down/const/etc naming convention
-	- [] ammend and check ./synthetic/scenario_list.md for accuracy. i.e. remove alphabet shortcuts, keep table of names, check table of names for consistency with synth_data_functions.R
-- [] troubleshoot the complex figure
-	- [] also try with different priors
+- [ ] update makefile to produce d1_d2_d3_d4.png targets and dependencies with pattern matching (i.e. have one set of pattern-matching targets/rules for making all figures)
+- [ ] update makefile to use variable names for folders
+- [ ] check / potentially rearrange locations for scripts involved in synthetic stuff. synthetic stuff should all be ./synthetic. only common stuff like plot_script.R and est_sec.R should be in ./scripts. common functions should be defined in ./functions/function_group.R and common defined functions should be saved in ./functions/function_group.RData. Synthetic-specific functions should be defined in ./synthetic/scripts and their definitions (function_group.RData files) should be saved in ./synthetic/data
+- [ ] fix directory references in makefile and in if(interactive()) within R scripts
+- [ ] change "list-names" of "function-names" in synth_data_functions.R from alphabet to up/down/const/etc naming convention
+	- [ ] ammend and check ./synthetic/scenario_list.md for accuracy. i.e. remove alphabet shortcuts, keep table of names, check table of names for consistency with synth_data_functions.R
+- [ ] troubleshoot the complex figure
+	- [ ] also try with different priors
 	- sidenote: may also be (we think, Carl has emailed Sam to confirm) that estimate_secondary() is only fittig *one* ratio per window i.e. per fit
-	- [] try making up_twovals_twovals_const
-- [] (don't over-commit) look for where in the est_sec output the fraction (sec/primary) is reported 
-	- [] compare this with the fraction we calculate between primary_observed ("primary") and secondary_estimated (i.e. outputs from estimate_secondary)
+	- [ ] try making up_twovals_twovals_const
+- [ ] (don't over-commit) look for where in the est_sec output the fraction (sec/primary) is reported 
+	- [ ] compare this with the fraction we calculate between primary_observed ("primary") and secondary_estimated (i.e. outputs from estimate_secondary)
 
 	- plot to-dos
 - plot underlying pieces (true primary and true secondary) (i.e. include all four "dimensions" on top panel)
