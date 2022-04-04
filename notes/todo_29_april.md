@@ -4,17 +4,17 @@
 - [nd] update makefile to use variable names for folders (Jeremy)
 - [x] check / potentially rearrange locations for scripts involved in synthetic stuff. synthetic stuff should all be ./synthetic. only common stuff like plot_script.R and est_sec.R should be in ./main/scripts. common functions should be defined in ./main/functions/function_group.R and common defined functions should be saved in ./main/data/function_group.RData. Synthetic-specific functions should be defined in ./synthetic/scripts and their definitions (function_group.RData files) should be saved in ./synthetic/data (Together)
 	- [50%] fix directory references in makefile (done) and in if(interactive()) (not yet done) within R scripts (Jeremy)
-- [ ] change "list-names" of "function-names" in synth_data_functions.R from alphabet to up/down/const/etc naming convention (James)
+- [x] change "list-names" of "function-names" in synth_data_functions.R from alphabet to up/down/const/etc naming convention (James)
 	- [ ] ammend and check ./synthetic/scenario_list.md for accuracy. i.e. remove alphabet shortcuts, keep table of names, check table of names for consistency with synth_data_functions.R (James)
 - [x] troubleshoot the complex figure (Together/Jeremy) A: Sec_obs doesn't depend on primary observation process (D1 -> D3) A: working as expected
 	- [ ] also try with different priors (Jeremy)
 	- sidenote: may also be (we think, Carl has emailed Sam to confirm) that estimate_secondary() is only fittig *one* ratio per window i.e. per fit
-	- [ ] try make up_twovals_twovals_const.png (defer until top stuff done/James)
+	- [x] try make up_twovals_twovals_const.png (defer until top stuff done/James)
 - [ ] (don't over-commit) look for where in the est_sec output the fraction (sec/primary) is reported (James)
 	- [ ] compare this with the fraction we calculate between primary_observed ("primary") and secondary_estimated (i.e. outputs from estimate_secondary) (James)
 
 ##	plot to-dos
-- [ ] plot underlying pieces (true primary and true secondary) (i.e. include all four "dimensions" on top panel) (James)
+- [x] plot underlying pieces (true primary and true secondary) (i.e. include all four "dimensions" on top panel) (James)
 	- [ ] plot existing (top-panel) plot with y-axis on a log scale (James)
 - [ ] plot "computed-from-outputs" sec/primary fraction and sec_observed/sec_underlying fraction + others (secondary_fraction estimates from STAN) (James)
 	- [] plot input ratios (from data generation process; dashed lines; these are the ratios that transform one dimension to another. i.e. secondary generation (D1 -> D2), primary observation (D1 -> D3), and secondary observation (D2 -> D4)) and output ratio (secondary_estimated/primary_observed). include fitted and input delays (input delays = delays used in data generation) in figure label/title
@@ -31,3 +31,28 @@ plan/landscape
 - compare between windows
 - think about window size and what will be suitable
 - what we want is a "statement" of the *fractions* involved. i.e. secondary / primary
+
+
+# new to-do's established 4 April
+-remove whitespaces before colons
+.PRECIOUS: ${OUTDIR}/full/%.rds ${OTHERDIR}/folderwithstuff/%.RData
+- add stochastic stuff:
+	- sampled delays
+	- time-varying delay distributions (one of the *types* of changes to include)
+	- negative binomial and/or posson: delay distributions and primary time series
+	- regular binomials and beta binomials: secondary generation and primary/secondary observation processes)
+	- set seed
+	- set sampling params
+	- output a class of outcomes each with a sample id (i.e. a bunch of outputs for one scenario/parameter combination)
+	- something like sensitivity and specificity of this method given known underlying changes
+	- insert a shift of specified magnitude & randomness; we want our method to detect the shift within x time with y precision
+	- i.e., if one is worried about a particular change happening, then the method with abc specs (e.g. window size, total eval window, etc) will have a "known" ability to detect the change of concern
+	- want to be able to assess method in terms of the "scale" of changes. big vs small (threshold?)
+	- currently a hardcoded parameter set for various kinds of feature changes
+	- want to be able to scan over a variety of parameters for each feature
+	- e.g. when we generate reference stuff, we give it plausible boundaries for relevant params, i
+- see lhs resource in R
+- think about good numbers to use
+- start writing more conceptual whatthisisfor and howtothinkabout it stuff
+	- academic questions: what's the question, why is it interesting, where can *you* [reader] find the answers to these q's (and their answers)? incl technical steps required
+
