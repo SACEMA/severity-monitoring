@@ -56,8 +56,21 @@ plot_est_sec_out <- function(dat,
         color = "Underlying secondary data"
       )
     ) +
-    theme(legend.title = element_blank()) +
-    labs(y = "Counts", x = "Date", title = plot_title)
+    # scale_y_log10(breaks = seq(0, max(dat$primary_underlying), 50),
+    #               labels = seq(0, max(dat$primary_underlying), 50)
+    #               ) +
+    scale_y_log10() +
+    labs(
+      y = "Counts",
+      # x = "Date",
+      title = fig_title,
+      color = "Predicted"
+    ) +
+    theme_minimal(base_size = 14) +
+    theme(
+      axis.text.x = element_blank(),
+      axis.title.x = element_blank()
+    )
 }
 
 
