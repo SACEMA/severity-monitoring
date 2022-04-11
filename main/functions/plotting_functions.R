@@ -1,8 +1,8 @@
-# .args <- if (interactive()) {
-#   c("./main/data/plotting_functions.RData")
-# } else {
-#   commandArgs(trailingOnly = TRUE)
-# }
+.args <- if (interactive()) {
+  c("./main/data/plotting_functions.RData")
+} else {
+  commandArgs(trailingOnly = TRUE)
+}
 
 #' Plot basic output from estimate_secondary
 #'
