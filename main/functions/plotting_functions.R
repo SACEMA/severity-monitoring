@@ -82,7 +82,7 @@ plot_est_sec_out <- function(dat,
 #' @export
 #'
 #' @examples
-plot_ratios <- function(dat, fig_title = "Ratio of secondary to primary outcomes",
+plot_ratios <- function(dat, fig_title = "Fraction of secondary to primary outcomes",
                         fig_caption = "Vertical axis is log-transformed and obs_opts has prior of mean = 1 and sd = 1; default delay_opts()") {
   ggplot(
     data = dat,
