@@ -1,20 +1,20 @@
 # Synthetic data scenarios
 
-### Dimension names with corresponding alphabetical shortcuts
+### Dimension names 
 
-D1: flat (a), up (b), down (c), exp (d), decay (e)
+D1: const, up, down, exp, decay 
 
-D2: flat (a), twovals (b)
+D2: const, twovals
 
-D3: flat (a), twovals (b)
+D3: const, twovals
 
-D4: flat (a), twovals (b)
+D4: const, twovals
 
 D1a : params.RData D1ascript.R
 
 
 #### Dimension meanings
-- flat: a flat/constant time series (same values from start to a time point)
+- const: a const/constant time series (same values from start to a time point)
 - up: linearly increasing upwards
 - down: linearly decreasing downwards
 - exp: exponentially increasing
@@ -24,67 +24,70 @@ D1a : params.RData D1ascript.R
 
 Data scenarios are created so that for each D1 option we have:
 
-D1 (a) & combinations of options from D2, D3, D4:
+D1 (const) & combinations of options from D2, D3, D4:
 
 | D1 | D2 | D3 | D4 | scenario_name |
 :---|:--|:--|:--|:------------|
-| a | a | a | a | flat_flat_flat_flat |
-| a | a | a | b | flat_flat_flat_twovals |
-| a | a | b | b | flat_flat_twovals_twovals |
-| a | a | b | a | flat_flat_twovals_flat |
-| a | b | a | a | flat_twovals_flat_flat |
-| a | b | b | a | flat_twovals_twovals_flat |
-| a | b | b | b | flat_twovals_twovals_twovals |
-| a | b | a | b | flat_twovals_flat_twovals | 
+| const | const | const | const | const_const_const_const |
+| const | const | const | twovals | const_const_const_twovals |
+| const | const | twovals | twovals | const_const_twovals_twovals |
+| const | const | twovals | const | const_const_twovals_const |
+| const | twovals | const | const | const_twovals_const_const |
+| const | twovals | twovals | const | const_twovals_twovals_const |
+| const | twovals | twovals | twovals | const_twovals_twovals_twovals |
+| const | twovals | const | twovals | const_twovals_const_twovals | 
 
-D1 (b) & combinations of options from D2, D3, D4:
-
-| D1 | D2 | D3 | D4 | scenario_name |
-:---|:--|:--|:--|:------------|
-| b | a | a | a | up_flat_flat_flat |
-| b | a | a | b | up_flat_flat_twovals |
-| b | a | b | b | up_flat_twovals_twovals |
-| b | a | b | a | up_flat_twovals_flat |
-| b | b | a | a | up_twovals_flat_flat |
-| b | b | b | a | up_twovals_twovals_flat |
-| b | b | b | b | up_twovals_twovals_twovals |
-| b | b | a | b | up_twovals_flat_twovals | 
-
-D1 (c) & combinations of options from D2, D3, D4:
+D1 (up) & combinations of options from D2, D3, D4:
 
 | D1 | D2 | D3 | D4 | scenario_name |
 :---|:--|:--|:--|:------------|
-| c | a | a | a | down_flat_flat_flat |
-| c | a | a | b | down_flat_flat_twovals |
-| c | a | b | b | down_flat_twovals_twovals |
-| c | a | b | a | down_flat_twovals_flat |
-| c | b | a | a | down_twovals_flat_flat |
-| c | b | b | a | down_twovals_twovals_flat |
-| c | b | b | b | down_twovals_twovals_twovals |
-| c | b | a | b | down_twovals_flat_twovals | 
+| up | const | const | const | up_const_const_const |
+| up | const | const | twovals | up_const_const_twovals |
+| up | const | twovals | twovals | up_const_twovals_twovals |
+| up | const | twovals | const | up_const_twovals_const |
+| up | twovals | const | const | up_twovals_const_const |
+| up | twovals | twovals | const | up_twovals_twovals_const |
+| up | twovals | twovals | twovals | up_twovals_twovals_twovals |
+| up | twovals | const | twovals | up_twovals_const_twovals | 
 
-D1 (d) & combinations of options from D2, D3, D4:
-
-| D1 | D2 | D3 | D4 | scenario_name |
-:---|:--|:--|:--|:------------|
-| d | a | a | a | exp_flat_flat_flat |
-| d | a | a | b | exp_flat_flat_twovals |
-| d | a | b | b | exp_flat_twovals_twovals |
-| d | a | b | a | exp_flat_twovals_flat |
-| d | b | a | a | exp_twovals_flat_flat |
-| d | b | b | a | exp_twovals_twovals_flat |
-| d | b | b | b | exp_twovals_twovals_twovals |
-| d | b | a | b | exp_twovals_flat_twovals | 
-
-D1 (e) & combinations of options from D2, D3, D4:
+D1 (const) & combinations of options from D2, D3, D4:
 
 | D1 | D2 | D3 | D4 | scenario_name |
 :---|:--|:--|:--|:------------|
-| e | a | a | a | decay_flat_flat_flat |
-| e | a | a | b | decay_flat_flat_twovals |
-| e | a | b | b | decay_flat_twovals_twovals |
-| e | a | b | a | decay_flat_twovals_flat |
-| e | b | a | a | decay_twovals_flat_flat |
-| e | b | b | a | decay_twovals_twovals_flat |
-| e | b | b | b | decay_twovals_twovals_twovals |
-| e | b | a | b | decay_twovals_flat_twovals | 
+| down | const | const | const | down_const_const_const |
+| down | const | const | twovals | down_const_const_twovals |
+| down | const | const | twovals | down_const_const_twovals |
+| down | const | twovals | twovals | down_const_twovals_twovals |
+| down | const | twovals | const | down_const_twovals_const |
+| down | twovals | const | const | down_twovals_const_const |
+| down | twovals | twovals | const | down_twovals_twovals_const |
+| down | twovals | twovals | twovals | down_twovals_twovals_twovals |
+| down | twovals | const | twovals | down_twovals_const_twovals | 
+
+D1 (exp) & combinations of options from D2, D3, D4:
+
+| D1 | D2 | D3 | D4 | scenario_name |
+:---|:--|:--|:--|:------------|
+| exp | const | const | const | exp_const_const_const |
+| exp | const | const | twovals | exp_const_const_twovals |
+| exp | const | const | twovals | exp_const_const_twovals |
+| exp | const | twovals | twovals | exp_const_twovals_twovals |
+| exp | const | twovals | const | exp_const_twovals_const |
+| exp | twovals | const | const | exp_twovals_const_const |
+| exp | twovals | twovals | const | exp_twovals_twovals_const |
+| exp | twovals | twovals | twovals | exp_twovals_twovals_twovals |
+| exp | twovals | const | twovals | exp_twovals_const_twovals | 
+
+D1 (decay) & combinations of options from D2, D3, D4:
+
+| D1 | D2 | D3 | D4 | scenario_name |
+:---|:--|:--|:--|:------------|
+| decay | const | const | const | decay_const_const_const |
+| decay | const | const | twovals | decay_const_const_twovals |
+| decay | const | const | twovals | decay_const_const_twovals |
+| decay | const | twovals | twovals | decay_const_twovals_twovals |
+| decay | const | twovals | const | decay_const_twovals_const |
+| decay | twovals | const | const | decay_twovals_const_const |
+| decay | twovals | twovals | const | decay_twovals_twovals_const |
+| decay | twovals | twovals | twovals | decay_twovals_twovals_twovals |
+| decay | twovals | const | twovals | decay_twovals_const_twovals | 
