@@ -92,25 +92,32 @@ plot_ratios <- function(dat, fig_title = "Fraction of secondary to primary outco
       y = secondary / primary,
       color = "Sec/prim (observed)"
     ),
-    linetype = 3,
-    size = 2
+    linetype = 'solid',
+    size = 1
     ) +
     geom_line(aes(
       y = secondary_underlying / primary_underlying,
       color = "Sec/prim (true)"
     ),
-    linetype = 3,
-    size = 2
+    linetype = 'solid',
+    size = 1
+    ) +
+    geom_line(aes(
+      y = frac_obs_stan,
+      color = "Fraction observed (estimated)"
+    ),
+    linetype = 'dotted',
+    size = 1
     ) +
     scale_x_date(date_breaks = "1 month", date_labels = "%b") +
     scale_y_log10() +
     theme(axis.text.x = element_text(hjust = 1.5)) +
     labs(
-      y = "Ratios",
+      y = "Fractions",
       x = "Date",
       title = fig_title,
       caption = fig_caption,
-      color = "Ratios"
+      color = "Fractions"
     ) +
     theme_minimal(base_size = 14)
 }
