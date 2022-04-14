@@ -3,7 +3,7 @@
 - [x] plot "computed-from-outputs" sec/primary fraction and sec_observed/sec_underlying fraction + others (secondary_fraction estimates from STAN) (James)
 - [ ] plot input ratios (from data generation process; dashed lines; these are the ratios that transform one dimension to another. i.e. secondary generation (D1 -> D2), primary observation (D1 -> D3), and secondary observation (D2 -> D4)) and output ratio (secondary_estimated/primary_observed). include fitted and input delays (input delays = delays used in data generation) in figure label/title
 - [ ] plot frac_obs from stanfit$fit object on bottom panel (James)
-- [ ] ammend and check ./synthetic/scenario_list.md for accuracy. i.e. remove alphabet shortcuts, keep table of names, check table of names for consistency with synth_data_functions.R (James)
+- [x] ammend and check ./synthetic/scenario_list.md for accuracy. i.e. remove alphabet shortcuts, keep table of names, check table of names for consistency with synth_data_functions.R (James)
 
 ### Minor plot improvements:
 - [ ] center month labels on periods which they refer to
@@ -14,8 +14,11 @@
 - [ ] remove whitespaces before colons (Jeremy)
 - [ ] .PRECIOUS: \${OUTDIR}/full/%.rds ${OTHERDIR}/folderwithstuff/%.RData (Jeremy)
 - [ ] update makefile to use variable names for folders (Jeremy)
-- [ ] academic questions: what's the question, why is it interesting, where can *you* [reader] find the answers to these q's (and their answers)? incl technical steps required (Jeremy)
-- [ ] find nice stan tutorial (Jeremy / James)
+- [ ] Write documentation to answer the following academic questions: 
+  1. what's the question, 
+  2. why is it interesting, 
+  3. where can *you* [reader] find the answers to these q's (and their answers)? including technical steps required (Jeremy)
+- [ ] find nice stan tutorials (Jeremy / James)
 
 # Old to-do
 - [x] update makefile to produce d1_d2_d3_d4.png targets and dependencies with pattern matching (i.e. have one set of pattern-matching targets/rules for making all figures) (Jeremy: Draft + James review)
@@ -30,7 +33,8 @@
 ##	Plot to-dos
 - [x] plot underlying pieces (true primary and true secondary) (i.e. include all four "dimensions" on top panel) (James)
 
-overall: two or if necessary more plots. upper panel similar to existing plot with underlying ts'es included + log-scale y-axis. lower panel(s) showing inputs and model outputs of delays and fractions
+- [x] upper panel similar to existing plot with underlying ts'es included + log-scale y-axis. 
+- [x] lower panel(s) showing inputs and model outputs of delays and fractions
 
 ## Some notes
 1. We are builders! (childhood dream!)
@@ -65,9 +69,9 @@ overall: two or if necessary more plots. upper panel similar to existing plot wi
 - what we want is a "statement" of the *fractions* involved. i.e. secondary / primary
 
 ### Big question: What is/are our *key outputs* for each run of a scenario
-	- what is key output for each window?
-	- how are different windows within scenario compared
-	- how are different scenarios within scenario-type compared [big Q]
+- what is key output for each window?
+- how are different windows within scenario compared
+- how are different scenarios within scenario-type compared [big Q]
 
 
 
