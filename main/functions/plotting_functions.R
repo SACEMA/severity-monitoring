@@ -59,7 +59,7 @@ plot_est_sec_out <- function(dat,
     scale_y_log10(breaks = seq(0, max(dat$primary_underlying), 100),
                   labels = seq(0, max(dat$primary_underlying), 100)
                   ) +
-    scale_x_continuous(expand = c(0, 0)) +
+    scale_x_date(expand = c(0, 0)) +
     labs(
       y = "Counts (log-transformed)",
       title = fig_title,
