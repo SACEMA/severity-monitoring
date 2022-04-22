@@ -2,12 +2,12 @@
 - [x] plot existing (top-panel) plot with y-axis on a log scale (James)
 - [x] plot "computed-from-outputs" sec/primary fraction and sec_observed/sec_underlying fraction + others (secondary_fraction estimates from STAN) (James)
 - [ ] plot input ratios (from data generation process; dashed lines; these are the ratios that transform one dimension to another. i.e. secondary generation (D1 -> D2), primary observation (D1 -> D3), and secondary observation (D2 -> D4)) and output ratio (secondary_estimated/primary_observed). include fitted and input delays (input delays = delays used in data generation) in figure label/title
-- [ ] plot frac_obs from stanfit$fit object on bottom panel (James)
-- [ ] ammend and check ./synthetic/scenario_list.md for accuracy. i.e. remove alphabet shortcuts, keep table of names, check table of names for consistency with synth_data_functions.R (James)
+- [x] plot frac_obs from stanfit$fit object on bottom panel (James)
+- [x] ammend and check ./synthetic/scenario_list.md for accuracy. i.e. remove alphabet shortcuts, keep table of names, check table of names for consistency with synth_data_functions.R (James)
 
 ### Minor plot improvements:
-- [ ] center month labels on periods which they refer to (Jeremy)
-- [ ] include ticks for every 100 cases (Jeremy)
+- [ ] center month labels on periods which they refer to (James)
+- [ ] include ticks for every 100 cases on linear scale plots (James)
 - [x] include ticks for all months
 - [ ] see lhs resource in R (Jeremy)
 	- [ ] compare with Sobol sequence (Jeremy)
