@@ -11,9 +11,9 @@
 - [x] include ticks for all months
 - [ ] see lhs resource in R (Jeremy)
 	- [ ] compare with Sobol sequence (Jeremy)
-- [ ] remove whitespaces before colons (Jeremy)
+- [x] remove whitespaces before colons (Jeremy)
 - [x] .PRECIOUS: ${OUTDIR}/full/%.rds ${OTHERDIR}/folderwithstuff/%.RData (Jeremy)
-- [ ] update makefile to use variable names for folders (Jeremy)
+- [x] update makefile to use variable names for folders (Jeremy)
 - [ ] academic questions: what's the question, why is it interesting, where can *you* [reader] find the answers to these q's (and their answers)? incl technical steps required (Jeremy)
 - [ ] find nice stan tutorial (Jeremy / James)
 - [ ] review last meeting with Carl and Juliet + hypothesize on a path forward to have parameters be easily changeable
