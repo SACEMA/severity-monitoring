@@ -6,8 +6,8 @@
 - [ ] ammend and check ./synthetic/scenario_list.md for accuracy. i.e. remove alphabet shortcuts, keep table of names, check table of names for consistency with synth_data_functions.R (James)
 
 ### Minor plot improvements:
-- [ ] center month labels on periods which they refer to
-- [ ] include ticks for every 100 cases
+- [ ] center month labels on periods which they refer to (Jeremy)
+- [ ] include ticks for every 100 cases (Jeremy)
 - [x] include ticks for all months
 - [ ] see lhs resource in R (Jeremy)
 	- [ ] compare with Sobol sequence (Jeremy)
