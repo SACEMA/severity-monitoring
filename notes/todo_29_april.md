@@ -7,7 +7,7 @@
 
 ### Minor plot improvements:
 - [ ] center month labels on periods which they refer to (James)
-- [ ] include ticks for every 100 cases on linear scale plots (James)
+- [x] include ticks for every 100 cases on linear scale plots (James)
 - [x] include ticks for all months
 - [ ] see lhs resource in R (Jeremy)
 	- [ ] compare with Sobol sequence (Jeremy)
