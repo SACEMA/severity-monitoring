@@ -7,7 +7,7 @@
 
 ### Minor plot improvements:
 - [ ] center month labels on periods which they refer to (James)
-- [x] include ticks for every 100 cases on linear scale plots (James)
+- [ ] include ticks for every 100 cases on linear scale plots (James)
 - [x] include ticks for all months
 - [ ] see lhs resource in R (Jeremy)
 	- [ ] compare with Sobol sequence (Jeremy)
@@ -31,8 +31,7 @@
 ##	Plot to-dos
 - [x] plot underlying pieces (true primary and true secondary) (i.e. include all four "dimensions" on top panel) (James)
 
-- [x] upper panel similar to existing plot with underlying ts'es included + log-scale y-axis. 
-- [x] lower panel(s) showing inputs and model outputs of delays and fractions
+overall: two or if necessary more plots. upper panel similar to existing plot with underlying ts'es included + log-scale y-axis. lower panel(s) showing inputs and model outputs of delays and fractions
 
 ## Some notes
 1. We are builders! (childhood dream!)
@@ -67,9 +66,9 @@
 - what we want is a "statement" of the *fractions* involved. i.e. secondary / primary
 
 ### Big question: What is/are our *key outputs* for each run of a scenario
-- what is key output for each window?
-- how are different windows within scenario compared
-- how are different scenarios within scenario-type compared [big Q]
+	- what is key output for each window?
+	- how are different windows within scenario compared
+	- how are different scenarios within scenario-type compared [big Q]
 
 
 
