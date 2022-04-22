@@ -1,9 +1,9 @@
 # plot output from estimate_secondary
 library(tidyverse)
 library(patchwork)
-#library(ggthemes)
 library(scales)
-#library(rstan)
+library(ggthemes)
+library(rstan)
 
 .args <- if (interactive()) c(
   file.path('synthetic/outputs/full', 'const_const_const_const.rds'), # input
