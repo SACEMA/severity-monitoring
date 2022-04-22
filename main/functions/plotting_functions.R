@@ -1,5 +1,5 @@
 .args <- if (interactive()) {
-  c("./functions/plotting_functions.RData")
+  c("./main/data/plotting_functions.RData")
 } else {
   commandArgs(trailingOnly = TRUE)
 }
@@ -17,7 +17,7 @@
 #'
 #' @examples
 plot_est_sec_out <- function(dat,
-                             plot_title = "obs_opts has prior of mean = 1 and sd = 1; default delay_opts()") {
+                             fig_title = "True, observed, and predicted outcomes") {
   ggplot(
     data = dat,
     aes(x = date)
@@ -56,9 +56,70 @@ plot_est_sec_out <- function(dat,
         color = "Underlying secondary data"
       )
     ) +
-    theme(legend.title = element_blank()) +
-    labs(y = "Counts", x = "Date", title = plot_title)
+    # scale_y_log10(breaks = seq(0, max(dat$primary_underlying), 50),
+    #               labels = seq(0, max(dat$primary_underlying), 50)
+    #               ) +
+    scale_y_log10() +
+    labs(
+      y = "Counts",
+      # x = "Date",
+      title = fig_title,
+      color = "Predicted"
+    ) +
+    theme_minimal(base_size = 14) +
+    theme(
+      axis.text.x = element_blank(),
+      axis.title.x = element_blank()
+    )
 }
 
+#' Plot ratios of the true, observed, predicted outcomes
+#'
+#' @param dat
+#' @param plot_title
+#'
+#' @return
+#' @export
+#'
+#' @examples
+plot_ratios <- function(dat, fig_title = "Fraction of secondary to primary outcomes",
+                        fig_caption = "Vertical axis is log-transformed and obs_opts has prior of mean = 1 and sd = 1; default delay_opts()") {
+  ggplot(
+    data = dat,
+    aes(x = date)
+  ) +
+    geom_line(aes(
+      y = secondary / primary,
+      color = "Sec/prim (observed)"
+    ),
+    linetype = 'solid',
+    size = 1
+    ) +
+    geom_line(aes(
+      y = secondary_underlying / primary_underlying,
+      color = "Sec/prim (true)"
+    ),
+    linetype = 'solid',
+    size = 1
+    ) +
+    geom_line(aes(
+      y = frac_obs_stan,
+      color = "Fraction observed (estimated)"
+    ),
+    linetype = 'dotted',
+    size = 1
+    ) +
+    scale_x_date(date_breaks = "1 month", date_labels = "%b") +
+    scale_y_log10() +
+    theme(axis.text.x = element_text(hjust = 1.5)) +
+    labs(
+      y = "Fractions",
+      x = "Date",
+      title = fig_title,
+      caption = fig_caption,
+      color = "Fractions"
+    ) +
+    theme_minimal(base_size = 14)
+}
 
 save(list = ls(), file = tail(.args, 1))
