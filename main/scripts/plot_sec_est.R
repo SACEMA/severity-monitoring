@@ -1,7 +1,7 @@
 # plot output from estimate_secondary
 library(tidyverse)
 library(patchwork)
-library(ggthemes)
+#library(ggthemes)
 library(scales)
 #library(rstan)
 
