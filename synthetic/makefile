@@ -1,25 +1,46 @@
-
 FIGDIR := ./outputs/figures
 FULLOUTDIR := ./outputs/full
 DATADIR := ./data
+SCRIPTDIR := ./scripts
 
+MAINSCRIPTDIR := ../main/scripts
+MAINFUNCDIR := ../main/functions
+MAINDATADIR := ../main/data
 
 .PRECIOUS: ./outputs/full/%.rds 
 .PRECIOUS: ./data/%.rds
 
-#VAR1d := up down flat
-#VAR2D := onevale twoval
-#$(foreach v1,${VAR1D},...)
-#${v1}_${v2}
+$(FIGDIR)/%.png: $(MAINSCRIPTDIR)/plot_sec_est.R $(FULLOUTDIR)/%.rds $(MAINDATADIR)/plotting_functions.RData $(DATADIR)/%.rds 
+	Rscript $^ $@ # optional; title etc ...
 
-#all : up_twovals_twovals_twovals.png down_const_const_twovals.png # why doesn't this work again?
+$(FULLOUTDIR)/%.rds: $(MAINSCRIPTDIR)/estimate_secondary.R $(DATADIR)/%.rds $(DATADIR)/estimation_params.RData
+	Rscript $^ $@ ...
 
-#all: figure_nameso
+$(DATADIR)/%.rds: $(SCRIPTDIR)/create_scenario.R $(DATADIR)/synth_params.RData $(DATADIR)/synth_data_functions.RData
+	Rscript $^ $@ $(subst _, ,$*) ...
 
-#${FIGDIR}/%.png : thescript.R %.thedata
+# common requirements
 
-#./outputs/figures/%.png : ../scripts/plot_sec_est.R ./outputs/full/%.rds ../functions/plotting_functions.RData
-#	$*
+$(DATADIR)/synth_data_functions.RData: $(SCRIPTDIR)/synth_data_functions.R
+	Rscript $^ $@
+
+$(DATADIR)/synth_params.RData: $(SCRIPTDIR)/define_synth_params.R
+	Rscript $^ $@
+
+$(DATADIR)/estimation_params.RData: $(SCRIPTDIR)/define_estimate_params.R
+	Rscript $^ $@
+
+$(MAINDATADIR)/plotting_functions.RData: $(MAINFUNCDIR)/plotting_functions.R
+	Rscript $^ $@
+
+
+# in the terminal, we type:
+# make ./outputs/figures/hello_plot.png
+# then make will check the dependencies:
+# ../scripts/plot_sec_est.R ./outputs/full/hello_plot.rds ../functions/plotting_functions.RData
+# ./outputs/full/hello_plot.rds will match with ./outputs/full/%.rds
+# inside the shell commands for a pattern-matched make target, we can access "the pattern match" via $*
+# we can also use $(subst _, ,$*) to get from (% =) d1_d2_d3_d4 to args d1 d2 d3 d4 (i.e. with spaces)
 
 #rule1 = 5 21 2
 #values1 = 5 7 9 11 13 15 17 19 21
@@ -34,36 +55,3 @@ DATADIR := ./data
 #scenariots_%_1.rds scen2 scen3 scen4 scen5 scen6 scen7: create_scenario params_combos_%_1.rds etc
 #	Rscript $^ $@
 #scenario_%_combo1: create_scenario params_combos_%_1.rds etc
-	
-
-
-# in the terminal, we type:
-# make ./outputs/figures/hello_plot.png
-# then make will check the dependencies:
-# ../scripts/plot_sec_est.R ./outputs/full/hello_plot.rds ../functions/plotting_functions.RData
-# ./outputs/full/hello_plot.rds will match with ./outputs/full/%.rds
-# inside the shell commands for a pattern-matched make target, we can access "the pattern match" via $*
-# we can also use $(subst _, ,$*) to get from (% =) d1_d2_d3_d4 to args d1 d2 d3 d4 (i.e. with spaces)
-
-./outputs/figures/%.png : ../main/scripts/plot_sec_est.R ./outputs/full/%.rds ../main/data/plotting_functions.RData ./data/%.rds 
-	Rscript $^ $@ # optional; title etc ...
-
-./outputs/full/%.rds : ../main/scripts/estimate_secondary.R ./data/%.rds ./data/estimation_params.RData
-	Rscript $^ $@ ...
-
-./data/%.rds : ./scripts/create_scenario.R ./data/synth_params.RData ./data/synth_data_functions.RData
-	Rscript $^ $@ $(subst _, ,$*) ...
-
-# common requirements
-
-./data/synth_data_functions.RData : ./scripts/synth_data_functions.R
-	Rscript $^ $@
-
-./data/synth_params.RData : ./scripts/define_synth_params.R
-	Rscript $^ $@
-
-./data/estimation_params.RData : ./scripts/define_estimate_params.R
-	Rscript $^ $@
-
-../main/data/plotting_functions.RData : ../main/functions/plotting_functions.R
-	Rscript $^ $@

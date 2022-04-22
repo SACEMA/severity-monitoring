@@ -7,18 +7,16 @@
 
 ### Minor plot improvements:
 - [ ] center month labels on periods which they refer to (James)
-- [x] include ticks for every 100 cases on linear scale plots (James)
+- [ ] include ticks for every 100 cases on linear scale plots (James)
 - [x] include ticks for all months
 - [ ] see lhs resource in R (Jeremy)
 	- [ ] compare with Sobol sequence (Jeremy)
-- [ ] remove whitespaces before colons (Jeremy)
+- [x] remove whitespaces before colons (Jeremy)
 - [x] .PRECIOUS: ${OUTDIR}/full/%.rds ${OTHERDIR}/folderwithstuff/%.RData (Jeremy)
-- [ ] update makefile to use variable names for folders (Jeremy)
-- [ ] Write documentation to answer the following academic questions: 
-  1. what's the question, 
-  2. why is it interesting, 
-  3. where can *you* [reader] find the answers to these q's (and their answers)? including technical steps required (Jeremy)
-- [ ] find nice stan tutorials (Jeremy / James)
+- [x] update makefile to use variable names for folders (Jeremy)
+- [ ] academic questions: what's the question, why is it interesting, where can *you* [reader] find the answers to these q's (and their answers)? incl technical steps required (Jeremy)
+- [ ] find nice stan tutorial (Jeremy / James)
+- [ ] review last meeting with Carl and Juliet + hypothesize on a path forward to have parameters be easily changeable
 
 # Old to-do
 - [x] update makefile to produce d1_d2_d3_d4.png targets and dependencies with pattern matching (i.e. have one set of pattern-matching targets/rules for making all figures) (Jeremy: Draft + James review)
@@ -33,8 +31,7 @@
 ##	Plot to-dos
 - [x] plot underlying pieces (true primary and true secondary) (i.e. include all four "dimensions" on top panel) (James)
 
-- [x] upper panel similar to existing plot with underlying ts'es included + log-scale y-axis. 
-- [x] lower panel(s) showing inputs and model outputs of delays and fractions
+overall: two or if necessary more plots. upper panel similar to existing plot with underlying ts'es included + log-scale y-axis. lower panel(s) showing inputs and model outputs of delays and fractions
 
 ## Some notes
 1. We are builders! (childhood dream!)
@@ -69,9 +66,9 @@
 - what we want is a "statement" of the *fractions* involved. i.e. secondary / primary
 
 ### Big question: What is/are our *key outputs* for each run of a scenario
-- what is key output for each window?
-- how are different windows within scenario compared
-- how are different scenarios within scenario-type compared [big Q]
+	- what is key output for each window?
+	- how are different windows within scenario compared
+	- how are different scenarios within scenario-type compared [big Q]
 
 
 
