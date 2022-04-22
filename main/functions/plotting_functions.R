@@ -56,21 +56,21 @@ plot_est_sec_out <- function(dat,
         color = "Underlying secondary data"
       )
     ) +
-    # scale_y_log10(breaks = seq(0, max(dat$primary_underlying), 50),
-    #               labels = seq(0, max(dat$primary_underlying), 50)
-    #               ) +
-    scale_y_log10() +
+    scale_y_log10(breaks = seq(0, max(dat$primary_underlying), 100),
+                  labels = seq(0, max(dat$primary_underlying), 100)
+                  ) +
+    scale_x_continuous(expand = c(0, 0)) +
     labs(
-      y = "Counts",
-      # x = "Date",
+      y = "Counts (log-transformed)",
       title = fig_title,
       color = "Predicted"
     ) +
-    theme_minimal(base_size = 14) +
+    # theme_minimal(base_size = 14) +
     theme(
       axis.text.x = element_blank(),
       axis.title.x = element_blank()
-    )
+    ) +
+    NULL
 }
 
 #' Plot ratios of the true, observed, predicted outcomes
@@ -109,9 +109,9 @@ plot_ratios <- function(dat, fig_title = "Fraction of secondary to primary outco
     linetype = 'dotted',
     size = 1
     ) +
-    scale_x_date(date_breaks = "1 month", date_labels = "%b") +
+    scale_x_date(date_breaks = "1 month", date_labels = "%b", expand = c(0, 0)) +
     scale_y_log10() +
-    theme(axis.text.x = element_text(hjust = 1.5)) +
+    # theme(axis.text.x = element_text(hjust = -0.5)) +
     labs(
       y = "Fractions",
       x = "Date",
@@ -119,7 +119,8 @@ plot_ratios <- function(dat, fig_title = "Fraction of secondary to primary outco
       caption = fig_caption,
       color = "Fractions"
     ) +
-    theme_minimal(base_size = 14)
+    # theme_minimal(base_size = 14) +
+    NULL
 }
 
 save(list = ls(), file = tail(.args, 1))
