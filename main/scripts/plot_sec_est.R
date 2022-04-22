@@ -3,7 +3,7 @@ library(tidyverse)
 library(patchwork)
 library(ggthemes)
 library(scales)
-library(rstan)
+#library(rstan)
 
 .args <- if (interactive()) c(
   file.path('synthetic/outputs/full', 'const_const_const_const.rds'), # input
@@ -24,7 +24,6 @@ dd_est <- readRDS(.args[[1]])
 dd_pred <- dd_est$predictions %>% 
   as_tibble()
 
-
 #combine the raw and prediction data
 dd <- left_join(dd_raw, dd_pred, 
                 by = c('date', 'primary', 'primary_underlying', 
@@ -32,7 +31,7 @@ dd <- left_join(dd_raw, dd_pred,
                        )
                 )
 #Extract the predicted fraction observed
-frac_obs_stan <- round(summary(dd_est$fit)$summary['frac_obs[1]', 'mean'], 2)
+frac_obs_stan <- round(rstan::summary(dd_est$fit)$summary['frac_obs[1]', 'mean'], 2)
 
 dd <- dd %>% 
   mutate(frac_obs_stan = frac_obs_stan)

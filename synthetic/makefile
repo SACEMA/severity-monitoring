@@ -34,8 +34,6 @@ $(MAINDATADIR)/plotting_functions.RData: $(MAINFUNCDIR)/plotting_functions.R
 	Rscript $^ $@
 
 
-
-
 # in the terminal, we type:
 # make ./outputs/figures/hello_plot.png
 # then make will check the dependencies:
@@ -57,5 +55,3 @@ $(MAINDATADIR)/plotting_functions.RData: $(MAINFUNCDIR)/plotting_functions.R
 #scenariots_%_1.rds scen2 scen3 scen4 scen5 scen6 scen7: create_scenario params_combos_%_1.rds etc
 #	Rscript $^ $@
 #scenario_%_combo1: create_scenario params_combos_%_1.rds etc
-	
-
