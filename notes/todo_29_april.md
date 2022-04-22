@@ -2,20 +2,21 @@
 - [x] plot existing (top-panel) plot with y-axis on a log scale (James)
 - [x] plot "computed-from-outputs" sec/primary fraction and sec_observed/sec_underlying fraction + others (secondary_fraction estimates from STAN) (James)
 - [ ] plot input ratios (from data generation process; dashed lines; these are the ratios that transform one dimension to another. i.e. secondary generation (D1 -> D2), primary observation (D1 -> D3), and secondary observation (D2 -> D4)) and output ratio (secondary_estimated/primary_observed). include fitted and input delays (input delays = delays used in data generation) in figure label/title
-- [ ] plot frac_obs from stanfit$fit object on bottom panel (James)
-- [ ] ammend and check ./synthetic/scenario_list.md for accuracy. i.e. remove alphabet shortcuts, keep table of names, check table of names for consistency with synth_data_functions.R (James)
+- [x] plot frac_obs from stanfit$fit object on bottom panel (James)
+- [x] ammend and check ./synthetic/scenario_list.md for accuracy. i.e. remove alphabet shortcuts, keep table of names, check table of names for consistency with synth_data_functions.R (James)
 
 ### Minor plot improvements:
-- [ ] center month labels on periods which they refer to
-- [ ] include ticks for every 100 cases
+- [ ] center month labels on periods which they refer to (James)
+- [ ] include ticks for every 100 cases on linear scale plots (James)
 - [x] include ticks for all months
 - [ ] see lhs resource in R (Jeremy)
 	- [ ] compare with Sobol sequence (Jeremy)
 - [ ] remove whitespaces before colons (Jeremy)
-- [ ] .PRECIOUS: \${OUTDIR}/full/%.rds ${OTHERDIR}/folderwithstuff/%.RData (Jeremy)
+- [x] .PRECIOUS: ${OUTDIR}/full/%.rds ${OTHERDIR}/folderwithstuff/%.RData (Jeremy)
 - [ ] update makefile to use variable names for folders (Jeremy)
 - [ ] academic questions: what's the question, why is it interesting, where can *you* [reader] find the answers to these q's (and their answers)? incl technical steps required (Jeremy)
 - [ ] find nice stan tutorial (Jeremy / James)
+- [ ] review last meeting with Carl and Juliet + hypothesize on a path forward to have parameters be easily changeable
 
 # Old to-do
 - [x] update makefile to produce d1_d2_d3_d4.png targets and dependencies with pattern matching (i.e. have one set of pattern-matching targets/rules for making all figures) (Jeremy: Draft + James review)
