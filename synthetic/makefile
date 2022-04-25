@@ -10,6 +10,10 @@ MAINDATADIR := ../main/data
 .PRECIOUS: ./outputs/full/%.rds 
 .PRECIOUS: ./data/%.rds
 
+$(DATADIR)/param_combos.rds: $(SCRIPTDIR)/generate_param_combos.R  $(DATADIR)/define_synth_params_mother_list.csv
+	Rscript $^ $@
+
+
 $(FIGDIR)/%.png: $(MAINSCRIPTDIR)/plot_sec_est.R $(FULLOUTDIR)/%.rds $(MAINDATADIR)/plotting_functions.RData $(DATADIR)/%.rds 
 	Rscript $^ $@ # optional; title etc ...
 
