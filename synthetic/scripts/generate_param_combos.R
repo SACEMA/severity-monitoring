@@ -39,4 +39,4 @@ for (i in 1:nrow(mother_params)) {
 #Generate the parameter combinations
 param_combos <- expand.grid(mother_param_vec_list)
 
-save(list = ls(), file = tail(.args, 1))
+saveRDS(param_combos, file = tail(.args, 1))
