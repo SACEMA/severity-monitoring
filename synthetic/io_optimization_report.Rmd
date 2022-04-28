@@ -1,0 +1,83 @@
+---
+title: "IO optimization report"
+author: "James Azam"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+```{r message=FALSE,echo=FALSE}
+library(tidyverse)
+library(rstan)
+```
+
+
+```{r message=FALSE,echo=TRUE}
+#Load one full output
+full_output <- readRDS(file.path('./outputs/full/const_const_const_const.rds'))
+```
+
+
+# File sizes
+## Full object
+This is the full output of `estimate_secondary()`, which is a list containing three objects: predictions, fit, and data.
+
+```{r}
+full_obj_size <- object.size(full_output)
+
+print(full_obj_size, units = 'Mb', standard = 'legacy')
+
+```
+
+## Prediction object
+This object contains the raw data as well as summaries of the model predictions.
+
+```{r}
+pred_obj <- pluck(full_output, 'predictions')
+
+pred_obj_size <- object.size(pred_obj)
+
+head(pred_obj, n = 5)
+
+print(pred_obj_size, units = 'Kb', standard = 'legacy')
+```
+
+# Fit object
+This is where all the heavy stuff are stored, and probably forms over 99% of the total size, most of which we don't need at the moment.
+
+```{r}
+fit_obj <- pluck(full_output, 'fit')
+
+fit_obj_size <- object.size(fit_obj)
+
+print(fit_obj_size, units = 'Mb', standard = 'legacy')
+```
+
+
+
+## Fit summary object
+Running `summary` on the fit object returns to summary objects, one of which is the merged summaries of the individual chains and the other one "c_summary" contains the raw statisyics from the individual chains. Currently, we only need the merged summary object.
+
+```{r}
+fit_summary_obj <- pluck(summary(full_output$fit), 'summary') %>% 
+  as_tibble(rownames = 'simplex')
+
+fit_summary_obj_size <- object.size(fit_summary_obj)
+
+print(fit_summary_obj_size, units = 'Kb', standard = 'legacy')
+```
+
+## Data object
+
+This object is a list containing the raw data and other rstan model inputs/outputs. 
+
+```{r}
+data_obj <- pluck(full_output, 'data')
+
+data_obj_size <- object.size(data_obj)
+
+print(data_obj_size, units = 'Kb', standard = 'legacy')
+```
