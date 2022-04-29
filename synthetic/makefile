@@ -2,6 +2,7 @@ FIGDIR := ./outputs/figures
 FULLOUTDIR := ./outputs/full
 DATADIR := ./data
 SCRIPTDIR := ./scripts
+INPUTDIR := ./inputs
 
 MAINSCRIPTDIR := ../main/scripts
 MAINFUNCDIR := ../main/functions
@@ -10,9 +11,21 @@ MAINDATADIR := ../main/data
 .PRECIOUS: ./outputs/full/%.rds 
 .PRECIOUS: ./data/%.rds
 
-$(DATADIR)/param_combos.rds: $(SCRIPTDIR)/generate_param_combos.R  $(DATADIR)/define_synth_params_mother_list.csv
-	Rscript $^ $@
+#define scenarize =
 
+
+
+#endef
+
+#othertarget: otherscript.R combo_output_file.rds
+	
+# where combo_output_file.rds contains a dataframe which is the expanded_child_param_table %>% mutate to add summary outputs from estimate_secondary(). this still contains the column 'experiment', which has an ID matching the filename for the full outputs. 
+
+# $(OUTDIR)/%_full.rds: estimate_secondary_multi.R $(INPUTDIR)/param_combos.rds: #need this to run m instances of estimate_secondary() where m = number of rules
+#	Rscript $^ $@ 
+
+$(INPUTDIR)/param_combos.rds: $(SCRIPTDIR)/generate_param_combos.R $(DATADIR)/define_synth_params_mother_list.csv
+	Rscript $^ $@
 
 $(FIGDIR)/%.png: $(MAINSCRIPTDIR)/plot_sec_est.R $(FULLOUTDIR)/%.rds $(MAINDATADIR)/plotting_functions.RData $(DATADIR)/%.rds 
 	Rscript $^ $@ # optional; title etc ...
@@ -28,7 +41,7 @@ $(DATADIR)/%.rds: $(SCRIPTDIR)/create_scenario.R $(DATADIR)/synth_params.RData $
 $(DATADIR)/synth_data_functions.RData: $(SCRIPTDIR)/synth_data_functions.R
 	Rscript $^ $@
 
-$(DATADIR)/synth_params.RData: $(SCRIPTDIR)/define_synth_params.R
+$(DATADIR)/synth_params.RData: $(SCRIPTDIR)/define_synth_params.R #should be in inputs: to be deprecated(?)
 	Rscript $^ $@
 
 $(DATADIR)/estimation_params.RData: $(SCRIPTDIR)/define_estimate_params.R
