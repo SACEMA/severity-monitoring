@@ -65,6 +65,8 @@ Running `summary` on the fit object returns to summary objects, one of which is 
 fit_summary_obj <- pluck(summary(full_output$fit), 'summary') %>% 
   as_tibble(rownames = 'simplex')
 
+head(fit_summary_obj)
+
 fit_summary_obj_size <- object.size(fit_summary_obj)
 
 print(fit_summary_obj_size, units = 'Kb', standard = 'legacy')
