@@ -8,6 +8,10 @@
 #' @export
 #'
 #' @examples gen_flat_prim(50, 50)
+
+
+
+
 gen_flat_prim_D1 <- function(init_primary_int = init_primary, 
                              ts_length_int = ts_length
                              ) {
@@ -367,7 +371,23 @@ d4_functions <- list(
   twovals = 'obs_grad_change_sec_D4'
 )
 
+# create_scenario:
+# requires: synth_data_functions.RData to be loaded
+# takes param_row
+# creates scenario object
+create_scenario <- function(param_row){
+         scenario <- (d1_fxn() %>%
+                  d2_fxn() %>%
+                  d3_fxn() %>%
+                  d4_fxn() %>%
+                  add_dates()
+                 )
+         return(scenario)
+}
 
 # Save the function definitions to file
 
 save(list = ls(), file = tail(.args,1))
+
+
+
