@@ -15,7 +15,7 @@ param_table <- readRDS(.args[[1]])  # parameter names and values
 load(.args[[2]])  # function names with default parameters named,
 
 scenario_table <- param_table %>% 
-  row_wise() %>% 
+  rowwise() %>% 
   mutate(scenario = list(create_scenario(.)))
 
 
