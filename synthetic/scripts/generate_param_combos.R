@@ -1,7 +1,9 @@
 library(tidyverse)
 
 .args <- if (interactive()) {
-    c("./synthetic/data/define_synth_params_mother_list.csv")
+    c("./synthetic/data/define_synth_params_mother_list.csv",
+      "./synthetic/inputs/param_combos.rds"
+      )
 } else {
   commandArgs(trailingOnly = TRUE)
 }
