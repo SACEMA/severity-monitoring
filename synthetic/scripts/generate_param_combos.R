@@ -1,10 +1,10 @@
+library(tidyverse)
+
 .args <- if (interactive()) {
     c("./synthetic/data/define_synth_params_mother_list.csv")
 } else {
   commandArgs(trailingOnly = TRUE)
 }
-
-library(tidyverse)
 
 
 #Get param specifications
