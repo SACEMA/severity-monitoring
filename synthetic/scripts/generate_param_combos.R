@@ -17,7 +17,7 @@ start_date <- as.Date((mother_params_raw %>% tail(1))$min)
 
 #Create column of vectors for grid
 mother_params <- mother_params_raw %>% 
-  filter(params != 'start_date') %>% 
+  filter(param != 'start_date') %>% 
   mutate(min = as.numeric(min),
          max = as.numeric(max)
          ) %>% 
@@ -30,7 +30,7 @@ mother_params <- mother_params_raw %>%
 mother_param_vec_list <- list()
 
 for (i in 1:nrow(mother_params)) {
-  mother_param_vec_list[[mother_params[[i, 'params']]]] <- seq(from = mother_params[[i, 'min']], 
+  mother_param_vec_list[[mother_params[[i, 'param']]]] <- seq(from = mother_params[[i, 'min']], 
                                           to = mother_params[[i, 'max']],
                                           length.out = mother_params[[i, 'n']]
                                           )
