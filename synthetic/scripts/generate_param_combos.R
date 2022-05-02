@@ -1,4 +1,5 @@
 library(tidyverse)
+library(lubridate)
 
 .args <- if (interactive()) {
     c("./synthetic/data/define_synth_params_mother_list.csv",
@@ -14,7 +15,7 @@ mother_params_raw <- read_csv(.args[[1]])
 
 
 #Extract start date
-start_date <- as.Date((mother_params_raw %>% tail(1))$min)
+start_date <- dmy((mother_params_raw %>% tail(1))$min)
 
 
 #Create column of vectors for grid
