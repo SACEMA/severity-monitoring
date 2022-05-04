@@ -1,0 +1,3 @@
+[submodule "regional-secondary"]
+	path = regional-secondary
+	url = https://github.com/seabbs/regional-secondary.git
