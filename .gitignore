@@ -56,3 +56,6 @@ epinow_example.R
 
 # Not sure what category these belong to... tilde-ed filenames
 *~
+
+# Platform-specific files
+.DS_Store
