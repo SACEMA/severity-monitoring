@@ -3,7 +3,7 @@
 #'
 #' See R/secondary-fraction.R for a command line tool implementation of
 #' these functions.
-#' 
+#'
 #' Author: Sam Abbott
 #' Licence: MIT
 #' Last modified: 2022-05-14
@@ -173,26 +173,36 @@ sf_cli_interface <- function(args_string = NA) {
 #' Set the model burn in period for estimate_secondary
 #'
 #' @param obs A data.frame of observations counting a `date` variable
-#' in date format. 
-#' 
+#' in date format.
+#'
 #' @param window Numeric, defaults to 14. The fitting window in days.
-#' 
+#'
 #' @param min_burn_in Numeric, defaults to 14. The minimum amount of
 #' data in the burn in period.
 #'
+#' @error Logical, defaults to `FALSE`. If `TRUE` then this function fails
+#' if the specified burn in period is too short. If `FALSE` then the burn in
+#' period is set to the minimum burn in period (`min_burn_in`).
 #' @return A numeric value indicating the burn in period
 #' @export
 #' @author Sam Abbott
-sf_set_burn_in <- function(obs, window = 14, min_burn_in = 14) {
+sf_set_burn_in <- function(obs, window = 14, min_burn_in = 14, error = FALSE) {
   burn_in <-  as.integer(max(obs$date) - min(obs$date)) - window
   if (burn_in < min_burn_in) {
-   stop("Burn in must be greater than or equal to ",
-        min_burn_in,
-        " but with the currently specified window of ",
-        window,
-        " is ",
-        burn_in
-   )
+   if (error) {
+      stop("Burn in must be greater than or equal to ",
+           min_burn_in,
+           " but with the currently specified window of ",
+           window, " is ", burn_in
+      )
+   }else{
+     warning("Specified window is too large for the data. Using ",
+             as.integer(max(obs$date) - min(obs$date)) - min_burn_in,
+             " instead which allows for a minimum burn in of",
+             min_burn_in
+     )
+     burn_in <- min_burn_in
+   }
   }
   return(burn_in)
 }
