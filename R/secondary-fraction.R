@@ -24,13 +24,21 @@ args <- sf_cli_interface()
 #' Load observations
 observations <- readRDS(args$observations)
 
+#' Filter for target date
+if (!is.null(args$target_date)) {
+  observations <- observations[date <= args$target_date]
+}
+
+#' Load delay prior distributions
+delays <- readRDS(args$delay_prior)
+
 #' Estimate the secondary fraction
 fit <- sf_estimate(
   reports = observations,
   secondary = EpiNow2::secondary_opts(
     type = args$observation_type,
   ),
-  delays = readRDS(args$delay_prior),
+  delays = delays,
   obs = EpiNow2::obs_opts(
     week_effect = args$day_of_week,
     family = args$observation_model,
@@ -39,7 +47,6 @@ fit <- sf_estimate(
   windows = args$windows,
   window_overlap = args$window_overlap,
   prior_inflation = args$prior_inflation,
-  CrIs = c(0.2, 0.5, 0.9),
   verbose = args$verbose,
   control = list(
     adapt_delta = args$adapt_delta, max_treedepth = args$max_treedepth
