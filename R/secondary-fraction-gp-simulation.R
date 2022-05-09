@@ -1,3 +1,11 @@
+#' Simulate incidence and prevalence examples assuming the convolution
+#' generative process is correct
+#'
+#'
+#' Author: Sam Abbott
+#' Licence: MIT
+#' Last modified: 2022-05-14
+
 #' load data.table for manipulation
 library(data.table)
 

@@ -31,7 +31,6 @@ fit <- sf_estimate(
     type = args$observation_type,
   ),
   delays = readRDS(args$delay_prior),
-  truncation = EpiNow2::trunc_opts(),
   obs = EpiNow2::obs_opts(
     week_effect = args$day_of_week,
     family = args$observation_model,
@@ -42,7 +41,9 @@ fit <- sf_estimate(
   prior_inflation = args$prior_inflation,
   CrIs = c(0.2, 0.5, 0.9),
   verbose = args$verbose,
-  control = list(adapt_delta = 0.95, max_treedepth = 15),
+  control = list(
+    adapt_delta = args$adapt_delta, max_treedepth = args$max_treedepth
+  )
 )
 
 #' Make a directory to save output

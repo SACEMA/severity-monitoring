@@ -1,3 +1,15 @@
+#'  Tools for estimating the secondary fraction using iterative convolution
+#'  models
+#'
+#' See R/secondary-fraction.R for a command line tool implementation of
+#' these functions.
+#' 
+#' Author: Sam Abbott
+#' Licence: MIT
+#' Last modified: 2022-05-14
+
+ #' Calculate the probability mass function of a discretised
+ #' log normal distribution
  sf_discretised_lognormal_pmf <- function(meanlog, sdlog, max_d,
                                           reverse = FALSE) {
   pmf <- plnorm(1:max_d, meanlog, sdlog) -
@@ -9,6 +21,8 @@
   return(pmf)
 }
 
+ #' Calculate the convolution of a probability mass function of a 
+ #' discretised log normal distribution and a vector of counts
  sf_discretised_lognormal_pmf_conv <- function(x, meanlog, sdlog) {
   pmf <- sf_discretised_lognormal_pmf(meanlog, sdlog, length(x), reverse = TRUE)
   conv <- sum(x * pmf, na.rm = TRUE)
@@ -33,8 +47,8 @@
 #' @importFrom data.table as.data.table copy shift
 #' @importFrom purrr pmap_dbl
 #' @export
-#' @examples
 #' @author Sam Abbott
+#' @examples
 #' # load data.table for manipulation
 #' library(data.table)
 #'
@@ -111,6 +125,7 @@ sf_gp_simulate <- function(data, type = "incidence", family = "poisson",
   data <- data[, secondary := as.integer(secondary)]
   return(data[])
 }
+
 #' Command line interface for secondary fraction estimation
 #'
 #' Define the CLI interface and return the parsed arguments
@@ -155,6 +170,19 @@ sf_cli_interface <- function(args_string = NA) {
   return(args)
 }
 
+#' Set the model burn in period for estimate_secondary
+#'
+#' @param obs A data.frame of observations counting a `date` variable
+#' in date format. 
+#' 
+#' @param window Numeric, defaults to 14. The fitting window in days.
+#' 
+#' @param min_burn_in Numeric, defaults to 14. The minimum amount of
+#' data in the burn in period.
+#'
+#' @return A numeric value indicating the burn in period
+#' @export
+#' @author Sam Abbott
 sf_set_burn_in <- function(obs, window = 14, min_burn_in = 14) {
   burn_in <-  as.integer(max(obs$date) - min(obs$date)) - window
   if (burn_in < min_burn_in) {
@@ -169,15 +197,21 @@ sf_set_burn_in <- function(obs, window = 14, min_burn_in = 14) {
   return(burn_in)
 }
 
-sf_summarise_posterior <- function(fit, CrIs = c(0.05, 0.5, 0.95),
-                                   params = c("delay", "frac_obs", "rep_phi")) {
+#' Summarise the posterior of a estimate_secondary model fit.
+#'
+#' @param fit A fit object from estimate_secondary
+#'
+#' @param CrIs A numeric vector of credible intervals to return. 
+#' Defaults to the 5%, 50%, and 95% credible intervals..
+#'
+#' @return A `data.table` of the posterior summary.
+#' @export
+#' @author Sam Abbott
+sf_summarise_posterior <- function(fit, CrIs = c(0.05, 0.5, 0.95)) {
 
   posterior <- EpiNow2::extract_stan_param(
-    fit$fit,
-    params = params,
-    CrIs = CrIs
+    fit$fit, CrIs = CrIs
   )
-  posterior <- posterior[variable %in% params]
   return(posterior[])
 }
 
