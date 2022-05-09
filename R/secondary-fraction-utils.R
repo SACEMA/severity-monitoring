@@ -174,9 +174,11 @@ sf_summarise_posterior <- function(fit, CrIs = c(0.05, 0.5, 0.95),
 
   posterior <- EpiNow2::extract_stan_param(
     fit$fit,
+    params = params,
     CrIs = CrIs
   )
-  return(posterior)
+  posterior <- posterior[variable %in% params]
+  return(posterior[])
 }
 
 #' Update estimate_secondary default priors
@@ -346,6 +348,7 @@ sf_update_secondary_args <- function(obs = EpiNow2::obs_opts(),
 #' )
 #' plot(inc_preds, new_obs = cases, from = "2020-05-01")
 #'
+#' sf_summarise_posterior(inc)
 #' #### Prevalence data example ####
 #'
 #' # make some example prevalence data
