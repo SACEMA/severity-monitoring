@@ -1,4 +1,3 @@
-
 library(tidyverse)
 ts_len <- 100
 ts_tmp <- data.frame(time = 1:ts_len, infections = rep(10,ts_len))
@@ -46,7 +45,7 @@ delayparms <- list(mean_bg_test = log(5), sd_bg_test = log(5),
                    mean_hosp_died = log(10), sd_hosp_died = log(10),
                    mean_resolve = log(12), sd_resolve = log(5))
 
-infs_to_obs <- function(infections,
+minimal_linelist_to_delays <- function(infections,
                           mean_bg_test = log(5), sd_bg_test = log(5),
                           rate_bg_hosp = 0.05,
                           mean_hosp_test = log(2), sd_hosp_test = log(2),
@@ -67,48 +66,48 @@ infs_to_obs <- function(infections,
       )
     ) %>%
     mutate(
-      d_bg_hosp = rexp(
+      delay_bg_hosp = rexp(
         n = n_case,
         rate = rate_bg_hosp
         )
       ) %>%
     mutate(
-      d_bg_hosp_test = rlnorm(
+      delay_bg_hosp_test = rlnorm(
         n = n_case,
         meanlog = mean_hosp_test,
         sdlog = sd_hosp_test
         )
       ) %>%
     mutate(
-      d_severe = rlnorm(
+      delay_severe = rlnorm(
         n = n_case,
         meanlog = mean_severe,
         sdlog = sd_severe
         )
       ) %>%
     mutate(
-      d_severe_hosp = rlnorm(
+      delay_severe_hosp = rlnorm(
         n = n_case,
         meanlog = mean_severe_hosp,
         sdlog = sd_severe_hosp
         )
       ) %>% 
     mutate(
-      d_severe_hosp_test = rlnorm(
+      delay_severe_hosp_test = rlnorm(
         n = n_case,
         meanlog = mean_hosp_test,
         sdlog = sd_hosp_test
         )
       ) %>%
     mutate(
-      d_severe_death = rlnorm(
+      delay_severe_death = rlnorm(
         n = n_case,
         meanlog = mean_hosp_died,
         sdlog = sd_hosp_died
         )
       ) %>% 
     mutate(
-      d_resolve = rlnorm(
+      delay_resolve = rlnorm(
         n = n_case,
         meanlog = mean_resolve,
         sdlog = sd_resolve
@@ -117,15 +116,127 @@ infs_to_obs <- function(infections,
   
   obs <- obs %>%
     mutate(
-      d_severe = ifelse(is_severe, d_severe, NA),
-      d_severe_hosp = ifelse(is_severe_hosp, d_severe_hosp, NA),
-      d_severe_hosp_test = ifelse(is_severe_hosp, d_severe_hosp_test, NA),
-      d_severe_death = ifelse(is_severe_hosp_died, d_severe_death, NA)
-    ) 
+      delay_severe = ifelse(is_severe, delay_severe, NA),
+      delay_severe_hosp = ifelse(is_severe_hosp, delay_severe_hosp, NA),
+      delay_severe_hosp_test = ifelse(is_severe_hosp, delay_severe_hosp_test, NA),
+      delay_severe_death = ifelse(is_severe_hosp_died, delay_severe_death, NA)
+    ) %>%
+    select(
+      c(-is_severe, -is_severe_hosp, -is_severe_hosp_died)
+    )
   }
 
+names(minimal_linelist_to_delays(ll))
+
+delays <- minimal_linelist_to_delays(ll)
 
 
-View(infs_to_obs(ll))
+delays_to_times <- function(delays_df){ #Note: this function assumed non-existent delays are NA's.
+  # add unit test here or for prev function to ensure non-existent delays are represented by NA's
+  times_df <- delays_df %>%
+    mutate(
+      time_bg_test = t0 + delay_bg_test,
+      time_bg_hosp = t0 + delay_bg_hosp,
+      time_bg_hosp_test = time_bg_hosp + delay_bg_hosp_test,
+      time_severe = t0 + delay_severe,
+      time_severe_hosp = time_severe + delay_severe_hosp,
+      time_severe_hosp_test = time_severe_hosp + delay_severe_hosp_test,
+      time_severe_death = time_severe_hosp + delay_severe_death,
+      time_resolve = t0 + delay_resolve
+    ) %>%
+    select(
+      -c(starts_with("delay_"))
+      #delay_bg_test, delay_bg_hosp, delay_bg_hosp_test, delay_severe, delay_severe_hosp,
+       #  delay_severe_hosp_test, delay_severe_death, delay_resolve)
+    ) %>%
+    mutate( # note: we are setting times of negative tests (time_test > time_resolve) to NA
+      time_bg_test = ifelse(time_bg_test <= time_resolve,
+                            time_bg_test, NA),
+      time_bg_hosp_test = ifelse(time_bg_hosp_test <= time_resolve,
+                                 time_bg_hosp_test, NA),
+      time_severe_hosp_test = ifelse(time_severe_hosp_test <= time_resolve,
+                                     time_severe_hosp_test, NA)
+    ) %>%
+    rowwise() %>%
+    mutate(
+      time_obs_case = ifelse( 
+        is.na(time_bg_test) & is.na(time_bg_hosp_test) & is.na(time_severe_hosp_test),
+        NA,
+        min(time_bg_test, time_bg_hosp_test, time_severe_hosp_test, na.rm = T)
+        )
+    ) %>%
+    mutate( # we are keeping the redundant time_severe_hosp column so that we can do sanity checks on it later
+      time_severe_hosp_obs = ifelse(!is.na(time_severe_hosp_test),
+                                time_severe_hosp,
+                                NA),
+      time_bg_hosp_obs = ifelse(!is.na(time_bg_hosp_test),
+                                time_bg_hosp,
+                                NA)
+    ) %>%
+    mutate(
+      time_admission = ifelse(
+        is.na(time_severe_hosp_obs) & is.na(time_bg_hosp_obs),
+        NA,
+        min(time_severe_hosp_obs, time_bg_hosp_obs, na.rm = T)
+      )
+    ) %>%
+     ungroup() %>%
+    mutate(
+      across(.cols = starts_with("time_"), .fns = floor)
+    )
+  return(times_df)
+}
 
+times <- delays_to_times(delays)
+View(times)
+
+times_of_events_to_time_series <- function(times_df){
+  
+  tmax <- max(times_df$t0)
+  
+  time_series_cases <- times_df %>% 
+    group_by(t0) %>%
+    summarise(cases = n(), .groups = "drop") %>% # by date of onset of test positivity
+    rename(time = t0)
+
+  time_series_severe <- times_df %>%
+    group_by(time_severe) %>%
+    summarise(severe_cases = n(), .groups = "drop") %>% # by date of onset of severe symptoms
+    rename(time = time_severe)
+    
+  time_series_first_positive_tests <- times_df %>%
+    group_by(time_obs_case) %>%
+    summarise(cases_observed = n(), .groups = "drop") %>%
+    rename(time = time_obs_case)
+  
+  time_series_hospitalisations <- times_df %>% 
+    group_by(time_admission) %>%
+    summarise(admissions = n(), .groups = "drop") %>%
+    rename(time = time_admission)
+    
+  time_series <- merge(
+    time_series_cases,
+    time_series_severe,
+    by = 'time',
+    all.x = T,
+    all.y = T
+    ) %>%
+    merge(
+      time_series_first_positive_tests,
+      by = 'time',
+      all.x = T,
+      all.y = T
+      ) %>%
+    merge(
+      time_series_hospitalisations,
+      by = 'time',
+      all.x = T,
+      all.y = T
+    )
+  return(time_series)
+}
+
+View(times_of_events_to_time_series(times))
+
+# note: we need a rule for if someone is admitted via background process as well as because they are severe
 
