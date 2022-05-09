@@ -30,16 +30,11 @@ fit <- sf_estimate(
   secondary = EpiNow2::secondary_opts(
     type = args$observation_type,
   ),
-  delays = delay_opts(
-    list(
-      mean = 2.5, mean_sd = 0.5,
-      sd = 0.47, sd_sd = 0.25, max = 30
-    )
-  ),
+  delays = readRDS(args$delay_prior),
   truncation = EpiNow2::trunc_opts(),
   obs = EpiNow2::obs_opts(
     week_effect = args$day_of_week,
-    family = args$observation_model),
+    family = args$observation_model,
     scale = list(mean = args$scale[1], sd = args$scale[2])
   ),
   windows = args$windows,
