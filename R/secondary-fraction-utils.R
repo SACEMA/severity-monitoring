@@ -1,3 +1,116 @@
+ sf_discretised_lognormal_pmf <- function(meanlog, sdlog, max_d,
+                                          reverse = FALSE) {
+  pmf <- plnorm(1:max_d, meanlog, sdlog) -
+    plnorm(0:(max_d - 1), meanlog, sdlog)
+  pmf <- as.vector(pmf) / as.vector(plnorm(max_d, meanlog, sdlog))
+  if (reverse) {
+    pmf <- rev(pmf)
+  }  
+  return(pmf)
+}
+
+ sf_discretised_lognormal_pmf_conv <- function(x, meanlog, sdlog) {
+  pmf <- sf_discretised_lognormal_pmf(meanlog, sdlog, length(x), reverse = TRUE)
+  conv <- sum(x * pmf, na.rm = TRUE)
+  return(conv)
+}
+
+#' Simulate secondary observations using the secondary fraction generative
+#' process model
+#'
+#' @param family Character string defining the observation model. Options are
+#' Negative binomial ("negbin"), the default, Poisson ("poisson"), and "none" 
+#' meaning the expectation is returned.
+#' 
+#' @param delay_max Integer, defaulting to 30 days. The maximum delay used in
+#' the convolution model.
+#' 
+#' @param ... Additional arguments to pass to `rnbinom()` if
+#' `family = "negbin"`.
+#' 
+#' @return A `data.table` containing the simulated observations and input data
+#' @inheritParams secondary_opts
+#' @importFrom data.table as.data.table copy shift
+#' @importFrom purrr pmap_dbl
+#' @export
+#' @examples
+#' @author Sam Abbott
+#' # load data.table for manipulation
+#' library(data.table)
+#' 
+#' #### Incidence data example ####
+#'
+#' # make some example secondary incidence data
+#' cases <- EpiNow2::example_confirmed
+#' cases <- as.data.table(cases)[, primary := confirm]
+#' 
+#' # Assume that only 40 percent of cases are reported
+#' cases[, scaling := 0.4]
+#' 
+#' # Parameters of the assumed log normal delay distribution
+#' cases[, meanlog := 1.8][, sdlog := 0.5]
+#' 
+#' # Simulate secondary cases
+#' cases <- sf_gp_simulate(cases, type = "incidence")
+#' cases
+#' #### Prevalence data example ####
+#'
+#' # make some example prevalence data
+#' cases <- EpiNow2::example_confirmed
+#' cases <- as.data.table(cases)[, primary := confirm]
+#' 
+#' # Assume that only 30 percent of cases are reported
+#' cases[, scaling := 0.3]
+#' 
+#' # Parameters of the assumed log normal delay distribution
+#' cases[, meanlog := 1.6][, sdlog := 0.8]
+#' 
+#' # Simulate secondary cases
+#' cases <- sf_gp_simulate(cases, type = "prevalence")
+#' cases
+sf_gp_simulate <- function(data, type = "incidence", family = "poisson",
+                               delay_max = 30, ...) {
+  type <- match.arg(type, choices = c("incidence", "prevalence"))
+  family <- match.arg(family, choices = c("none", "poisson", "negbin"))
+  data <- data.table::as.data.table(data)
+  data <- data.table::copy(data)
+  data <- data[, index := 1:.N]
+  # apply scaling
+  data <- data[, scaled := scaling * primary]
+  # add convolution
+  data <- data[,
+    conv := purrr::pmap_dbl(list(i = index, m = meanlog, s = sdlog),
+     function(i, m, s) {
+       sf_discretised_lognormal_pmf_conv(
+         scaled[max(1, i - delay_max):i], meanlog = m, sdlog = s
+        )
+     })]
+  # build model
+  if (type == "incidence") {
+    data <- data[, secondary := conv]
+  }else if (type == "prevalence") {
+    data <- data[1, secondary := scaled]
+    for (i in 2:nrow(data)) {
+      index <-
+        data[c(i - 1, i)][, secondary := shift(secondary, 1) - conv]
+      index <- index[secondary < 0, secondary := 0]
+      data[i, ] <- index[2][, secondary := secondary + scaled]
+    }
+  }
+  # check secondary is greater that zero
+  data <- data[secondary < 0, secondary := 0]
+  data <- data[!is.na(secondary)]
+  # apply observation model
+  if (family == "poisson") {
+    data <- data[, secondary := purrr::map_dbl(secondary, ~ rpois(1, .))]
+  }else if (family == "negbin") {
+    data <- data[, secondary := purrr::map_dbl(
+      secondary, ~ rnbinom(1, mu = .), ...)
+    ]
+  }
+  data <- data[, secondary := as.integer(secondary)]
+  return(data[])
+}
 #' Command line interface for secondary fraction estimation
 #'
 #' Define the CLI interface and return the parsed arguments
@@ -6,6 +119,8 @@
 #' interface when running interactively.
 #'
 #' @return List of arguments
+#' @export
+#' @author Sam Abbott
 sf_cli_interface <- function(args_string = NA) {
   # set up the arguments
   option_list <- list(
@@ -78,6 +193,7 @@ sf_summarise_posterior <- function(fit, CrIs = c(0.05, 0.5, 0;.95),
 #' variables: `variable`, `mean`, and `sd`.
 #' 
 #' @return A list as produced by `create_stan_data()`.
+#' @author Sam Abbott
 #' @inheritParams create_stan_args
 #' @importFrom data.table as.data.table
 #' @examples
@@ -127,9 +243,101 @@ sf_update_secondary_args <- function(obs = EpiNow2::obs_opts(),
   return(list(obs = obs, delays = delays))
 }
 
+#' Estimate a Secondary Observation from a Primary Observation
+#'
+#' Estimates the relationship between a primary and secondary observation, for
+#' example hospital admissions and deaths or hospital admissions and bed
+#' occupancy. This implementation is an extension of the original function
+#' `EpiNow2::estimate_secondary()`, the documentation of this function contains
+#' additional details. 
+#' 
+#' @param secondary A call to `secondary_opts()` or a list containing the
+#' following binary variables: cumulative, historic, primary_hist_additive,
+#' current, primary_current_additive. These parameters control the structure of
+#' the secondary model, see `secondary_opts()` for details.
+#' 
+#' @param delays A call to `delay_opts()` defining delay distributions between
+#' primary and secondary observations See the documentation of `delay_opts()` for
+#' details. BY default a diffuse prior  is assumed with a mean of 14 days and
+#' standard deviation of 7 days (with a standard deviation of 0.5 and 0.25 respectively
+#' on the log scale).
+#' @param reports A data frame containing the `date` of report and both
+#' `primary` and `secondary` reports.
+#' 
+#' @param model A compiled stan model to override the default model. May be
+#' useful for package developers or those developing extensions.
+#' 
+#' @param priors A `data.frame` of named priors to be used in model fitting
+#' rather than the defaults supplied from other arguments. This is typically
+#' useful if wanting to inform a estimate from the posterior of another model
+#' fit.
+#' 
+#' @param windows A numeric vector of fitting windows to use. If only one window
+#' is specified, the model is fit to the data in the window. If multiple windows
+#' then the model is fit to the data in each window using the posterior as the 
+#' prior for the next window. Currently this is limited to two windows. The
+#' default is a window of 6 weeks followed by a window of 2 weeks.
+#' 
+#' @param prior_inflation A numeric value to increase the prior standard
+#' deviation by. This is useful if the prior is not sufficiently diffuse to
+#' capture likely changes in subsequent windows. The default is 1.
+#' 
+#' @param windows_overlap A logical value that defaults to  `TRUE`. Should
+#' fitting windows be assumed to be overlapping?
+#' 
+#' @param verbose Logical, should model fitting progress be returned. Defaults
+#'  to `interactive()`.
+#' 
+#' @param ... Additional parameters to pass to `rstan::sampling`.
+#' 
+#' @return A list containing: `predictions` (a data frame ordered by date with
+#' the primary, and secondary observations, and a summary of the model
+#' estimated secondary observations), `posterior` which contains a summary of
+#' the entire model posterior, `data` (a list of data used to fit the 
+#' model), and `fit` (the `stanfit` object).
+#' @export
+#' @inheritParams estimate_infections
+#' @inheritParams update_secondary_args
+#' @inheritParams calc_CrIs
+#' @importFrom EpiNow2 estimate_secondary
+#' @author Sam Abbott
+#' @examples
+#' # load data.table for manipulation
+#' library(data.table)
+#' 
+#' #### Incidence data example ####
+#'
+#' # make some example secondary incidence data
+#' cases <- EpiNow2::example_confirmed
+#' cases <- as.data.table(cases)[, primary := confirm]
+#' 
+#' # Assume that only 40 percent of cases are reported
+#' cases[, scaling := 0.4]
+#' 
+#' # Parameters of the assumed log normal delay distribution
+#' cases[, meanlog := 1.8][, sdlog := 0.5]
+#' 
+#' # Simulate secondary cases
+#' cases <- sf_gp_simulate(cases, type = "incidence")
+#' cases
+#' #### Prevalence data example ####
+#'
+#' # make some example prevalence data
+#' cases <- EpiNow2::example_confirmed
+#' cases <- as.data.table(cases)[, primary := confirm]
+#' 
+#' # Assume that only 30 percent of cases are reported
+#' cases[, scaling := 0.3]
+#' 
+#' # Parameters of the assumed log normal delay distribution
+#' cases[, meanlog := 1.6][, sdlog := 0.8]
+#' 
+#' # Simulate secondary cases
+#' cases <- sf_gp_simulate(cases, type = "prevalence")
+#' cases
 sf_estimate <- function(reports,
                         secondary = EpiNow2::secondary_opts(),
-                        delays = delay_opts(
+                        delays = EpiNow2::delay_opts(
                           list(
                             mean = 2.5, mean_sd = 0.5,
                             sd = 0.47, sd_sd = 0.25, max = 30
@@ -138,8 +346,8 @@ sf_estimate <- function(reports,
                         truncation = EpiNow2::trunc_opts(),
                         obs = EpiNow2::obs_opts(),
                         windows = c(7*6, 7*2),
-                        window_overlapping = TRUE,
-                        prior_inflation = 2,
+                        window_overlaps = TRUE,
+                        prior_inflation = 1,
                         CrIs = c(0.2, 0.5, 0.9),
                         model = NULL,
                         verbose = interactive(),
@@ -148,7 +356,7 @@ sf_estimate <- function(reports,
     stop("Currently only the use of up to two fitting windows is supported")
   }
   if (length(windows) > 1) {
-    if (window_overlapping) {
+    if (window_overlap) {
       long_reports <- reports[date <= (max(date) - windows[2])]
     }else{
       long_reports <- reports
