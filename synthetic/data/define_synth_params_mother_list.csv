@@ -1,4 +1,4 @@
-﻿param,min,max,n
+param,min,max,n
 init_primary,1000,1000,1
 tchange1_prim,2,2,1
 dur_change_prim,20,40,1
