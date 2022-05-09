@@ -214,7 +214,8 @@ sf_update_secondary_args <- function(obs = EpiNow2::obs_opts(),
     if (!is.null(priors) & nrow(priors) > 0) {
       if (verbose) {
         message(
-          "Replacing specified priors with those from the passed in prior dataframe" # nolint
+          "Replacing specified priors with those from the passed in prior 
+           data frame"
         )
       }
       priors <- priors[, sd := sd * prior_inflation]
@@ -222,9 +223,8 @@ sf_update_secondary_args <- function(obs = EpiNow2::obs_opts(),
       # replace scaling if present in the prior
       scale <- priors[grepl("frac_obs", variable)]
       if (nrow(scale) > 0) {
-        obs$scale <- c(
-          as.array(signif(scale$mean, 3)), as.array(signif(scale$sd, 3))
-        )
+        obs$scale$mean <- as.array(signif(scale$mean, 3))
+        obs$scale$sd <- as.array(signif(scale$sd, 3))
       }
       # replace delay parameters if present
       delay_mean <- priors[grepl("delay_mean", variable)]
@@ -232,7 +232,8 @@ sf_update_secondary_args <- function(obs = EpiNow2::obs_opts(),
       if (nrow(delay_mean) > 0) {
         if (is.null(delays$delay_mean_mean)) {
          warning(
-           "Cannot replace delay distribution parameters as no default has been set" # nolint
+           "Cannot replace delay distribution parameters as no default has been
+            set"
           )
         }
         delays$delay_mean_mean <- as.array(signif(delay_mean$mean, 3))
@@ -283,7 +284,7 @@ sf_update_secondary_args <- function(obs = EpiNow2::obs_opts(),
 #' is specified, the model is fit to the data in the window. If multiple windows
 #' then the model is fit to the data in each window using the posterior as the
 #' prior for the next window. Currently this is limited to two windows. The
-#' default is a window of 2 weeks followed by a window of 1 week.
+#' default is a window of 4 weeks followed by a window of 2 week.
 #'
 #' @param prior_inflation A numeric value to increase the prior standard
 #' deviation by. This is useful if the prior is not sufficiently diffuse to
@@ -309,7 +310,7 @@ sf_update_secondary_args <- function(obs = EpiNow2::obs_opts(),
 #' @importFrom EpiNow2 estimate_secondary
 #' @author Sam Abbott
 #' @examples
-#' # make stan multicore 
+#' # make stan multicore
 #' options(cores = 4)
 #' # load data.table for manipulation
 #' library(data.table)
@@ -387,7 +388,7 @@ sf_estimate <- function(reports,
                         ),
                         truncation = EpiNow2::trunc_opts(),
                         obs = EpiNow2::obs_opts(),
-                        windows = c(14, 7),
+                        windows = c(28, 14),
                         window_overlap = TRUE,
                         prior_inflation = 1,
                         CrIs = c(0.2, 0.5, 0.9),
@@ -405,6 +406,9 @@ sf_estimate <- function(reports,
     }
     long_burn_in <- sf_set_burn_in(long_reports, window = windows[1])
 
+    if (verbose) {
+      message("Fitting initial window")
+    }
     long_fit <- EpiNow2::estimate_secondary(
       reports = long_reports,
       burn_in = long_burn_in,
@@ -418,6 +422,9 @@ sf_estimate <- function(reports,
       ...
     )
 
+    if (verbose) {
+      message("Extracting posterior estimates and updating fitting arguments")
+    }
     posterior <- sf_summarise_posterior(long_fit, CrIs = CrIs)
 
     short_args <- sf_update_secondary_args(
@@ -428,10 +435,14 @@ sf_estimate <- function(reports,
     obs <- short_args$obs
     window <- windows[2]
   }else{
-    window <- windows[]
+    window <- windows[1]
   }
 
   short_burn_in <- sf_set_burn_in(reports, window = window)
+
+  if (verbose) {
+    message("Fitting the target window")
+  }
 
   fit <-  EpiNow2::estimate_secondary(
       reports = reports,
