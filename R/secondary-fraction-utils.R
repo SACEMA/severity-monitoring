@@ -137,7 +137,6 @@ sf_gp_simulate <- function(data, type = "incidence", family = "poisson",
 #' @export
 #' @author Sam Abbott
 sf_cli_interface <- function(args_string = NA) {
-  # set up the arguments
   option_list <- list(
     optparse::make_option(
       c("-v", "--verbose"),
@@ -296,6 +295,19 @@ sf_update_secondary_args <- function(obs = EpiNow2::obs_opts(),
   return(list(obs = obs, delays = delays))
 }
 
+sf_extract_secondary_samples <- function(fit, obs) {
+  samples <- rstan::extract(fit$fit, "sim_secondary")
+  samples <- data.table::as.data.table(samples)[, sample := 1:.N]
+  samples <- data.table::melt.data.table(
+    samples, id.vars = c("sample"), variable.name = "time"
+  )
+  samples[, time := as.numeric(gsub("sim_secondary.V", "", time))]
+  samples <- samples[order(sample, time)]
+  samples <- samples[, date := obs$date, by = "sample"]
+  samples[, time := NULL]
+  return(samples[])
+}
+
 #' Estimate a Secondary Observation from a Primary Observation
 #'
 #' Estimates the relationship between a primary and secondary observation, for
@@ -326,17 +338,16 @@ sf_update_secondary_args <- function(obs = EpiNow2::obs_opts(),
 #' useful if wanting to inform a estimate from the posterior of another model
 #' fit.
 #'
-#' @param windows A numeric vector of fitting windows to use. If only one window
-#' is specified, the model is fit to the data in the window. If multiple windows
-#' then the model is fit to the data in each window using the posterior as the
-#' prior for the next window. Currently this is limited to two windows. The
-#' default is a window of 4 weeks followed by a window of 2 week.
+#' @param windows A numeric vector of fitting windows to use. The model is fit
+#' to the data in each window using the posterior as the prior for the next
+#' window. Currently this is limited to two windows. The default is a window of
+#' 4 weeks followed by a window of 2 week.
 #'
 #' @param prior_inflation A numeric value to increase the prior standard
 #' deviation by. This is useful if the prior is not sufficiently diffuse to
 #' capture likely changes in subsequent windows. The default is 1.
 #'
-#' @param windows_overlap A logical value that defaults to  `TRUE`. Should
+#' @param windows_overlap A logical value that defaults to  `FALSE`. Should
 #' fitting windows be assumed to be overlapping?
 #'
 #' @param verbose Logical, should model fitting progress be returned. Defaults
@@ -384,13 +395,9 @@ sf_update_secondary_args <- function(obs = EpiNow2::obs_opts(),
 #'    scale = list(mean = 0.2, sd = 0.2), week_effect = FALSE
 #'   )
 #' )
-#' plot(inc, primary = TRUE)
 #'
-#' # forecast future secondary cases from primary
-#' inc_preds <- EpiNow2::forecast_secondary(
-#'  inc, cases[61:.N][, value := primary]
-#' )
-#' plot(inc_preds, new_obs = cases, from = "2020-05-01")
+#' plot(inc$forecast_secondary$baseline, new_obs = cases[1:60],  primary = TRUE)
+#' plot(inc$forecast_secondary$target, primary = TRUE)
 #'
 #' sf_summarise_posterior(inc)
 #' #### Prevalence data example ####
@@ -418,13 +425,8 @@ sf_update_secondary_args <- function(obs = EpiNow2::obs_opts(),
 #'     scale = list(mean = 0.4, sd = 0.1)
 #'   )
 #' )
-#' plot(prev, primary = TRUE)
-#'
-#' # forecast future secondary cases from primary
-#' prev_preds <- EpiNow2::forecast_secondary(
-#'  prev, cases[101:.N][, value := primary]
-#' )
-#' plot(prev_preds, new_obs = cases, from = "2020-06-01")
+#' plot(prev$forecast_secondary$baseline, cases[1:100], primary = TRUE)
+#' plot(prev$forecast_secondary$target, primary = TRUE)
 sf_estimate <- function(reports,
                         secondary = EpiNow2::secondary_opts(),
                         delays = EpiNow2::delay_opts(
@@ -436,39 +438,79 @@ sf_estimate <- function(reports,
                         truncation = EpiNow2::trunc_opts(),
                         obs = EpiNow2::obs_opts(),
                         windows = c(28, 14),
-                        window_overlap = TRUE,
+                        window_overlap = FALSE,
+                        priors = NULL,
+                        prior_from_posterior = TRUE,
                         prior_inflation = 1,
                         CrIs = c(0.2, 0.5, 0.9),
                         model = NULL,
                         verbose = interactive(),
                         ...) {
-  if (length(windows) > 2) {
-    stop("Currently only the use of up to two fitting windows is supported")
+  if (!length(windows) == 2) {
+    stop("Currently only the use of two fitting windows is supported")
   }
-  if (length(windows) > 1) {
-    if (window_overlap) {
-      long_reports <- reports[date <= (max(date) - windows[2])]
-    }else{
-      long_reports <- reports
-    }
-    long_burn_in <- sf_set_burn_in(long_reports, window = windows[1])
+  if (!window_overlap) {
+    long_reports <- reports[date <= (max(date) - windows[2])]
+  }else{
+    long_reports <- reports
+  }
+  long_burn_in <- sf_set_burn_in(long_reports, window = windows[1])
 
-    if (verbose) {
-      message("Fitting initial window")
-    }
-    long_fit <- EpiNow2::estimate_secondary(
-      reports = long_reports,
-      burn_in = long_burn_in,
-      secondary = secondary,
-      delays = delays,
-      truncation = truncation,
-      obs = obs,
-      CrIs = CrIs,
-      model = model,
-      verbose = verbose,
-      ...
+  if (verbose) {
+    message("Fitting baseline window")
+  }
+
+  if (!is.null(priors)) {
+    long_args <- sf_update_secondary_args(
+      obs = obs, delays = delays, priors = priors,
+      prior_inflation = prior_inflation,
+      verbose = verbose
     )
+    delays <- long_args$delays
+    obs <- long_args$obs
+  }
 
+  long_fit <- EpiNow2::estimate_secondary(
+    reports = long_reports,
+    burn_in = long_burn_in,
+    secondary = secondary,
+    delays = delays,
+    truncation = truncation,
+    obs = obs,
+    CrIs = CrIs,
+    model = model,
+    verbose = verbose,
+    ...
+  )
+
+  out <- list(
+    "estimate_secondary" = list("baseline" = long_fit)
+  )
+
+  if (!window_overlap) {
+    if (verbose) {
+      message("Forecasting target window using baseline")
+    }
+
+    long_forecast <- EpiNow2::forecast_secondary(
+      long_fit,  data.table::copy(reports)[date > (max(date) - windows[2])][,
+       value := primary
+      ]
+    )
+    out$forecast_secondary$baseline <- long_forecast
+    out$posterior_predictions <- list("baseline" = long_forecast$samples)
+  }else{
+    out$forecast_secondary <- list("baseline" = long_fit)
+    out$posterior_predictions <- list(
+      "baseline" = sf_extract_secondary_samples(
+        long_fit, long_reports[date >= (min(date) + long_burn_in)]
+      )[
+        date >= (max(date) - windows[2])
+      ]
+    )
+  }
+
+  if (prior_from_posterior) {
     if (verbose) {
       message("Extracting posterior estimates and updating fitting arguments")
     }
@@ -476,22 +518,20 @@ sf_estimate <- function(reports,
 
     short_args <- sf_update_secondary_args(
       obs = obs, delays = delays, priors = posterior,
-      prior_inflation = prior_inflation
+      prior_inflation = prior_inflation,
+      verbose = verbose
     )
     delays <- short_args$delays
     obs <- short_args$obs
-    window <- windows[2]
-  }else{
-    window <- windows[1]
   }
 
-  short_burn_in <- sf_set_burn_in(reports, window = window)
+  short_burn_in <- sf_set_burn_in(reports, window = windows[2])
 
   if (verbose) {
     message("Fitting the target window")
   }
 
-  fit <-  EpiNow2::estimate_secondary(
+  short_fit <- EpiNow2::estimate_secondary(
       reports = reports,
       burn_in = short_burn_in,
       secondary = secondary,
@@ -504,5 +544,15 @@ sf_estimate <- function(reports,
       ...
     )
 
-  return(fit)
+  out$estimate_secondary$target <- short_fit
+  out$forecast_secondary$target <- short_fit
+  out$posterior_predictions$target <-
+    sf_extract_secondary_samples(
+      short_fit,
+      reports[date >= (max(date) - windows[2])]
+    )
+  out$posterior_predictions <- data.table::rbindlist(
+    out$posterior_predictions, idcol = "model"
+  )
+  return(out)
 }
