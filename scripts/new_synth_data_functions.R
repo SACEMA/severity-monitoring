@@ -233,6 +233,10 @@ times_of_events_to_time_series <- function(times_df){
       all.x = T,
       all.y = T
     )
+  
+  time_series <- time_series %>%
+    mutate(across(.cols = everything(), .fns = replace_na, replace = 0))
+  
   return(time_series)
 }
 

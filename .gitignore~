@@ -51,8 +51,9 @@ epinow_example.R
 *.csv
 *.RDS
 *.rds
-
+*.RData
 *.html
-
+*.zip
+*.mp4
 # Not sure what category these belong to... tilde-ed filenames
 *~
