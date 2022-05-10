@@ -2,8 +2,7 @@
 #'
 #' Example usage:
 #'
-#' Rscript R/secondary-fraction.R
-#' Rscript R/secondary-fraction.R
+#' Rscript R/secondary-fraction.R -o data/example-incidence.rds -v -a -p tmp
 #'
 #' For more information on execution run Rscript R/secondary-fraction.R --help
 #'
@@ -21,6 +20,20 @@ source(here::here("R", "secondary-fraction-utils.R"))
 #' Set up command line arguments (or use defaults when interactive)
 args <- sf_cli_interface()
 
+#' Turn on all output if specified
+if (args$all) {
+  args$plot <- TRUE
+  args$fit <- TRUE
+  args$summary <- TRUE
+  args$scores <- TRUE
+  args$relative_performance <- TRUE
+}
+
+#' Make sure all progress is output in very verbose mode
+if (args$very_verbose) {
+  args$verbose <- TRUE
+}
+
 #' Load observations
 if (args$verbose) {
   message("Reading in observations from: ", args$observations)
@@ -36,9 +49,15 @@ if (!is.null(args$target_date)) {
 }
 
 #' Load delay prior distributions
+if (args$verbose) {
+  message("Reading in delay distribution priors from: ", args$delays)
+}
 delays <- readRDS(args$delay_prior)
 
 #' Estimate the secondary fraction
+if (args$verbose) {
+  message("Estimating the secondary fraction")
+}
 estimates <- sf_estimate(
   reports = observations,
   secondary = EpiNow2::secondary_opts(
@@ -53,7 +72,7 @@ estimates <- sf_estimate(
   windows = args$windows,
   window_overlap = args$window_overlap,
   prior_inflation = args$prior_inflation,
-  verbose = args$verbose,
+  verbose = args$very_verbose,
   control = list(
     adapt_delta = args$adapt_delta, max_treedepth = args$max_treedepth
   )
@@ -61,7 +80,7 @@ estimates <- sf_estimate(
 
 #' Make a directory to save output
 dir.create(
-  args$output_path,
+  args$path,
   showWarnings = FALSE,
   recursive = TRUE
 )
@@ -70,7 +89,7 @@ dir.create(
 #' Plot posterior predictions (optional)
 if (args$plot) {
   dir.create(
-    file.path(args$output_path, "plots"),
+    file.path(args$path, "plots"),
     showWarnings = FALSE,
     recursive = TRUE
   )
@@ -79,13 +98,13 @@ if (args$plot) {
   }
   p <- plot(fit, primary = TRUE)
   ggplot2::ggsave(
-    file.path(args$output_path, "posterior-predictions.png"), p
+    file.path(args$path, "posterior-predictions.png"), p
   )
 }
 
 #' Save the fit
 if (args$fit) {
-  fit_path <- file.path(args$output_path, "fit")
+  fit_path <- file.path(args$path, "fit")
   es_path <- file.path(fit_path, "estimate_secondary")
   dir.create(
     es_path,
@@ -119,7 +138,7 @@ if (args$summary) {
     message("Saving posterior summary")
   }
   posterior_summary <- purrr::map(
-    estimates$estimate_secondary
+    estimates$estimate_secondary,
     sf_summarise_posterior
   )
   names(posterior_summary) <- names(estimates$estimate_secondary)
@@ -127,7 +146,7 @@ if (args$summary) {
     posterior_summary, idcol = "model"
   )
   saveRDS(
-    posterior_summary, file.path(args$output_path, "posterior-summary.rds")
+    posterior_summary, file.path(args$path, "posterior-summary.rds")
   )
 }
 
@@ -139,7 +158,7 @@ if (args$posterior_predictions) {
   #' Save posterior estimates
   saveRDS(
     estimates$posterior_predictions, file = file.path(
-      args$output_path, "secondary-fraction-samples.rds"
+      args$path, "secondary-fraction-samples.rds"
     )
   )
 }
@@ -160,7 +179,7 @@ if (args$scores | args$relative_performance) {
     if (args$verbose) {
       message("Saving scores")
     }
-    saveRDS(scores, file.path(args$output_path, "scores.rds"))
+    saveRDS(scores, file.path(args$path, "scores.rds"))
   }
   if (args$relative_performance) {
     if (args$verbose) {
@@ -170,7 +189,7 @@ if (args$scores | args$relative_performance) {
       scores, by = "model"
     )[, relative_performance := crps / data.table::shift(crps, 1)]
     saveRDS(summarised_scores[model == "target"]$relative_performance,
-            file.path(args$output_path, "relative-performance.rds")
+            file.path(args$path, "relative-performance.rds")
     )
   }
 }

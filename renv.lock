@@ -37,6 +37,13 @@
       "RemoteSha": "75496a3621735a172693d77293efada1acdc7647",
       "Hash": "e43393f1d8e4974d0908a27b0a4f2ef4"
     },
+    "HDInterval": {
+      "Package": "HDInterval",
+      "Version": "0.2.2",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "3b986a53325a1d95610b8d86a284dac0"
+    },
     "MASS": {
       "Package": "MASS",
       "Version": "7.3-57",
@@ -92,6 +99,13 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "32e79b908fda56ee57fe518a8d37b864"
+    },
+    "RcppArmadillo": {
+      "Package": "RcppArmadillo",
+      "Version": "0.11.0.0.0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "704ac7bb6a49df5a9a2b014793fcc6cb"
     },
     "RcppEigen": {
       "Package": "RcppEigen",
@@ -282,12 +296,19 @@
       "Repository": "CRAN",
       "Hash": "cf6b206a045a684728c3267ef7596190"
     },
-    "dplyr": {
-      "Package": "dplyr",
-      "Version": "1.0.8",
+    "distributional": {
+      "Package": "distributional",
+      "Version": "0.3.0",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "ef47665e64228a17609d6df877bf86f2"
+      "Hash": "1cba2656c1cab717a3ddea79664cc534"
+    },
+    "dplyr": {
+      "Package": "dplyr",
+      "Version": "1.0.9",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "f0bda1627a7f5d3f9a0b5add931596ac"
     },
     "dtplyr": {
       "Package": "dtplyr",
@@ -400,6 +421,13 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "ad68e3263f0bc9269aab8c2039440117"
+    },
+    "ggdist": {
+      "Package": "ggdist",
+      "Version": "3.1.1",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "5b03512755c82140b90a950a5ca72594"
     },
     "ggplot2": {
       "Package": "ggplot2",
@@ -536,10 +564,10 @@
     },
     "knitr": {
       "Package": "knitr",
-      "Version": "1.38",
+      "Version": "1.39",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "10b3dc3c6acb925910edda5d0543b3a2"
+      "Hash": "029ab7c4badd3cf8af69016b2ba27493"
     },
     "labeling": {
       "Package": "labeling",
@@ -647,6 +675,13 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "dbca60742be0c9eddc5205e5c7ca1f44"
+    },
+    "numDeriv": {
+      "Package": "numDeriv",
+      "Version": "2016.8-1.1",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "df58958f293b166e4ab885ebcad90e02"
     },
     "openssl": {
       "Package": "openssl",
@@ -857,6 +892,25 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "6e8750cdd13477aa440d453da93d5cac"
+    },
+    "scoringRules": {
+      "Package": "scoringRules",
+      "Version": "1.0.1",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "443fb7653ed5fbcf766e934850490696"
+    },
+    "scoringutils": {
+      "Package": "scoringutils",
+      "Version": "1.0.0",
+      "Source": "GitHub",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteRepo": "scoringutils",
+      "RemoteUsername": "epiforecasts",
+      "RemoteRef": "HEAD",
+      "RemoteSha": "ae816a7e6abdcda4add17978be12c20c48b9a706",
+      "Hash": "4c997fe7feb1afa682a252a20a299e35"
     },
     "selectr": {
       "Package": "selectr",
