@@ -88,17 +88,38 @@ dir.create(
 
 #' Plot posterior predictions (optional)
 if (args$plot) {
+  pp_path <- file.path(args$path, "plots", "posterior_predictions")
+  tpp_path <- file.path(args$path, "plots", "target_posterior_predictions")
   dir.create(
     file.path(args$path, "plots"),
     showWarnings = FALSE,
     recursive = TRUE
   )
   if (args$verbose) {
-    message("Saving plots of posterior predictions")
+    message(
+      "Saving plots of posterior predictions for observations in likelihood"
+    )
   }
-  p <- plot(fit, primary = TRUE)
-  ggplot2::ggsave(
-    file.path(args$path, "posterior-predictions.png"), p
+  purrr::walk2(
+    estimates$estimate_secondary, names(estimates$estimate_secondary),
+    ~ ggplot2::ggsave(
+        plot(.x, observations), file.path(pp_path, paste0(.y, ".rds"))
+    )
+  )
+  if (args$verbose) {
+    message(
+      "Saving plots of posterior predictions for observations in target window"
+    )
+  }
+  purrr::walk2(
+    estimates$estimate_secondary, names(estimates$estimate_secondary),
+    ~ ggplot2::ggsave(
+        plot(
+          .x, observations,
+          target_date = max(observations$date) - args$windows[2] + 1
+        ),
+        file.path(pp_path, paste0(.y, ".png"))
+    )
   )
 }
 
