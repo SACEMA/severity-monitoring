@@ -22,10 +22,16 @@ source(here::here("R", "secondary-fraction-utils.R"))
 args <- sf_cli_interface()
 
 #' Load observations
+if (args$verbose) {
+  message("Reading in observations from: ", args$observations)
+}
 observations <- readRDS(args$observations)
 
 #' Filter for target date
 if (!is.null(args$target_date)) {
+  if (args$verbose) {
+    message("Filtering observations to target date: ", args$target_date)
+  }
   observations <- observations[date <= args$target_date]
 }
 
@@ -33,7 +39,7 @@ if (!is.null(args$target_date)) {
 delays <- readRDS(args$delay_prior)
 
 #' Estimate the secondary fraction
-fit <- sf_estimate(
+estimates <- sf_estimate(
   reports = observations,
   secondary = EpiNow2::secondary_opts(
     type = args$observation_type,
@@ -60,47 +66,111 @@ dir.create(
   recursive = TRUE
 )
 
+
 #' Plot posterior predictions (optional)
-if (args$save_plot) {
+if (args$plot) {
+  dir.create(
+    file.path(args$output_path, "plots"),
+    showWarnings = FALSE,
+    recursive = TRUE
+  )
   if (args$verbose) {
-    message("Saving plot of posterior predictions")
+    message("Saving plots of posterior predictions")
   }
   p <- plot(fit, primary = TRUE)
   ggplot2::ggsave(
-    file.path(args$output_path, "secondary-fraction.png"), p
+    file.path(args$output_path, "posterior-predictions.png"), p
   )
 }
 
 #' Save the fit
-if (args$save_fit) {
+if (args$fit) {
+  fit_path <- file.path(args$output_path, "fit")
+  es_path <- file.path(fit_path, "estimate_secondary")
+  dir.create(
+    es_path,
+    showWarnings = FALSE,
+    recursive = TRUE
+  )
+  fs_path <- file.path(fit_path, "forecast_secondary")
+  dir.create(
+    fs_path,
+    showWarnings = FALSE,
+    recursive = TRUE
+  )
   if (args$verbose) {
     message("Saving estimate_secondary fit object")
   }
-  saveRDS(
-    fit, file.path(args$output_path, "fit.rds")
+  purrr::walk2(
+    estimates$estimate_secondary, names(estimates$estimate_secondary),
+    ~ saveRDS(.x, file.path(es_path, paste0(.y, ".rds")))
+  )
+  if (args$verbose) {
+    message("Saving forecast_secondary fit object")
+  }
+  purrr::walk2(
+    estimates$forecast_secondary, names(estimates$forecast_secondary),
+    ~ saveRDS(.x, file.path(fs_path, paste0(.y, ".rds")))
   )
 }
 
-if (args$save_summary) {
+if (args$summary) {
   if (args$verbose) {
     message("Saving posterior summary")
   }
-  posterior_summary <- sf_summarise_posterior(fit)
+  posterior_summary <- purrr::map(
+    estimates$estimate_secondary
+    sf_summarise_posterior
+  )
+  names(posterior_summary) <- names(estimates$estimate_secondary)
+  posterior_summary <- data.table::rbindlist(
+    posterior_summary, idcol = "model"
+  )
   saveRDS(
     posterior_summary, file.path(args$output_path, "posterior-summary.rds")
   )
 }
 
 #' Extract posterior estimates
-posterior <- sf_posterior_samples(fit)
-
-if (args$verbose) {
-  message("Saving posterior samples")
+if (args$posterior_predictions) {
+  if (args$verbose) {
+    message("Saving posterior samples")
+  }
+  #' Save posterior estimates
+  saveRDS(
+    estimates$posterior_predictions, file = file.path(
+      args$output_path, "secondary-fraction-samples.rds"
+    )
+  )
 }
 
-#' Save posterior estimates
-saveRDS(
-  posterior, file = file.path(
-    args$output_path, "secondary-fraction-samples.rds"
+#' Compare estimates from target and baseline using proper scoring rules
+if (args$scores | args$relative_performance) {
+  if (args$verbose) {
+    message("Calculating scores for the baseline and target")
+  }
+  pp <- estimates$posterior_predictions
+  pp <- observations[pp, on = "date"]
+  pp[, true_value := secondary][, prediction := value]
+
+  scores <- scoringutils::score(
+    pp[, .(date, model, sample, true_value, prediction)]
   )
-)
+  if (args$scores){
+    if (args$verbose) {
+      message("Saving scores")
+    }
+    saveRDS(scores, file.path(args$output_path, "scores.rds"))
+  }
+  if (args$relative_performance) {
+    if (args$verbose) {
+      message("Saving relative performance")
+    }
+    summarised_scores <- scoringutils::summarise_scores(
+      scores, by = "model"
+    )[, relative_performance := crps / data.table::shift(crps, 1)]
+    saveRDS(summarised_scores[model == "target"]$relative_performance,
+            file.path(args$output_path, "relative-performance.rds")
+    )
+  }
+}
