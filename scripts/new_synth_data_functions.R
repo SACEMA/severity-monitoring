@@ -37,14 +37,6 @@ ll_tilde_to_conditional_ll <- function(ll,
 
 ll <- ts_to_ll(ts_tmp) %>%  ll_tilde_to_conditional_ll(p1, p2, p3)
 
-delayparms <- list(mean_bg_test = log(5), sd_bg_test = log(5),
-                   rate_bg_hosp = log(0.05),
-                   mean_hosp_test = log(2), sd_hosp_test = log(2),
-                   mean_severe = log(5), sd_severe = log(5),
-                   mean_severe_hosp = log(2), sd_severe_hosp = log(2),
-                   mean_hosp_died = log(10), sd_hosp_died = log(10),
-                   mean_resolve = log(12), sd_resolve = log(5))
-
 minimal_linelist_to_delays <- function(infections,
                           mean_bg_test = log(5), sd_bg_test = log(5),
                           rate_bg_hosp = 0.05,
