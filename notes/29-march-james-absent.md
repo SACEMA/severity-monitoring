@@ -1,3 +1,11 @@
+to-do
+- what we want is a "statement" of the *fractions* involved. i.e. secondary / primary
+- troubleshoot the complex figure
+	- also try with different priors
+	- may also be (we think, Carl has emailed Sam to confirm) that estimate_secondary() is only fittig *one* ratio per window i.e. per fit
+	- up_twovals_twovals_const
+- look for where in the actual output the fraction (sec/primary) is reported 
+	- compare this with the fraction we calculate between primary_observed ("primary") and secondary_estimated (i.e. outputs from estimate_secondary)
 # to-do
 
 - [ ] update makefile to produce d1_d2_d3_d4.png targets and dependencies with pattern matching (i.e. have one set of pattern-matching targets/rules for making all figures)
@@ -12,7 +20,6 @@
 	- [ ] try making up_twovals_twovals_const
 - [ ] (don't over-commit) look for where in the est_sec output the fraction (sec/primary) is reported 
 	- [ ] compare this with the fraction we calculate between primary_observed ("primary") and secondary_estimated (i.e. outputs from estimate_secondary)
-
 	- plot to-dos
 - plot underlying pieces (true primary and true secondary) (i.e. include all four "dimensions" on top panel)
 - plot "computed-from-outputs" sec/primary fraction and sec_observed/sec_underlying fraction + others (secondary_fraction estimates from STAN)
@@ -29,4 +36,6 @@ plan/landscape
 - rolling window of fractions 
 - compare between windows
 - think about window size and what will be suitable
+<<<<<<< HEAD
+
 - what we want is a "statement" of the *fractions* involved. i.e. secondary / primary
