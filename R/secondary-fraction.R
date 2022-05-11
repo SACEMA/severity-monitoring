@@ -227,11 +227,11 @@ if (args$scores | args$relative_performance) {
     }
     summarised_scores <- scoringutils::summarise_scores(
       scores, by = "model"
-    )[, relative_performance := data.table::shift(crps, 1) / crps]
+    )[, relative_performance := crps / data.table::shift(crps, 1)]
     rel_perf <- summarised_scores[model == "target"]$relative_performance
     if (args$verbose) {
       message(
-        "Relative performance of baseline vs target model is: ",
+        "Relative performance of target vs baseline model is: ",
          signif(rel_perf, 2)
       )
     }
