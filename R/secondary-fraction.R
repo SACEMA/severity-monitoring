@@ -227,7 +227,7 @@ if (args$scores | args$relative_performance) {
     }
     summarised_scores <- scoringutils::summarise_scores(
       scores, by = "model"
-    )[, relative_performance := crps / data.table::shift(crps, 1)]
+    )[, relative_performance := data.table::shift(crps, 1) / crps]
     rel_perf <- summarised_scores[model == "target"]$relative_performance
     if (args$verbose) {
       message(
