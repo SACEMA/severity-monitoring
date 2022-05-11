@@ -138,11 +138,11 @@ sf_gp_simulate <- function(data, type = "incidence", family = "poisson",
 #' @return List of arguments
 #' @export
 #' @author Sam Abbott
-#' @examples 
+#' @examples
 #' # Defaults
-#' sf_cli_interface()     
-#' 
-#' # Overide defaults
+#' sf_cli_interface()
+#'
+#' # Override defaults
 #' sf_cli_interface(c("-l", "-a"))     
 sf_cli_interface <- function(args_string = NA) {
   option_list <- list(
@@ -155,13 +155,13 @@ sf_cli_interface <- function(args_string = NA) {
        'date', 'primary', and 'secondary'. Defaults to using an 
        example simulated data set 'data/example-incidence.rds'."
     ),
-    optparse::make_option(c("-p", "--path"),
+    optparse::make_option(c("--path"),
       type = "character",
       action = "store",
       default = tempdir(),
       help = "Path to a folder in which to save results. Use the tmp directory by default." # nolint
     ),
-optparse::make_option(
+    optparse::make_option(
       c("-r", "--relative_performance"),
       action = "store_true",
       default = FALSE,
@@ -178,6 +178,12 @@ optparse::make_option(
       action = "store_true",
       default = FALSE,
       help = "Save posterior summaries"
+    ),
+    optparse::make_option(
+      c("--obs_preds"),
+      action = "store_true",
+      default = FALSE,
+      help = "Save posterior samples of the observations"
     ),
     optparse::make_option(
       c("--fit"),
@@ -219,7 +225,7 @@ optparse::make_option(
       type = "character",
       action = "store",
       default = "incidence",
-      help = 
+      help =
       "Defines the type of observation. Can be 'incidence' or 'prevalence'.
        Defaults to 'incidence'."
     ),
@@ -276,7 +282,7 @@ optparse::make_option(
       "Should target and baseline windows overlap or cover contiguous time
        periods."
     ),
-    optparse::make_option(c("--priors"),
+    optparse::make_option("--priors",
       type = "character",
       action = "store",
       default = NULL,
@@ -302,10 +308,10 @@ optparse::make_option(
     optparse::make_option("--adapt_delta",
       type = "numeric",
       action = "store",
-      default = 0.95,
+      default = 0.99,
       help =
       "Set the minimum size of steps used in HMC fitting. See ?rstan::sampling 
-      for more detail. Defaults to 0.95."
+      for more detail. Defaults to 0.99."
     ),
     optparse::make_option("--max_treedepth",
       type = "numeric",

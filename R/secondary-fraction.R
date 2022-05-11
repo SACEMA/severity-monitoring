@@ -1,8 +1,10 @@
+#! /usr/bin/env Rscript
+
 #' Estimate the secondary fraction using iterative convolution models
 #'
 #' Example usage:
 #'
-#' Rscript R/secondary-fraction.R -o data/example-incidence.rds -v -a -p tmp
+#' Rscript R/secondary-fraction.R -o data/example-incidence.rds --path test -a -l
 #'
 #' For more information on execution run Rscript R/secondary-fraction.R --help
 #'
@@ -18,7 +20,7 @@
 source(here::here("R", "secondary-fraction-utils.R"))
 
 #' Set up command line arguments (or use defaults when interactive)
-args <- sf_cli_interface("-a")
+args <- sf_cli_interface()
 
 #' Turn on all output if specified
 if (args$all) {
@@ -27,6 +29,7 @@ if (args$all) {
   args$summary <- TRUE
   args$scores <- TRUE
   args$relative_performance <- TRUE
+  args$obs_preds <- TRUE
 }
 
 #' Set core usage
@@ -108,7 +111,12 @@ if (args$plot) {
   pp_path <- file.path(args$path, "plots", "posterior_predictions")
   tpp_path <- file.path(args$path, "plots", "target_posterior_predictions")
   dir.create(
-    file.path(args$path, "plots"),
+    file.path(pp_path),
+    showWarnings = FALSE,
+    recursive = TRUE
+  )
+  dir.create(
+    file.path(tpp_path),
     showWarnings = FALSE,
     recursive = TRUE
   )
@@ -120,7 +128,12 @@ if (args$plot) {
   purrr::walk2(
     estimates$estimate_secondary, names(estimates$estimate_secondary),
     ~ ggplot2::ggsave(
-        plot(.x, new_obs = observations), file.path(pp_path, paste0(.y, ".rds"))
+        file.path(pp_path, paste0(.y, ".png")),
+        plot(
+          .x, new_obs = observations,
+          from = max(observations$date) - args$baseline_window
+        ) +
+        ggplot2::theme_bw()
     )
   )
   if (args$verbose) {
@@ -129,13 +142,15 @@ if (args$plot) {
     )
   }
   purrr::walk2(
-    estimates$estimate_secondary, names(estimates$estimate_secondary),
+    estimates$forecast_secondary, names(estimates$estimate_secondary),
     ~ ggplot2::ggsave(
+        file.path(tpp_path, paste0(.y, ".png")),
         plot(
-          .x, new_obs = observations,
-          target_date = max(observations$date) - args$window + 1
-        ),
-        file.path(pp_path, paste0(.y, ".png"))
+          .x,
+          new_obs = observations,
+          from = max(observations$date) - args$window + 1
+        ) +
+        ggplot2::theme_bw()
     )
   )
 }
@@ -188,15 +203,15 @@ if (args$summary) {
   )
 }
 
-#' Extract posterior estimates
-if (args$posterior_predictions) {
+#' Extract secondary fraction posterior samples
+if (args$obs_preds) {
   if (args$verbose) {
-    message("Saving posterior samples")
+    message("Saving posterior samples of observations")
   }
   #' Save posterior estimates
   saveRDS(
     estimates$posterior_predictions, file = file.path(
-      args$path, "secondary-fraction-samples.rds"
+      args$path, "obs-pp-samples.rds"
     )
   )
 }

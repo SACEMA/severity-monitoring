@@ -43,10 +43,6 @@ vignettes/*.pdf
 *.pdf
 *.png
 
-#exploreation scripts
-epinow_example.R
-
-
 # Raw data
 *.csv
 *.RDS
@@ -54,6 +50,9 @@ epinow_example.R
 *.RData
 *.html
 !data/*.rds
+
+# Test results
+test
 # Not sure what category these belong to... tilde-ed filenames
 *~
 
