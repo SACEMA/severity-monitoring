@@ -127,7 +127,7 @@ if (args$plot) {
     )
   }
   pp_plot <- sf_plot_pp(summarised_predictions, fill = model) +
-    ggplot2::facet_wrap(ggplot2::vars(type), scales = "free_x") +
+    ggplot2::facet_wrap(ggplot2::vars(type), scales = "free") +
     ggplot2::theme(legend.position  = "bottom") +
     ggplot2::guides(fill = ggplot2::guide_legend(title = "Model")) +
     ggplot2::scale_fill_brewer(palette = "Dark2")
