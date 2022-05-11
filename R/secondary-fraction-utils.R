@@ -155,6 +155,13 @@ sf_cli_interface <- function(args_string = NA) {
        'date', 'primary', and 'secondary'. Defaults to using an 
        example simulated data set 'data/example-incidence.rds'."
     ),
+    optparse::make_option(c("--target_date"),
+      type = "character",
+      action = "store",
+      default = NULL,
+      help =
+      "A target date (in YYYY-MM-DD format) to use in estimation rather than using the maximum date in the observed data."
+    ),
     optparse::make_option(c("--path"),
       type = "character",
       action = "store",

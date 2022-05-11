@@ -73,7 +73,7 @@ if (!is.null(args$target_date)) {
   if (args$verbose) {
     message("Filtering observations to target date: ", args$target_date)
   }
-  observations <- observations[date <= args$target_date]
+  observations <- observations[date <= as.date(args$target_date)]
 }
 
 #' Load delay prior distributions
