@@ -217,7 +217,6 @@ sf_set_burn_in <- function(obs, window = 14, min_burn_in = 14, error = FALSE) {
 #' @export
 #' @author Sam Abbott
 sf_summarise_posterior <- function(fit, CrIs = c(0.05, 0.5, 0.95)) {
-
   posterior <- EpiNow2::extract_stan_param(
     fit$fit, CrIs = CrIs
   )
