@@ -18,7 +18,7 @@
 source(here::here("R", "secondary-fraction-utils.R"))
 
 #' Set up command line arguments (or use defaults when interactive)
-args <- sf_cli_interface()
+args <- sf_cli_interface("-a")
 
 #' Turn on all output if specified
 if (args$all) {
@@ -29,16 +29,41 @@ if (args$all) {
   args$relative_performance <- TRUE
 }
 
+#' Set core usage
+options(mc.cores = args$cores)
+
+#' Error if being run with no output flags
+if (!args$plot & !args$fit & !args$summary & !args$scores &
+     ! args$relative_performance) {
+  if (!interactive()) {
+    stop("No output flags specified. Use --help for more information.")
+  }
+}
+
 #' Make sure all progress is output in very verbose mode
-if (args$very_verbose) {
+if (args$loud) {
   args$verbose <- TRUE
 }
 
+#' Make a directory to save output
+if (args$verbose) {
+  message("Creating a directory to save output at: ", args$path)
+}
+dir.create(
+  args$path,
+  showWarnings = FALSE,
+  recursive = TRUE
+)
+
 #' Load observations
+if (is.null(args$observations)) {
+  stop("No observations specified. Use --help for more information.")
+}
 if (args$verbose) {
   message("Reading in observations from: ", args$observations)
 }
 observations <- readRDS(args$observations)
+observations <- data.table::as.data.table(observations)
 
 #' Filter for target date
 if (!is.null(args$target_date)) {
@@ -50,9 +75,9 @@ if (!is.null(args$target_date)) {
 
 #' Load delay prior distributions
 if (args$verbose) {
-  message("Reading in delay distribution priors from: ", args$delays)
+  message("Reading in delay distribution priors from: ", args$delay)
 }
-delays <- readRDS(args$delay_prior)
+delay <- readRDS(args$delay)
 
 #' Estimate the secondary fraction
 if (args$verbose) {
@@ -60,31 +85,23 @@ if (args$verbose) {
 }
 estimates <- sf_estimate(
   reports = observations,
-  secondary = EpiNow2::secondary_opts(
-    type = args$observation_type,
-  ),
-  delays = delays,
+  secondary = EpiNow2::secondary_opts(args$observation_type),
+  delays = delay,
   obs = EpiNow2::obs_opts(
-    week_effect = args$day_of_week,
-    family = args$observation_model,
-    scale = list(mean = args$scale[1], sd = args$scale[2])
+    week_effect = args$dow,
+    family = args$family,
+    scale = list(mean = args$scale_mean, sd = args$scale_sd)
   ),
-  windows = args$windows,
-  window_overlap = args$window_overlap,
+  windows = c(args$baseline_window, args$window),
+  window_overlap = args$windows_overlap,
+  priors = if (!is.null(args$priors)) readRDS(args$priors) else NULL,
+  prior_from_posterior = args$independent,
   prior_inflation = args$prior_inflation,
-  verbose = args$very_verbose,
+  verbose = args$loud,
   control = list(
     adapt_delta = args$adapt_delta, max_treedepth = args$max_treedepth
   )
 )
-
-#' Make a directory to save output
-dir.create(
-  args$path,
-  showWarnings = FALSE,
-  recursive = TRUE
-)
-
 
 #' Plot posterior predictions (optional)
 if (args$plot) {
@@ -103,7 +120,7 @@ if (args$plot) {
   purrr::walk2(
     estimates$estimate_secondary, names(estimates$estimate_secondary),
     ~ ggplot2::ggsave(
-        plot(.x, observations), file.path(pp_path, paste0(.y, ".rds"))
+        plot(.x, new_obs = observations), file.path(pp_path, paste0(.y, ".rds"))
     )
   )
   if (args$verbose) {
@@ -115,8 +132,8 @@ if (args$plot) {
     estimates$estimate_secondary, names(estimates$estimate_secondary),
     ~ ggplot2::ggsave(
         plot(
-          .x, observations,
-          target_date = max(observations$date) - args$windows[2] + 1
+          .x, new_obs = observations,
+          target_date = max(observations$date) - args$window + 1
         ),
         file.path(pp_path, paste0(.y, ".png"))
     )

@@ -10,6 +10,7 @@
 
  #' Calculate the probability mass function of a discretised
  #' log normal distribution
+ #' @author Sam Abbott
  sf_discretised_lognormal_pmf <- function(meanlog, sdlog, max_d,
                                           reverse = FALSE) {
   pmf <- plnorm(1:max_d, meanlog, sdlog) -
@@ -21,8 +22,9 @@
   return(pmf)
 }
 
- #' Calculate the convolution of a probability mass function of a 
- #' discretised log normal distribution and a vector of counts
+#' Calculate the convolution of a probability mass function of a 
+#' discretised log normal distribution and a vector of counts
+#' @author Sam Abbott
  sf_discretised_lognormal_pmf_conv <- function(x, meanlog, sdlog) {
   pmf <- sf_discretised_lognormal_pmf(meanlog, sdlog, length(x), reverse = TRUE)
   conv <- sum(x * pmf, na.rm = TRUE)
@@ -136,8 +138,183 @@ sf_gp_simulate <- function(data, type = "incidence", family = "poisson",
 #' @return List of arguments
 #' @export
 #' @author Sam Abbott
+#' @examples 
+#' # Defaults
+#' sf_cli_interface()     
+#' 
+#' # Overide defaults
+#' sf_cli_interface(c("-l", "-a"))     
 sf_cli_interface <- function(args_string = NA) {
   option_list <- list(
+    optparse::make_option(c("-o", "--observations"),
+      type = "character",
+      action = "store",
+      default = 'data/example-incidence.rds',
+      help =
+      "Path to rds of observations including the following columns:
+       'date', 'primary', and 'secondary'. Defaults to using an 
+       example simulated data set 'data/example-incidence.rds'."
+    ),
+    optparse::make_option(c("-p", "--path"),
+      type = "character",
+      action = "store",
+      default = tempdir(),
+      help = "Path to a folder in which to save results. Use the tmp directory by default." # nolint
+    ),
+optparse::make_option(
+      c("-r", "--relative_performance"),
+      action = "store_true",
+      default = FALSE,
+      help = "Save relative performance of target versus baseline"
+    ),
+    optparse::make_option(
+      c("-s", "--scores"),
+      action = "store_true",
+      default = FALSE,
+      help = "Save scores per target observation"
+    ),
+    optparse::make_option(
+      c("--summary"),
+      action = "store_true",
+      default = FALSE,
+      help = "Save posterior summaries"
+    ),
+    optparse::make_option(
+      c("--fit"),
+      action = "store_true",
+      default = FALSE,
+      help = "Save fit objects"
+    ),
+    optparse::make_option(
+      c("--plot"),
+      action = "store_true",
+      default = FALSE,
+      help = "Save plots"
+    ),
+    optparse::make_option(
+      c("-a", "--all"),
+      action = "store_true",
+      default = FALSE,
+      help = "Save all output"
+    ),
+    optparse::make_option(
+      c("-c", "--cores"),
+      type = "integer",
+      action = "store",
+      default = 4,
+      help = "Number of cores to use when executing the chains in parallel,
+          which defaults to 4. In general we recommend setting the number of
+          cores to the number of chains used if possible. Note that more cores
+          than chains will have no impact on fitting times."
+    ),
+    optparse::make_option(c("-d", "--delay"),
+      type = "character",
+      action = "store",
+      default = "data/weakly-informed-delays.rds",
+      help =
+      "Path to an rds defining the delay distribution prior. By default
+      uses 'data/weakly-informed-delays.rds' which is a weakly informed prior"
+    ),
+    optparse::make_option(c("-t", "--observation_type"),
+      type = "character",
+      action = "store",
+      default = "incidence",
+      help = 
+      "Defines the type of observation. Can be 'incidence' or 'prevalence'.
+       Defaults to 'incidence'."
+    ),
+    optparse::make_option(c("--family"),
+      type = "character",
+      action = "store",
+      default = "negbin",
+      help =
+      "Observation family to use in the convolution model. Defaults to negative
+       binomial ('negbin') with Poisson ('poisson') also being supported"
+    ),
+    optparse::make_option("--dow",
+      action = "store_true",
+      default = FALSE,
+      help =
+      "Should a day of the week effect be included in the observation model."
+    ),
+    optparse::make_option("--scale_mean",
+      type = "numeric",
+      action = "store",
+      default = 0.5,
+      help =
+      "Define the prior mean for the secondary fraction
+       prior. By default uses an uninformed prior N(0.5, 0.25)."
+    ),
+    optparse::make_option("--scale_sd",
+      type = "numeric",
+      action = "store",
+      default = 0.25,
+      help =
+      "Define the prior standard deviation for the secondary fraction
+       prior. By default uses an uninformed prior N(0.5, 0.25)."
+    ),
+    optparse::make_option(c("-w", "--window"),
+      type = "numeric",
+      action = "store",
+      default = 14,
+      help =
+      "Define the fitting window for the target model.
+       By default this is 14 days."
+    ),
+    optparse::make_option(c("-b", "--baseline_window"),
+      type = "numeric",
+      action = "store",
+      default = 28,
+      help =
+      "Define the fitting window for the baseline model.
+       By default this is 28 days."
+    ),
+    optparse::make_option("--windows_overlap",
+      action = "store_true",
+      default = FALSE,
+      help =
+      "Should target and baseline windows overlap or cover contiguous time
+       periods."
+    ),
+    optparse::make_option(c("--priors"),
+      type = "character",
+      action = "store",
+      default = NULL,
+      help =
+      "A data.frame of priors as required by sf_estimate. This may be used to
+      help inform the initial baseline model. By default this is not used."
+    ),
+    optparse::make_option(c("i", "--independent"),
+      action = "store_true",
+      default = FALSE,
+      help =
+      "Should the target and baseline models be fit independently or should the
+      target model use the posterior from the baseline model as a prior?"
+    ),
+    optparse::make_option("--prior_inflation",
+      type = "numeric",
+      action = "store",
+      default = 1,
+      help =
+      "What factor should the standard deviation of posteriors used as priors
+      be inflated by. Defaults to 1 (i.e no inflation)."
+    ),
+    optparse::make_option("--adapt_delta",
+      type = "numeric",
+      action = "store",
+      default = 0.95,
+      help =
+      "Set the minimum size of steps used in HMC fitting. See ?rstan::sampling 
+      for more detail. Defaults to 0.95."
+    ),
+    optparse::make_option("--max_treedepth",
+      type = "numeric",
+      action = "store",
+      default = 12,
+      help =
+      "Set the maximum size of trees to construct in HMC fitting.
+       See ?rstan::sampling for details. Defaults to 12."
+    ),
     optparse::make_option(
       c("-v", "--verbose"),
       action = "store_true",
@@ -145,16 +322,10 @@ sf_cli_interface <- function(args_string = NA) {
       help = "Print verbose output "
     ),
     optparse::make_option(
-      c("-q", "--quiet"),
+      c("-l", "--loud"),
       action = "store_true",
       default = FALSE,
-      help = "Print less output "
-    ),
-    optparse::make_option(c("-o", "--observations"),
-     default = "",
-    type = "character",
-    help = "Path to csv of observations including the following columns:
-     'date', 'primary', and 'secondary'"
+      help = "Print verbose output including fitting information"
     )
   )
   if (is.character(args_string)) {
@@ -294,6 +465,14 @@ sf_update_secondary_args <- function(obs = EpiNow2::obs_opts(),
   return(list(obs = obs, delays = delays))
 }
 
+#' Extract posterior samples from a estimate_secondary model fit.
+#'
+#' @param fit An `estimate_secondary` object.
+#'
+#' @return A `data.table` with the following variables:
+#' sample, value, and date.
+#' @export
+#' @author Sam Abbott
 sf_extract_secondary_samples <- function(fit, obs) {
   samples <- rstan::extract(fit$fit, "sim_secondary")
   samples <- data.table::as.data.table(samples)[, sample := 1:.N]
