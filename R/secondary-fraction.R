@@ -128,9 +128,10 @@ if (args$plot) {
   }
   pp_plot <- sf_plot_pp(summarised_predictions, fill = model) +
     ggplot2::facet_wrap(ggplot2::vars(type), scales = "free_x") +
-    ggplot2::theme(legend.position  = "bottom") + 
-    ggplot2::guides(fill = ggplot2::guide_legend(title = "Model"))
-  
+    ggplot2::theme(legend.position  = "bottom") +
+    ggplot2::guides(fill = ggplot2::guide_legend(title = "Model")) +
+    ggplot2::scale_fill_brewer(palette = "Dark2")
+
   ggplot2::ggsave(
     file.path(plot_path, "posterior-predictions.png"),
     pp_plot
@@ -184,7 +185,7 @@ if (args$summary) {
     posterior_summary, file.path(args$path, "posterior-summary.rds")
   )
   saveRDS(
-    posterior_prediction_summary,
+    summarised_predictions,
     file.path(args$path, "posterior-prediction-summary.rds")
   )
 }
@@ -227,7 +228,14 @@ if (args$scores | args$relative_performance) {
     summarised_scores <- scoringutils::summarise_scores(
       scores, by = "model"
     )[, relative_performance := crps / data.table::shift(crps, 1)]
-    saveRDS(summarised_scores[model == "target"]$relative_performance,
+    rel_perf <- summarised_scores[model == "target"]$relative_performance
+    if (args$verbose) {
+      message(
+        "Relative performance of baseline vs target model is: ",
+         signif(rel_perf, 2)
+      )
+    }
+    saveRDS(rel_perf,
             file.path(args$path, "relative-performance.rds")
     )
   }

@@ -370,7 +370,7 @@ sf_cli_interface <- function(args_string = NA) {
 #' @export
 #' @author Sam Abbott
 sf_set_burn_in <- function(obs, window = 14, min_burn_in = 14, error = FALSE) {
-  burn_in <-  as.integer(max(obs$date) - min(obs$date)) - window
+  burn_in <-  as.integer(max(obs$date) - min(obs$date)) - window + 1
   if (burn_in < min_burn_in) {
    if (error) {
       stop("Burn in must be greater than or equal to ",
@@ -694,9 +694,9 @@ sf_estimate <- function(reports,
     out$forecast_secondary <- list("baseline" = long_fit)
     out$posterior_predictions <- list(
       "baseline" = sf_extract_secondary_samples(
-        long_fit, long_reports[date >= (min(date) + long_burn_in)]
+        long_fit, long_reports[date > (min(date) + long_burn_in)]
       )[
-        date >= (max(date) - windows[2])
+        date > (max(date) - windows[2])
       ]
     )
   }
@@ -740,7 +740,7 @@ sf_estimate <- function(reports,
   out$posterior_predictions$target <-
     sf_extract_secondary_samples(
       short_fit,
-      reports[date >= (max(date) - windows[2])]
+      reports[date > (max(date) - windows[2])]
     )
   out$posterior_predictions <- data.table::rbindlist(
     out$posterior_predictions, idcol = "model"
@@ -796,7 +796,7 @@ sf_plot_pp <- function(predictions, ...) {
    )
 
   plot <- EpiNow2:::plot_CrIs(
-    plot, EpiNow2:::extract_CrIs(predictions), alpha = 0.6, size = 1
+    plot, EpiNow2:::extract_CrIs(predictions), alpha = 0.4, size = 1
   )
 
   plot <- plot +
