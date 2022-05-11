@@ -32,9 +32,6 @@ if (args$all) {
   args$obs_preds <- TRUE
 }
 
-#' Set core usage
-options(mc.cores = args$cores)
-
 #' Error if being run with no output flags
 if (!args$plot & !args$fit & !args$summary & !args$scores &
      ! args$relative_performance) {
@@ -47,6 +44,12 @@ if (!args$plot & !args$fit & !args$summary & !args$scores &
 if (args$loud) {
   args$verbose <- TRUE
 }
+
+#' Set core usage
+if (args$verbose) {
+  message("Using ", args$cores, " cores for model fitting.")
+}
+options(mc.cores = args$cores)
 
 #' Make a directory to save output
 if (args$verbose) {
