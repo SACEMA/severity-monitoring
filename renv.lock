@@ -908,9 +908,9 @@
       "RemoteHost": "api.github.com",
       "RemoteRepo": "scoringutils",
       "RemoteUsername": "epiforecasts",
-      "RemoteRef": "HEAD",
-      "RemoteSha": "ae816a7e6abdcda4add17978be12c20c48b9a706",
-      "Hash": "4c997fe7feb1afa682a252a20a299e35"
+      "RemoteRef": "bug-metrics",
+      "RemoteSha": "dee1b7dc9ebc87fc6b879db6a7d3d52a092af047",
+      "Hash": "52d9c8e31c46a7bc1f02443559b6cebf"
     },
     "selectr": {
       "Package": "selectr",
