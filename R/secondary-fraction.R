@@ -106,52 +106,34 @@ estimates <- sf_estimate(
   )
 )
 
+#' Extract and munge summarised posterior predictions
+if (args$verbose) {
+  message("Extracting summarised predictions")
+}
+summarised_predictions <- sf_extract_summarised_predictions(estimates)
+
+
 #' Plot posterior predictions (optional)
 if (args$plot) {
-  pp_path <- file.path(args$path, "plots", "posterior_predictions")
-  tpp_path <- file.path(args$path, "plots", "target_posterior_predictions")
+  plot_path <- file.path(args$path, "plots")
   dir.create(
-    file.path(pp_path),
-    showWarnings = FALSE,
-    recursive = TRUE
-  )
-  dir.create(
-    file.path(tpp_path),
+    file.path(plot_path),
     showWarnings = FALSE,
     recursive = TRUE
   )
   if (args$verbose) {
     message(
-      "Saving plots of posterior predictions for observations in likelihood"
+      "Saving plots of posterior predictions"
     )
   }
-  purrr::walk2(
-    estimates$estimate_secondary, names(estimates$estimate_secondary),
-    ~ ggplot2::ggsave(
-        file.path(pp_path, paste0(.y, ".png")),
-        plot(
-          .x, new_obs = observations,
-          from = max(observations$date) - args$baseline_window
-        ) +
-        ggplot2::theme_bw()
-    )
-  )
-  if (args$verbose) {
-    message(
-      "Saving plots of posterior predictions for observations in target window"
-    )
-  }
-  purrr::walk2(
-    estimates$forecast_secondary, names(estimates$estimate_secondary),
-    ~ ggplot2::ggsave(
-        file.path(tpp_path, paste0(.y, ".png")),
-        plot(
-          .x,
-          new_obs = observations,
-          from = max(observations$date) - args$window + 1
-        ) +
-        ggplot2::theme_bw()
-    )
+  pp_plot <- sf_plot_pp(summarised_predictions, fill = model) +
+    ggplot2::facet_wrap(ggplot2::vars(type), scales = "free_x") +
+    ggplot2::theme(legend.position  = "bottom") + 
+    ggplot2::guides(fill = ggplot2::guide_legend(title = "Model"))
+  
+  ggplot2::ggsave(
+    file.path(plot_path, "posterior-predictions.png"),
+    pp_plot
   )
 }
 
@@ -200,6 +182,10 @@ if (args$summary) {
   )
   saveRDS(
     posterior_summary, file.path(args$path, "posterior-summary.rds")
+  )
+  saveRDS(
+    posterior_prediction_summary,
+    file.path(args$path, "posterior-prediction-summary.rds")
   )
 }
 

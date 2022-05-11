@@ -747,3 +747,64 @@ sf_estimate <- function(reports,
   )
   return(out)
 }
+
+ #' Extract summarised posterior predictions
+ #'
+ #' @param estimates The output from `sf_estimate()`
+ #'
+ #' @return A data frame of predictions by model and type.
+ #' @export
+ #' @author Sam Abbott
+sf_extract_summarised_predictions <- function(estimates) {
+  in_sample <- purrr::map(estimates$estimate_secondary,
+    ~ .$predictions
+  )
+  names(in_sample) <- names(estimates$estimate_secondary)
+  in_sample <- data.table::rbindlist(in_sample, idcol = "model")
+
+  out_sample <- purrr::map(estimates$forecast_secondary,
+    ~ .$predictions
+  )
+  names(out_sample) <- names(estimates$forecast_secondary)
+  out_sample <- data.table::rbindlist(out_sample, idcol = "model", fill = TRUE)
+
+  preds <- rbind(
+    in_sample[, type := "in sample"],
+    out_sample[, type := "out of sample"]
+  )
+  return(preds)
+}
+
+ #'Plot summarised posterior predictions
+ #'
+ #' @param predictions The output from `sf_extract_summarised_predictions()`
+ #'
+ #' @param ... Pass additional arguments to `ggplot2::aes()`
+ #' 
+ #' @return A `ggplot2` plot.
+ #' @export
+ #' @author Sam Abbott
+sf_plot_pp <- function(predictions, ...) {
+  plot <- 
+   ggplot2::ggplot(
+     predictions[!is.na(mean)]
+   ) +
+   ggplot2::aes(x = date, y = secondary, ...) +
+   ggplot2::geom_col(
+     fill = "grey", col = "white", show.legend = FALSE, na.rm = TRUE,
+     position = "identity"
+   )
+
+  plot <- EpiNow2:::plot_CrIs(
+    plot, EpiNow2:::extract_CrIs(predictions), alpha = 0.6, size = 1
+  )
+
+  plot <- plot +
+   ggplot2::theme_bw() +
+   ggplot2::labs(y = "Notifications", x = "Date") +
+   ggplot2::scale_x_date(date_breaks = "week", date_labels = "%b %d") +
+   ggplot2::scale_y_continuous(labels = scales::comma) +
+   ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90))
+
+  return(plot)
+}
