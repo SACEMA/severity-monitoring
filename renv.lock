@@ -908,9 +908,9 @@
       "RemoteHost": "api.github.com",
       "RemoteRepo": "scoringutils",
       "RemoteUsername": "epiforecasts",
-      "RemoteRef": "bug-metrics",
-      "RemoteSha": "dee1b7dc9ebc87fc6b879db6a7d3d52a092af047",
-      "Hash": "52d9c8e31c46a7bc1f02443559b6cebf"
+      "RemoteRef": "HEAD",
+      "RemoteSha": "9b79f2cf31ff40d4a95c9bcf22ac023d7376e56b",
+      "Hash": "6b5a1efec974ffc274e8668b47f7b58e"
     },
     "selectr": {
       "Package": "selectr",
@@ -1033,10 +1033,10 @@
     },
     "xfun": {
       "Package": "xfun",
-      "Version": "0.30",
+      "Version": "0.31",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "e83f48136b041845e50a6658feffb197"
+      "Hash": "a318c6f752b8dcfe9fb74d897418ab2b"
     },
     "xml2": {
       "Package": "xml2",
