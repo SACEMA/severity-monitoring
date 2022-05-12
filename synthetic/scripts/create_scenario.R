@@ -3,11 +3,11 @@ library(tidyverse)
 .args <- if(interactive()){
 c("./synthetic/data/synth_params.RData",
   "./synthetic/data/synth_data_functions.RData",
-  "./synthetic/data/flat_const_const_const.rds",
-  "a",
-  "a",
-  "a",
-  "a"
+  "./synthetic/data/const_const_const_const.rds",
+  "const",
+  "const",
+  "const",
+  "const"
   )
 }else{commandArgs(trailingOnly = TRUE)}
 
