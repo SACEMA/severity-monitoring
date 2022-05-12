@@ -1,5 +1,5 @@
 library(tidyverse)
-ts_len <- 100
+ts_len <- 10E1
 ts_tmp <- data.frame(time = 1:ts_len, infections = rep(10,ts_len))
 
 set.seed(123410000)
@@ -18,24 +18,27 @@ ts_to_ll <- function(ts){
   return(ll)
 }
 
-ts_to_ll(ts_tmp)
+df <- ts_to_ll(ts_tmp)
 
 ll_tilde_to_conditional_ll <- function(ll,
                                  p_severe,
                                  p_hosp_if_severe,
                                  p_died_if_hosp){
-  ll <- (ll
-         %>% rowwise()
-         %>% mutate(is_severe = rbinom(1, 1, p_severe))
-         %>% mutate(is_severe_hosp = ifelse(is_severe, rbinom(1, 1, p_hosp_if_severe), 0))
-         %>% mutate(is_severe_hosp_died = ifelse(is_severe_hosp, rbinom(1, 1, p_died_if_hosp), 0))
-         %>% ungroup()
-         )
   
-  return(ll)
+  obs_size <- nrow(ll) 
+  
+  ll_severe_events <- ll %>% mutate(is_severe = rbinom(obs_size, 1, p_severe), 
+                    is_severe_hosp = rbinom(obs_size, 1, p_hosp_if_severe), 
+                    is_severe_hosp_died = rbinom(obs_size, 1, p_died_if_hosp)
+                    ) %>% 
+    mutate(is_severe_hosp = ifelse(is_severe, is_severe_hosp, NA), 
+           is_severe_hosp_died = ifelse(is_severe_hosp, is_severe_hosp_died, NA)
+           ) 
+  
+  return(ll_severe_events)
 }
 
-ll <- ts_to_ll(ts_tmp) %>%  ll_tilde_to_conditional_ll(p1, p2, p3)
+ll <- ts_to_ll(ts_tmp) %>% ll_tilde_to_conditional_ll(p1, p2, p3)
 
 minimal_linelist_to_delays <- function(infections,
                           mean_bg_test = log(5), sd_bg_test = log(5),
@@ -118,10 +121,11 @@ minimal_linelist_to_delays <- function(infections,
     )
   }
 
-names(minimal_linelist_to_delays(ll))
+# names(minimal_linelist_to_delays(ll))
 
 delays <- minimal_linelist_to_delays(ll)
 
+delays |> head()
 
 delays_to_times <- function(delays_df){ #Note: this function assumed non-existent delays are NA's.
   # add unit test here or for prev function to ensure non-existent delays are represented by NA's
@@ -179,8 +183,8 @@ delays_to_times <- function(delays_df){ #Note: this function assumed non-existen
   return(times_df)
 }
 
-times <- delays_to_times(delays)
-View(times)
+times_df <- delays_to_times(delays)
+times_df |> head()
 
 times_of_events_to_time_series <- function(times_df){
   
