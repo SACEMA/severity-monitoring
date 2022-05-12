@@ -38,7 +38,7 @@ with the following priors,
 with $\alpha$, $\mu$, $\sigma$, and $\phi$ truncated to be greater than 0 and with $\xi$ normalised such that $\sum_{\tau = 0}^{30} \xi(\tau | \mu, \sigma) = 1$. 
 
 Versions of this model have been used to x,y,x
-[@Meakin2022-hw]
+[@Meakin2022-hw] [@Bosse2021-jk]
 
 # Defining a surveillance indicator
 
