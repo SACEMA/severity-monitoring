@@ -9,14 +9,9 @@ find_hosp_admission_time <- function(x, y) {
   ifelse(is.na(x) & is.na(y), NA, min(x, y, na.rm = T))
 }
 
-
 remove_nonsense_times <- function(x, y) {
   ifelse(!is.na(x), y, NA)
 }
-
-
-
-
 
 # Steps to create linelist and timeseries
 ts_len <- 1E2
@@ -35,7 +30,8 @@ expand_ts <- function(ts) {
     uncount(infections, .remove = TRUE) %>%
     mutate(case = row_number()) %>%
     rename(t0 = time) %>%
-    select(case, t0)
+    select(case, t0) %>%
+    ungroup()
   return(minimal_linelist)
 }
 
@@ -48,7 +44,6 @@ sample_outcomes <- function(ll,
                             p_hosp_if_severe,
                             p_died_if_hosp) {
   obs_size <- nrow(ll)
-
   ll_outcomes <- ll %>%
     mutate(
       is_severe = rbinom(obs_size, 1, p_severe),
@@ -56,8 +51,8 @@ sample_outcomes <- function(ll,
       is_severe_hosp_died = rbinom(obs_size, 1, p_died_if_hosp)
     ) %>%
     mutate(
-      is_severe_hosp = ifelse(is_severe, is_severe_hosp, NA),
-      is_severe_hosp_died = ifelse(is_severe_hosp, is_severe_hosp_died, NA)
+      is_severe_hosp = is_severe %*% is_severe_hosp,
+      is_severe_hosp_died = is_severe_hosp %*% is_severe_hosp_died
     )
 
   return(ll_outcomes)
