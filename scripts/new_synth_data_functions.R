@@ -1,6 +1,6 @@
 library(tidyverse)
-ts_len <- 10E1
-ts_tmp <- data.frame(time = 1:ts_len, infections = rep(10,ts_len))
+ts_len <- 1E2
+ts_tmp <- data.frame(time = 1:ts_len, infections = rep(1E6,ts_len))
 
 set.seed(123410000)
 
@@ -9,17 +9,19 @@ p2 = 0.5
 p3 = 0.2
 
 ts_to_ll <- function(ts){
-  ts_len <- nrow(ts)
-  t0s <- c()
-  for(timestep in 1:ts_len){
-    t0s <- c(t0s, rep(ts$time[timestep], ts$infections[timestep]))
-  }
-  ll <- data.frame(id = 1:length(t0s), t0 = t0s)
+  ll <- ts %>% 
+    group_by(time) %>%
+    uncount(infections, .remove = TRUE) %>%
+    mutate(case = row_number()) %>%
+    rename(t0 = time) %>%
+    select(case, t0)
   return(ll)
 }
 
 df <- ts_to_ll(ts_tmp)
 
+
+View(df)
 ll_tilde_to_conditional_ll <- function(ll,
                                  p_severe,
                                  p_hosp_if_severe,
@@ -125,7 +127,7 @@ minimal_linelist_to_delays <- function(infections,
 
 delays <- minimal_linelist_to_delays(ll)
 
-delays |> head()
+delays %>% head()
 
 View(delays)
 
@@ -156,9 +158,9 @@ delays_to_times <- function(delays_df){ #Note: this function assumed non-existen
       time_severe_hosp_test = ifelse(time_severe_hosp_test <= time_resolve,
                                      time_severe_hosp_test, NA)
     ) %>%
-    rowwise() %>%
+    # rowwise() %>%
     mutate(
-      time_obs_case = ifelse( 
+      time_obs_case = if_else( 
         is.na(time_bg_test) & is.na(time_bg_hosp_test) & is.na(time_severe_hosp_test),
         NA,
         min(time_bg_test, time_bg_hosp_test, time_severe_hosp_test, na.rm = T)
