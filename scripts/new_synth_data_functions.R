@@ -1,6 +1,6 @@
 library(tidyverse)
-ts_len <- 100
-ts_tmp <- data.frame(time = 1:ts_len, infections = rep(10,ts_len))
+ts_len <- 1000
+ts_tmp <- data.frame(time = 1:ts_len, infections = rep(10000,ts_len))
 
 set.seed(123410000)
 
@@ -121,6 +121,9 @@ minimal_linelist_to_delays <- function(infections,
 names(minimal_linelist_to_delays(ll))
 
 delays <- minimal_linelist_to_delays(ll)
+
+
+View(delays)
 
 
 delays_to_times <- function(delays_df){ #Note: this function assumed non-existent delays are NA's.
