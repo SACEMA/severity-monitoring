@@ -1,5 +1,25 @@
 library(tidyverse)
-ts_len <- 10E1
+
+#Helper functions (to be refactored)
+find_first_obs_time <- function(x, y, z){
+  ifelse((is.na(x) & is.na(y) & is.na(z)), NA, min(x, y, z, na.rm = T))
+}
+
+find_hosp_admission_time <- function(x, y){
+  ifelse(is.na(x) & is.na(y), NA, min(x, y, na.rm = T))
+}
+
+
+remove_nonsense_times <- function(x, y) {
+  ifelse(!is.na(x), y, NA)
+  }
+
+
+
+
+
+# Steps to create linelist and timeseries
+ts_len <- 10E5
 ts_tmp <- data.frame(time = 1:ts_len, infections = rep(10,ts_len))
 
 set.seed(123410000)
@@ -19,6 +39,7 @@ ts_to_ll <- function(ts){
 }
 
 df <- ts_to_ll(ts_tmp)
+df |> head()
 
 ll_tilde_to_conditional_ll <- function(ll,
                                  p_severe,
@@ -153,30 +174,12 @@ delays_to_times <- function(delays_df){ #Note: this function assumed non-existen
       time_severe_hosp_test = ifelse(time_severe_hosp_test <= time_resolve,
                                      time_severe_hosp_test, NA)
     ) %>%
-    rowwise() %>%
-    mutate(
-      time_obs_case = ifelse( 
-        is.na(time_bg_test) & is.na(time_bg_hosp_test) & is.na(time_severe_hosp_test),
-        NA,
-        min(time_bg_test, time_bg_hosp_test, time_severe_hosp_test, na.rm = T)
-        )
-    ) %>%
-    mutate( # we are keeping the redundant time_severe_hosp column so that we can do sanity checks on it later
-      time_severe_hosp_obs = ifelse(!is.na(time_severe_hosp_test),
-                                time_severe_hosp,
-                                NA),
-      time_bg_hosp_obs = ifelse(!is.na(time_bg_hosp_test),
-                                time_bg_hosp,
-                                NA)
-    ) %>%
-    mutate(
-      time_admission = ifelse(
-        is.na(time_severe_hosp_obs) & is.na(time_bg_hosp_obs),
-        NA,
-        min(time_severe_hosp_obs, time_bg_hosp_obs, na.rm = T)
-      )
-    ) %>%
-     ungroup() %>%
+   # rowwise() %>%
+    mutate(time_obs_case = pmap_dbl(list(time_bg_test, time_bg_hosp_test, time_severe_hosp_test), find_first_obs_time),
+           time_severe_hosp_obs = pmap_dbl(list(time_severe_hosp_test, time_severe_hosp), remove_nonsense_times), 
+           time_bg_hosp_obs = pmap_dbl(list(time_bg_hosp_test, time_bg_hosp), remove_nonsense_times),
+           time_admission = pmap_dbl(list(time_severe_hosp_obs, time_bg_hosp_obs), find_hosp_admission_time)
+           ) %>%
     mutate(
       across(.cols = starts_with("time_"), .fns = floor)
     )
@@ -184,7 +187,7 @@ delays_to_times <- function(delays_df){ #Note: this function assumed non-existen
 }
 
 times_df <- delays_to_times(delays)
-times_df |> head()
+times_df |> View()
 
 times_of_events_to_time_series <- function(times_df){
   
@@ -236,7 +239,7 @@ times_of_events_to_time_series <- function(times_df){
   return(time_series)
 }
 
-View(times_of_events_to_time_series(times))
+View(times_of_events_to_time_series(times_df))
 
 # note: we need a rule for if someone is admitted via background process as well as because they are severe
 
