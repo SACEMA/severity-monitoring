@@ -1,6 +1,6 @@
 library(tidyverse)
 ts_len <- 1E2
-ts_tmp <- data.frame(time = 1:ts_len, infections = rep(1E6,ts_len))
+ts_tmp <- data.frame(time = 1:ts_len, infections = rep(1E3,ts_len))
 
 set.seed(123410000)
 
