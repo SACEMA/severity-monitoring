@@ -35,8 +35,8 @@ sample_outcomes <- function(ll,
       is_severe_hosp_died = rbinom(obs_size, 1, p_died_if_hosp)
     ) %>%
     mutate(
-      is_severe_hosp = is_severe %*% is_severe_hosp,
-      is_severe_hosp_died = is_severe_hosp %*% is_severe_hosp_died
+      is_severe_hosp = is_severe * is_severe_hosp,
+      is_severe_hosp_died = is_severe_hosp * is_severe_hosp_died
     )
 
   return(ll_outcomes)
@@ -53,7 +53,7 @@ sample_delays <- function(infections,
   # we need to parameterise 7 lognormals and 1 exponential delay distribution
   # we need 6 pairs of meanlog and sdlog
   # and 1 exponential rate
-  n_case <- nrow(ll)
+  n_case <- nrow(infections)
   obs <- infections %>%
     mutate(
       delay_bg_test = rlnorm(
@@ -209,4 +209,14 @@ compute_time_series_from_linelist <- function(times_df) {
     mutate(across(.cols = everything(), .fns = replace_na, replace = 0))
 
   return(time_series)
+}
+
+
+# ts must have colums tie and infections
+generate_exponential_time_series <- function(initial_value,
+         ts_length,
+         rate) {
+  ts_out  <- data.frame(time = 1:ts_length) %>%
+    mutate(infections = round(initial_value * exp(rate*time)))
+  return(ts_out)
 }
