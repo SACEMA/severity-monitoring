@@ -35,7 +35,8 @@ expand_ts <- function(ts) {
     uncount(infections, .remove = TRUE) %>%
     mutate(case = row_number()) %>%
     rename(t0 = time) %>%
-    select(case, t0)
+    select(case, t0) %>% 
+    ungroup()
   return(minimal_linelist)
 }
 
@@ -65,7 +66,8 @@ sample_outcomes <- function(ll,
 
 ll <- expand_ts(ts_tmp) %>% sample_outcomes(p1, p2, p3)
 
-minimal_linelist_to_delays <- function(infections,
+
+sample_delays <- function(infections,
                                        mean_bg_test = log(5), sd_bg_test = log(5),
                                        rate_bg_hosp = 0.05,
                                        mean_hosp_test = log(2), sd_hosp_test = log(2),
@@ -148,14 +150,12 @@ minimal_linelist_to_delays <- function(infections,
 
 # names(minimal_linelist_to_delays(ll))
 
-delays <- minimal_linelist_to_delays(ll)
+delays_df <- sample_delays(ll)
 
-delays %>% head()
-
-View(delays)
+View(delays_df)
 
 
-delays_to_times <- function(delays_df) { # Note: this function assumed non-existent delays are NA's.
+compute_event_times_from_delays <- function(delays_df) { # Note: this function assumed non-existent delays are NA's.
   # add unit test here or for prev function to ensure non-existent delays are represented by NA's
   times_df <- delays_df %>%
     mutate(
@@ -197,10 +197,10 @@ delays_to_times <- function(delays_df) { # Note: this function assumed non-exist
   return(times_df)
 }
 
-times_df <- delays_to_times(delays)
+times_df <- compute_event_times_from_delays(delays)
 times_df |> View()
 
-times_of_events_to_time_series <- function(times_df) {
+compute_time_series_from_linelist <- function(times_df) {
   tmax <- max(times_df$t0)
 
   time_series_cases <- times_df %>%
@@ -249,6 +249,6 @@ times_of_events_to_time_series <- function(times_df) {
   return(time_series)
 }
 
-View(times_of_events_to_time_series(times_df))
+compute_time_series_from_linelist(times_df) %>% View()
 
 # note: we need a rule for if someone is admitted via background process as well as because they are severe
