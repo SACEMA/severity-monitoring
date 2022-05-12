@@ -14,35 +14,54 @@ knitr::opts_chunk$set(
 )
 ```
 
-- Summary
-
+In this section, we define the model used as part of our surveillance framework and the approach taken to use this model to evaluate if the underlying relationship between primary and secondary indicators (i.e test positive cases and deaths) has recently changed compared to a baseline period. Note that the model we define here has been used successfully, via its implementation in the `EpiNow2` R package [@EpiNow2] to forecast local area hospital transmissions [@Meakin2022-hw], to forecast COVID-19 notified deaths in Germany and Poland [@Bosse2021-jk], and to forecast deaths and hosptial admissions as part of the ECDC forecasting hub project [@ECDC-hub]. Refer to these publications for a detailed evaluation of its use for out of sample forecasting.  
+ 
 # Model definition
 
-The convolution model shares the same observation model as the renewal model but rather than assuming that an observation is predicted by itself using the renewal equation instead assumes that it is predicted entirely by another observation after some parametric delay. It can be defined mathematically as follows,
+As the key role of this model framework is to assess if the relationship between primary and secondary notifcations is changing over time we consider a simple model in which a mechanistic relationship is explicitly codified.
+This model is based on a discrete convolution of primary cases, scaled based on the fraction (here described as the secondary fraction but depending on application potentially being the case fataility ratio, case hospitalisation ratio, or the hospitalisation fatality ratio), and a delay distribution that is assumed to follow a daily discretised log normal distribution.
+This model can be thought of as a disrete time ordinary differential equation generalised to log normal rather than exponential delay distributions.
+We generalise this simple model to be both the incidence case, which is as described, and the prevalence case (for example hospital admissions and occupancy) where the secondary notifications can be thought of as depending on secondary notifications from the previous timestep, plus scaled current primary notications, and minus scaled historic primary notifications weighted by some delay distribution. 
+This model can be defined as follows,
 
 \begin{equation} 
-    D_{t} \sim \mathrm{NB}\left(\omega_{(t \mod 7)} \alpha \sum_{\tau = 0}^{30} \xi(\tau | \mu, \sigma) C_{t-\tau},  \phi \right)
+    \hat{S}_{t} = \delta_p S_{t} + \alpha \left( \delta_p P_{t} + \delta_c \sum_{\tau = 0}^{D} \xi(\tau | \mu, \sigma) P_{t-\tau} \right)
 \end{equation}
 
-with the following priors,
+Where $S_t$ and $P_t$ are observed primary and secondary notifications, $\hat{S}_t$ are expected secondary notifications, $\delta_p = 1$ and $delta_c = -1$ when $S_t$ is a prevalence measure, $delta_p = 0$ and $delta_c = 1$ when it is an incidence based measure.
+$\alpha$ and $\xi$ are defined as the secondary fraction and delay from primary to secondary notification (or delay from secondary notification to recovery etc in the prevalence case).
+We further assume that $\xi$ follows a discretised log normal distibution described by its mean $\mu$ and standard deviation $\sigma$ on the log scale(where we take the cumulative mass function for time $t$ minus the cumlative mass function for $t-1$) normalised by the maximum allowed delay $D$ such that $\sum^D_{\tau=0}{ \xi(\tau | \mu, \sigma)}  = 1$.
+
+The above definition captures our mechanistic assumptions for the expectation of secondary notifications but does not account for potential observation noise or reporting patterns.
+Here we assume a negative binomial observation model (though our implementation also supports a Poisson observation model) in order to capture potential reporting overdispersion $\phi$ and adjust expected counts using an optional day of the week effect based on a simplex $\omega_{(t \mod 7)}$ (i.e sums to 7 so the total effect over a week is balanced).
+This gives the following observation process. 
+
+\begin{equation} 
+    S_{t} \sim \mathrm{NB}\left(\hat{S}_t,  \phi \right)
+\end{equation}
+
+# Model priors
+
+We define weakly informative default priors for all parameters based on our subject area knowledge. These are as follows,
 
 \begin{align}
     \frac{\omega}{7} &\sim \mathrm{Dirichlet}(1, 1, 1, 1, 1, 1, 1) \\
-    \alpha &\sim \mathcal{N}(0.01, 0.02) \\
-    \xi &\sim \mathcal{LN}(\mu, \sigma) \\
-    \mu &\sim \mathcal{N}(2.5, 0.5) \\
-\sigma &\sim \mathcal{N}(0.47, 0.2) \\
+    \alpha &\sim \mathcal{N}(0.5, 0.25) \\
+    \mu &\sim \mathcal{N}(2.19, 0.5) \\
+\sigma &\sim \mathcal{N}(0.47, 0.25) \\
 \phi &\sim \frac{1}{\sqrt{\mathcal{N}(0, 1)}}
 \end{align}
 
-with $\alpha$, $\mu$, $\sigma$, and $\phi$ truncated to be greater than 0 and with $\xi$ normalised such that $\sum_{\tau = 0}^{30} \xi(\tau | \mu, \sigma) = 1$. 
-
-Versions of this model have been used to x,y,x
-[@Meakin2022-hw] [@Bosse2021-jk]
+Note that we choose $\mu$ and $\sigma$ such that the discretised log normal distribution has a mean of 10 and a standard deviation of 5 on the natural scale. We also set maximum delay $D$ to 30. Here $\alpha$, $\sigma$, and $\phi$ are truncated to be greater than 0.
 
 # Defining a surveillance indicator
 
-- summary
+We now use the convolution model described in the last section to construct and indicator for whether or not the relationship between primary and secondary notifcations is changing over time. 
+We do this using a counterfactual approach by first fitting the model to a baseline period of time and then projecting this forward to the time period of interest. 
+Under an assumption of no change this approach should provide reasonable predictive accuracy and so if it does not we may be able to conclude that there has been an underlying change in the relationship between the two indicators of interest.
+In order to account for the expected in sample performance of our model (i.e its potential misspecification etc.) we normalise performance of predictions from our baseline time period using predictions from a model fit to the time period of interest. 
+This then provides a relative metric of how well the model that assumes no change in indicator relationship captures the current relationship. 
+We build then build on this in later sections to develop a decision criteria for use as a surveillance tool. More detail is provided in the following sections.
 
 ## Base time window vs time window of interest
 
@@ -50,13 +69,15 @@ We first fit a model to a initial time window. This is by default from $w_b + w_
 Optionally, we allow for this definition to be varied with overlapping and non-contigous windows also supported. 
 We then fit another model to the target window of interest (i.e $w_t$ days before the target date). 
 By default we make use of the posterior from the baseline window as a prior for the secondary fraction, delay distribution summary parameters, and if present the overdispersion of the observation model by assuming that the posterior for each parameter is independent normal.
-Our implementation also supports inflating these posterior estimates by a multiplicative factor but our default case is to assume no inflation.
+This approach allows  us to fit to a shorter window of observations and captures our assumption that the baseline window should be representative of the target window.
+Our implementation also supports inflating these posterior estimates by a multiplicative factor in order to capture our a priori expectation of change in the indicator relationship but our default case is to assume no inflation.
 For both models we then generate posterior predictions for the the target window of interest ($w_t$). For the baseline model these represent out of sample predictions and for the target model these represent posterior predictions on observed data.
 Visualising these predictions allows us to qualitively assess the evidence for the target window being different to the baseline window accounting for model misspecification (as we compare model predictions with and without fitting to the data).
 We also extract posterior estimates for secondary fraction, and delay distribution summary parameters for both windows to all exploration of what aspects of the assumed generative process may differ between the two windows if evidence for this is found when comparing predictions.
 
 ## Prediction evaluation and change indicator
 
+In order to evaluate quantitatively 
  \pkg{scoringutils} package implements the following proper scoring rules by providing wrappers to the corresponding functions in the \pkg{scoringRules} package: the (continuous) ranked probability score (CRPS) \citep{epsteinScoringSystemProbability1969, murphyNoteRankedProbability1971a, mathesonScoringRulesContinuous1976, gneitingStrictlyProperScoring2007}, the logarithmic score (log score) \citep{goodRationalDecisions1952}, and the Dawid-Sebastiani-score (DSS) \citep{dawidCoherentDispersionCriteria1999} (formal definitions are given in Table \ref{tab:score-table-detailed}). Compared to the implementations in the \pkg{scoringRules} these are exposed to the user through a slightly adapted interface.
 
 crps <- list(
