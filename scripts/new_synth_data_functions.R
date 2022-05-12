@@ -29,18 +29,20 @@ p2 = 0.5
 p3 = 0.2
 
 ts_to_ll <- function(ts){
-  ts_len <- nrow(ts)
-  t0s <- c()
-  for(timestep in 1:ts_len){
-    t0s <- c(t0s, rep(ts$time[timestep], ts$infections[timestep]))
-  }
-  ll <- data.frame(id = 1:length(t0s), t0 = t0s)
+  ll <- ts %>% 
+    group_by(time) %>%
+    uncount(infections, .remove = TRUE) %>%
+    mutate(case = row_number()) %>%
+    rename(t0 = time) %>%
+    select(case, t0)
   return(ll)
 }
 
 df <- ts_to_ll(ts_tmp)
 df |> head()
 
+
+View(df)
 ll_tilde_to_conditional_ll <- function(ll,
                                  p_severe,
                                  p_hosp_if_severe,
@@ -146,7 +148,10 @@ minimal_linelist_to_delays <- function(infections,
 
 delays <- minimal_linelist_to_delays(ll)
 
-delays |> head()
+delays %>% head()
+
+View(delays)
+
 
 delays_to_times <- function(delays_df){ #Note: this function assumed non-existent delays are NA's.
   # add unit test here or for prev function to ensure non-existent delays are represented by NA's
