@@ -71,6 +71,7 @@ We then fit another model to the target window of interest (i.e $w_t$ days befor
 By default we make use of the posterior from the baseline window as a prior for the secondary fraction, delay distribution summary parameters, and if present the overdispersion of the observation model by assuming that the posterior for each parameter is independent normal.
 This approach allows  us to fit to a shorter window of observations and captures our assumption that the baseline window should be representative of the target window.
 Our implementation also supports inflating these posterior estimates by a multiplicative factor in order to capture our a priori expectation of change in the indicator relationship but our default case is to assume no inflation.
+This option is potentially of use when the baseline window is thought to be less representative of the target window.
 
 For both models we then generate posterior predictions for the target window of interest ($w_t$). For the baseline model these represent out of sample predictions and for the target model these represent posterior predictions on observed data.
 Visualising these predictions allows us to qualitively assess the evidence for the target window being different to the baseline window accounting for model misspecification (as we compare model predictions with and without the use of the observations in the window of interest).
