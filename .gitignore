@@ -42,6 +42,7 @@ vignettes/*.pdf
 *.jpeg
 *.pdf
 *.png
+!docs/sf-methods.pdf
 
 # Raw data
 *.csv
