@@ -19,7 +19,7 @@ In this section, we define the model used as part of our surveillance framework 
 # Model definition
 
 As the key role of this model framework is to assess if the relationship between primary and secondary notifcations is changing over time we consider a simple model in which a mechanistic relationship is explicitly codified.
-This model is based on a discrete convolution of primary cases, scaled based on the fraction (here described as the secondary fraction but depending on application potentially being the case fataility ratio, case hospitalisation ratio, or the hospitalisation fatality ratio), and a delay distribution that is assumed to follow a discretised daily log normal distribution.
+This model is based on a discrete convolution of primary cases, scaled based on the fraction (here described as the secondary fraction but depending on application potentially being the case fatality ratio, case hospitalisation ratio, or the hospitalisation fatality ratio), and a delay distribution that is assumed to follow a discretised daily log normal distribution.
 This model can be thought of as a disrete time ordinary differential equation generalised to log normal, rather than exponential, delay distributions.
 We generalise this simple model beyond the incidence case as described above to also include prevalence indicators (for example hospital admissions and occupancy) where the secondary notifications can be thought of as depending on secondary notifications from the previous timestep, scaled current primary notications, and minus scaled historic primary notifications weighted by some delay distribution. 
 This model can be defined as follows,
@@ -79,7 +79,7 @@ We also summarise posterior estimates for secondary fraction, and delay distribu
 
 ## Prediction evaluation
 
-In order to evaluate quantitatively if the relationship between indicators is changing between the baseline and target windows we need some measure of quantitative predictive performance. Following recognised good practice, we want this measure to be a proper scoring rules such that the highest expected reward is given if the true probability distribution is supplied as the forecast. Here we make use of the continuous ranked probability score (CRPS) which is a proper scoring rule that generalises the absolute error to probablistic forecasts [@gneitingStrictlyProperScoring2007], effectively measuring the 'distance' of the predictive distribution to the observed data-generating distribution [@scoringutils]. It can be defined as follows, 
+In order to evaluate quantitatively if the relationship between indicators is changing between the baseline and target windows we need some measure of quantitative predictive performance. Following recognised good practice, we want this measure to be a proper scoring rule such that the highest expected reward is given if the true probability distribution is supplied as the forecast. Here we make use of the continuous ranked probability score (CRPS) which is a proper scoring rule that generalises the absolute error to probablistic forecasts [@gneitingStrictlyProperScoring2007], effectively measuring the 'distance' of the predictive distribution to the observed data-generating distribution [@scoringutils]. It can be defined as follows, 
 
 \[ \text{CRPS}(F, y) = \int_{-\infty}^\infty \left(F(x) -\mathcal{H}(x \geq y) \right)^2 dx \]
 
@@ -103,6 +103,6 @@ This produces a relative measure of divergance from baseline performance with no
 
 The model is implemented using the `EpiNow2` R package (version 1.3.3) [@EpiNow2] `estimate_secondary` convolution model which itself is implemented using `stan`  via the `rstan` R package (version 2.21.5) [@stan; @rstan] and `forecast_secondary` forecasting model which again is also implemented using `stan` and `rstan`.
 Additional functions from the `EpiNow2` R package are used to facilitate posterior manipulation as well as functions written for this specific implementation and prodived in the code repository. CRPS prediction scoring is implemented using the `scoringRules` R package (version 1.0.1) [@scoringRules] via the `scoringutils` R package (version 1.0.0) [@scoringutils].
-All data manipulation and pipeline code is written in `R` [@R] using `optparse` [@optparse] to create a command line tool.Code for the method outlined in this section can be found here: https://github.com/SACEMA/severity-monitoring
+All data manipulation and pipeline code is written in `R` [@R] using `optparse` [@optparse] to create a command line tool. Code for the method outlined in this section can be found here: https://github.com/SACEMA/severity-monitoring
 
 # References
