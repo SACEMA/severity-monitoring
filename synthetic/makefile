@@ -1,5 +1,5 @@
 FIGDIR := ./outputs/figures
-FULLOUTDIR := ./outputs/full
+OUTDIR := ./outputs/full
 DATADIR := ./data
 SCRIPTDIR := ./scripts
 INPUTDIR := ./inputs
@@ -10,6 +10,18 @@ MAINDATADIR := ../main/data
 
 .PRECIOUS: ./outputs/full/%.rds 
 .PRECIOUS: ./data/%.rds
+
+
+$(DATADIR)/synth_data_functions.RData: $(SCRIPTDIR)/synth_data_functions.R
+	Rscript $^ $@
+
+$(DATADIR)/demo_params.RData: $(SCRIPTDIR)/init_scenario_params.R
+	Rscript $^ $@
+
+$(OUTDIR)/scenario_%.RData: $(SCRIPTDIR)/create_demo_scenario.R $(DATADIR)/synth_data_functions.RData $(DATADIR)/demo_params.RData
+	Rscript $^ $@
+
+all_scenarios: $(OUTDIR)/scenario_1.RData $(OUTDIR)/scenario_2.RData $(OUTDIR)/scenario_3.RData
 
 #define scenarize =
 
@@ -24,31 +36,12 @@ MAINDATADIR := ../main/data
 # $(OUTDIR)/%_full.rds: estimate_secondary_multi.R $(INPUTDIR)/param_combos.rds: #need this to run m instances of estimate_secondary() where m = number of rules
 #	Rscript $^ $@ 
 
-$(INPUTDIR)/param_combos.rds: $(SCRIPTDIR)/generate_param_combos.R $(DATADIR)/define_synth_params_mother_list.csv
-	Rscript $^ $@
 
-$(FIGDIR)/%.png: $(MAINSCRIPTDIR)/plot_sec_est.R $(FULLOUTDIR)/%.rds $(MAINDATADIR)/plotting_functions.RData $(DATADIR)/%.rds 
-	Rscript $^ $@ # optional; title etc ...
+## synthetic data for NICD demo 1
 
-$(FULLOUTDIR)/%.rds: $(MAINSCRIPTDIR)/estimate_secondary.R $(DATADIR)/%.rds $(DATADIR)/estimation_params.RData
-	Rscript $^ $@ ...
 
-$(DATADIR)/%.rds: $(SCRIPTDIR)/create_scenario.R $(DATADIR)/synth_params.RData $(DATADIR)/synth_data_functions.RData
-	Rscript $^ $@ $(subst _, ,$*) ...
-
-# common requirements
-
-$(DATADIR)/synth_data_functions.RData: $(SCRIPTDIR)/synth_data_functions.R
-	Rscript $^ $@
-
-$(DATADIR)/synth_params.RData: $(SCRIPTDIR)/define_synth_params.R #should be in inputs: to be deprecated(?)
-	Rscript $^ $@
-
-$(DATADIR)/estimation_params.RData: $(SCRIPTDIR)/define_estimate_params.R
-	Rscript $^ $@
-
-$(MAINDATADIR)/plotting_functions.RData: $(MAINFUNCDIR)/plotting_functions.R
-	Rscript $^ $@
+#$(MAINDATADIR)/plotting_functions.RData: $(MAINFUNCDIR)/plotting_functions.R
+#	Rscript $^ $@
 
 
 # in the terminal, we type:
@@ -72,3 +65,15 @@ $(MAINDATADIR)/plotting_functions.RData: $(MAINFUNCDIR)/plotting_functions.R
 #scenariots_%_1.rds scen2 scen3 scen4 scen5 scen6 scen7: create_scenario params_combos_%_1.rds etc
 #	Rscript $^ $@
 #scenario_%_combo1: create_scenario params_combos_%_1.rds etc
+
+#$(INPUTDIR)/param_combos.rds: $(SCRIPTDIR)/generate_param_combos.R $(DATADIR)/define_synth_params_mother_list.csv
+#	Rscript $^ $@
+
+#$(FIGDIR)/%.png: $(MAINSCRIPTDIR)/plot_sec_est.R $(FULLOUTDIR)/%.rds $(MAINDATADIR)/plotting_functions.RData $(DATADIR)/%.rds 
+#	Rscript $^ $@ # optional; title etc ...
+
+#$(FULLOUTDIR)/%.rds: $(MAINSCRIPTDIR)/estimate_secondary.R $(DATADIR)/%.rds $(DATADIR)/estimation_params.RData#
+#	Rscript $^ $@ ...
+
+#$(DATADIR)/%.rds: $(SCRIPTDIR)/create_scenario.R $(DATADIR)/synth_params.RData $(DATADIR)/synth_data_functions.RData
+#	Rscript $^ $@ $(subst _, ,$*) ...

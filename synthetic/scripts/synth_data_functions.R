@@ -1,3 +1,9 @@
+.args <- if(interactive()){
+  c("./synthetic/data/synth_data_functions.RData")
+}else{
+  commandArgs(trailingOnly = TRUE)
+}
+
 library(tidyverse)
 
 # Helper functions (to be refactored)
@@ -220,3 +226,7 @@ generate_exponential_time_series <- function(initial_value,
     mutate(infections = round(initial_value * exp(rate*time)))
   return(ts_out)
 }
+
+
+save(list=ls(), file = tail(.args, 1))
+

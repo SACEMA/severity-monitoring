@@ -1,5 +1,7 @@
 .args <- if(interactive()){
   c('./synthetic/data/demo_params.RData')
+}else{
+  commandArgs(trailingOnly = TRUE)
 }
 
 

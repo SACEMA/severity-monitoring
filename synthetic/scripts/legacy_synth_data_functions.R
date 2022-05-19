@@ -1,5 +1,5 @@
 .args <- if(interactive()){
-  c("./synthetic/data/synth_data_functions.RData")
+  c("./synthetic/data/legacy_synth_data_functions.RData")
 }else{
     commandArgs(trailingOnly = TRUE)
   }

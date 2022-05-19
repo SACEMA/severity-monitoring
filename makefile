@@ -6,4 +6,4 @@
 	RScript $^ $@
 
 ./synthetic/data/params.RData : ./synthetic/scripts/define_params.R
-	Rscript $^
+	Rscript $^ $@
