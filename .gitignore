@@ -4,7 +4,8 @@
 renv*
 # Session Data files
 .RData
-
+*.aux
+*.gz
 # User-specific files
 .Ruserdata
 

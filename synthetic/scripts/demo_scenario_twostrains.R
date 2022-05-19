@@ -1,16 +1,19 @@
+library(tidyverse)
+source('./synthetic/scripts/synth_data_functions.R')
+
 ## common params
-ts_len <- 20
+ts_len <- 80
 
 ## params strain1
 
-initial_incidence_strain_1 = 100
-exp_growth_rate_strain_1 = -0.0005
+initial_incidence_strain_1 = 10000
+exp_growth_rate_strain_1 = -0.05
 p_severe_strain_1 = 0.05
 p_hosp_if_severe_strain_1 = 0.5 
 p_died_if_hosp_strain_1 = 0.1
 mean_bg_test_strain_1 = log(5)
 sd_bg_test_strain_1 = log(5)
-rate_bg_hosp_strain_1 = 0.05
+rate_bg_hosp_strain_1 = 0.005
 mean_hosp_test_strain_1 = log(3)
 sd_hosp_test_strain_1 = log(3)
 mean_severe_strain_1 = log(7)
@@ -25,7 +28,7 @@ sd_resolve_strain_1 = log(14)
 
 ## params strain2
 
-initial_incidence_strain_2 = 1
+initial_incidence_strain_2 = 100
 exp_growth_rate_strain_2 = 0.05
 p_severe_strain_2 = 0.1
 p_hosp_if_severe_strain_2 = p_hosp_if_severe_strain_1 
@@ -119,7 +122,7 @@ ts_combined <- left_join(dd_strain_1, dd_strain_2, by = 'time') %>%
          primary = cases_observed.x + cases_observed.y,
          secondary = admissions.x + admissions.y
   )  %>%
-  select(time, latent_primary, latent_severe, primary, secondary)%>%
+  # select(time, latent_primary, latent_severe, primary, secondary)%>%
   pivot_longer(cols = -c('time'))
 
 ts_combined %>%

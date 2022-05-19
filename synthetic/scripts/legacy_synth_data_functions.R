@@ -1,4 +1,8 @@
-.args <- if(interactive()){c("./synthetic/data/synth_data_functions.RData")}else{commandArgs(trailingOnly = TRUE)}
+.args <- if(interactive()){
+  c("./synthetic/data/synth_data_functions.RData")
+}else{
+    commandArgs(trailingOnly = TRUE)
+  }
 #' Generate a time series with the same incidence per time
 #'
 #' @param init_primary Initial number of cases

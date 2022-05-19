@@ -205,8 +205,8 @@ compute_time_series_from_linelist <- function(times_df) {
       all.y = T
     )
 
-  time_series <- time_series %>%
-    mutate(across(.cols = everything(), .fns = replace_na, replace = 0))
+#   time_series <- time_series %>%
+#     mutate(across(.cols = everything(), .fns = replace_na, replace = 0))
 
   return(time_series)
 }
