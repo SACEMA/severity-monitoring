@@ -48,14 +48,14 @@ sample_outcomes <- function(ll,
   return(ll_outcomes)
 }
 
-sample_delays <- function(infections,
-                                       mean_bg_test = log(5), sd_bg_test = log(5),
-                                       rate_bg_hosp = 0.05,
-                                       mean_hosp_test = log(2), sd_hosp_test = log(2),
-                                       mean_severe = log(5), sd_severe = log(5),
-                                       mean_severe_hosp = log(2), sd_severe_hosp = log(2),
-                                       mean_hosp_died = log(10), sd_hosp_died = log(10),
-                                       mean_resolve = log(12), sd_resolve = log(5)) {
+sample_delays <- function(infections, mean_bg_test, sd_bg_test,
+                                       rate_bg_hosp,
+                                       mean_hosp_test, sd_hosp_test,
+                                       mean_severe, sd_severe,
+                                       mean_severe_hosp, sd_severe_hosp,
+                                       mean_hosp_died, sd_hosp_died,
+                                       mean_resolve, sd_resolve
+                          ) {
   # we need to parameterise 7 lognormals and 1 exponential delay distribution
   # we need 6 pairs of meanlog and sdlog
   # and 1 exponential rate
