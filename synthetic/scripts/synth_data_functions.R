@@ -4,7 +4,10 @@
   commandArgs(trailingOnly = TRUE)
 }
 
-library(tidyverse)
+suppressPackageStartupMessages({
+  library(tidyverse)
+  library(EpiNow2)
+})
 
 # Helper functions (to be refactored)
 find_first_obs_time <- function(x, y, z) {
@@ -48,14 +51,14 @@ sample_outcomes <- function(ll,
   return(ll_outcomes)
 }
 
-sample_delays <- function(infections,
-                                       mean_bg_test = log(5), sd_bg_test = log(5),
-                                       rate_bg_hosp = 0.05,
-                                       mean_hosp_test = log(2), sd_hosp_test = log(2),
-                                       mean_severe = log(5), sd_severe = log(5),
-                                       mean_severe_hosp = log(2), sd_severe_hosp = log(2),
-                                       mean_hosp_died = log(10), sd_hosp_died = log(10),
-                                       mean_resolve = log(12), sd_resolve = log(5)) {
+sample_delays <- function(infections, mean_bg_test, sd_bg_test,
+                                       rate_bg_hosp,
+                                       mean_hosp_test, sd_hosp_test,
+                                       mean_severe, sd_severe,
+                                       mean_severe_hosp, sd_severe_hosp,
+                                       mean_hosp_died, sd_hosp_died,
+                                       mean_resolve, sd_resolve
+                          ) {
   # we need to parameterise 7 lognormals and 1 exponential delay distribution
   # we need 6 pairs of meanlog and sdlog
   # and 1 exponential rate
@@ -64,8 +67,8 @@ sample_delays <- function(infections,
     mutate(
       delay_bg_test = rlnorm(
         n = n_case,
-        meanlog = mean_bg_test,
-        sdlog = sd_bg_test
+        meanlog = convert_to_logmean(mean_bg_test, sd_bg_test),
+        sdlog = convert_to_logsd(mean_bg_test, sd_bg_test)
       )
     ) %>%
     mutate(
@@ -77,43 +80,43 @@ sample_delays <- function(infections,
     mutate(
       delay_bg_hosp_test = rlnorm(
         n = n_case,
-        meanlog = mean_hosp_test,
-        sdlog = sd_hosp_test
+        meanlog = convert_to_logmean(mean_hosp_test, sd_hosp_test),
+        sdlog = convert_to_logsd(mean_hosp_test, sd_hosp_test)
       )
     ) %>%
     mutate(
       delay_severe = rlnorm(
         n = n_case,
-        meanlog = mean_severe,
-        sdlog = sd_severe
+        meanlog = convert_to_logmean(mean_severe, sd_severe),
+        sdlog = convert_to_logsd(mean_severe, sd_severe)
       )
     ) %>%
     mutate(
       delay_severe_hosp = rlnorm(
         n = n_case,
-        meanlog = mean_severe_hosp,
-        sdlog = sd_severe_hosp
+        meanlog = convert_to_logmean(mean_severe_hosp, sd_severe_hosp),
+        sdlog = convert_to_logmean(mean_severe_hosp, sd_severe_hosp)
       )
     ) %>%
     mutate(
       delay_severe_hosp_test = rlnorm(
         n = n_case,
-        meanlog = mean_hosp_test,
-        sdlog = sd_hosp_test
+        meanlog = convert_to_logmean(mean_hosp_test, sd_hosp_test),
+        sdlog = convert_to_logsd(mean_hosp_test, sd_hosp_test)
       )
     ) %>%
     mutate(
       delay_severe_death = rlnorm(
         n = n_case,
-        meanlog = mean_hosp_died,
-        sdlog = sd_hosp_died
+        meanlog = convert_to_logmean(mean_hosp_died, sd_hosp_died),
+        sdlog = convert_to_logsd(mean_hosp_died, sd_hosp_died)
       )
     ) %>%
     mutate(
       delay_resolve = rlnorm(
         n = n_case,
-        meanlog = mean_resolve,
-        sdlog = sd_resolve
+        meanlog = convert_to_logmean(mean_resolve, sd_resolve),
+        sdlog = convert_to_logsd(mean_resolve, sd_resolve)
       )
     )
 

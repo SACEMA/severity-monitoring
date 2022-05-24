@@ -4,13 +4,24 @@
 }else{
   commandArgs(trailingOnly = TRUE)
 }
+library(tidyverse)
 
 load(.args[1])
 
-ts_combined %>%
-    ggplot(aes(x = time, y = value, color = name))+
-    geom_line()
+scenario_number <- sub(pattern = "(.*)\\..*$", replacement = "\\1", basename(tail(.args,1)))  %>%
+  sub(pattern = "scenario_", replacement = "")
 
-ggsave(filename = tail(.args,1),
+ts_tmp <- ts_combined %>%
+  ggplot(aes(x = time, y = value, color = name))+
+  geom_line() + 
+  scale_y_log10() +
+  labs(y = "Daily count (log transformed)", x = "Day",
+       title = sprintf("Scenario %s", scenario_number),
+       color = "")
+
+ggsave(plot = ts_tmp,
+       filename = tail(.args,1),
        device = 'png',
+       height = 10,
+       width = 14,
        dpi = 320)

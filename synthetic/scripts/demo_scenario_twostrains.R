@@ -11,20 +11,19 @@ exp_growth_rate_strain_1 = -0.05
 p_severe_strain_1 = 0.05
 p_hosp_if_severe_strain_1 = 0.5 
 p_died_if_hosp_strain_1 = 0.1
-mean_bg_test_strain_1 = log(5)
-sd_bg_test_strain_1 = log(5)
-rate_bg_hosp_strain_1 = 0.005
-mean_hosp_test_strain_1 = log(3)
-sd_hosp_test_strain_1 = log(3)
-mean_severe_strain_1 = log(7)
-sd_severe_strain_1 = log(7)
-mean_severe_hosp_strain_1 = log(2)
-sd_severe_hosp_strain_1 = log(2)
-mean_hosp_died_strain_1 = log(7)
-sd_hosp_died_strain_1 = log(7)
-mean_resolve_strain_1 = log(14)
-sd_resolve_strain_1 = log(14)
-
+mean_bg_test_strain_1 = 5
+sd_bg_test_strain_1 = 5
+rate_bg_hosp_strain_1 = 0.000000005
+mean_hosp_test_strain_1 = 2
+sd_hosp_test_strain_1 = 2
+mean_severe_strain_1 = 2
+sd_severe_strain_1 = 2
+mean_severe_hosp_strain_1 = 3
+sd_severe_hosp_strain_1 = 3
+mean_hosp_died_strain_1 = 7
+sd_hosp_died_strain_1 = 7
+mean_resolve_strain_1 = 50
+sd_resolve_strain_1 = 50
 
 ## params strain2
 
@@ -122,7 +121,7 @@ ts_combined <- left_join(dd_strain_1, dd_strain_2, by = 'time') %>%
          primary = cases_observed.x + cases_observed.y,
          secondary = admissions.x + admissions.y
   )  %>%
-  # select(time, latent_primary, latent_severe, primary, secondary)%>%
+  select(time, latent_primary, latent_severe, primary, secondary)%>%
   pivot_longer(cols = -c('time'))
 
 ts_combined %>%
