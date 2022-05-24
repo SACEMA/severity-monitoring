@@ -21,7 +21,14 @@ $(DATADIR)/demo_params.RData: $(SCRIPTDIR)/init_scenario_params.R
 $(OUTDIR)/scenario_%.RData: $(SCRIPTDIR)/create_demo_scenario.R $(DATADIR)/synth_data_functions.RData $(DATADIR)/demo_params.RData
 	Rscript $^ $@
 
+$(FIGDIR)/scenario_%.RData: $(SCRIPTDIR)/plot_scenario.R $(OUTDIR)/scenario_%.RData
+	Rscript $^ $@
+	
 all_scenarios: $(OUTDIR)/scenario_1.RData $(OUTDIR)/scenario_2.RData $(OUTDIR)/scenario_3.RData
+
+#scenario_plots: 
+
+
 
 #define scenarize =
 

@@ -5,9 +5,6 @@
   }else{
   commandArgs(trailingOnly = TRUE)
   }
-print(.args[1])
-print(.args[2])
-print(.args[3])
 plot_synth_data = FALSE
 
 library(tidyverse)
@@ -94,7 +91,7 @@ with(params,{
              primary = cases_observed.x + cases_observed.y,
              secondary = admissions.x + admissions.y
       )  %>%
-      # select(time, latent_primary, latent_severe, primary, secondary)%>%
+      select(time, latent_primary, latent_severe, primary, secondary)%>%
       pivot_longer(cols = -c('time'))
   
     if(plot_synth_data){  
