@@ -42,10 +42,7 @@ vignettes/*.pdf
 *.jpeg
 *.pdf
 *.png
-
-#exploreation scripts
-epinow_example.R
-
+!docs/sf-methods.pdf
 
 # Raw data
 *.csv
@@ -53,6 +50,12 @@ epinow_example.R
 *.rds
 *.RData
 *.html
+!data/*.rds
 
+# Test results
+test
 # Not sure what category these belong to... tilde-ed filenames
 *~
+
+# Platform-specific files
+.DS_Store
