@@ -29,11 +29,12 @@ scenario_description <- scenario_params$scen_desc
 
 strain_1_params <- data.frame(scenario_params$strain_1) %>%
   mutate(across(.cols = everything(), .fns = ~as.numeric(.x)))
+
 strain_2_params <- data.frame(scenario_params$strain_2) %>%
   mutate(across(.cols = everything(), .fns = ~as.numeric(.x)))
 
 #Global control params; We could put these in a separate global_params.RData creation script
-ts_len <- 80
+# ts_len <- 80
 # plot_synth_data <- TRUE
 
 #Get the scenario number
@@ -144,7 +145,7 @@ select(time, latent_primary, latent_severe, primary, secondary)%>%
 pivot_longer(cols = -c("time"))
 
 
-if(plot_synth_data){  
+if(interactive()){  
   ts_plot_combo <- ts_combined %>%
     ggplot(aes(x = time, y = value, color = name))+
     geom_line() +
