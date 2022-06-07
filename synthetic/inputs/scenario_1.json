@@ -23,7 +23,7 @@
   },
   "strain_2": {
     "initial_incidence": "10",
-    "exp_growth_rate": "0.21",
+    "exp_growth_rate": "0.11",
     "p_severe": "0.0025",
     "p_hosp_if_severe": "0.44",
     "p_died_if_hosp": "0.25",

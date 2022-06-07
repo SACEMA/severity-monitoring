@@ -34,7 +34,7 @@ strain_2_params <- data.frame(scenario_params$strain_2) %>%
 
 #Global control params; We could put these in a separate global_params.RData creation script
 ts_len <- 80
-plot_synth_data <- TRUE
+# plot_synth_data <- TRUE
 
 #Get the scenario number
 # scenario_label <- sub(pattern = "(.*)\\..*$", replacement = "\\1", basename(.args[3])) %>%
@@ -75,7 +75,13 @@ dd_strain_1 <- generate_exponential_time_series(
   ) %>%
   compute_event_times_from_delays() %>%
   compute_time_series_from_linelist() %>%
-  filter(time <= ts_len, time != 0)
+  filter(time <= ts_len, time != 0) %>% 
+  rename(
+    primary = cases_observed,
+    secondary = admissions,
+    latent_primary = cases,
+    latent_severe =  severe_cases
+  )
 
 ##  create TS for strain2 including true and observed cases and admissions
 
@@ -107,9 +113,14 @@ dd_strain_2 <- generate_exponential_time_series(
   ) %>%
   compute_event_times_from_delays() %>%
   compute_time_series_from_linelist() %>%
-  filter(time <= ts_len, time != 0) # note fix this probably replace_na plus non-severe cases
+  filter(time <= ts_len, time != 0) %>% # note fix this probably replace_na plus non-severe cases
   ## add TS_1 + TS_2 and save to RDS file.
-
+  rename(
+    primary = cases_observed,
+    secondary = admissions,
+    latent_primary = cases,
+    latent_severe =  severe_cases
+  )
 
 ts_combined <- left_join(dd_strain_1, dd_strain_2,
                        by = "time",
@@ -117,16 +128,16 @@ ts_combined <- left_join(dd_strain_1, dd_strain_2,
 ) %>%
 mutate(
   latent_primary = rowSums(
-    select(., cases_strain_1, cases_strain_2), na.rm = TRUE
+    select(., latent_primary_strain_1, latent_primary_strain_2), na.rm = TRUE
     ),
   latent_severe = rowSums(
-    select(., severe_cases_strain_1, severe_cases_strain_2), na.rm= TRUE
+    select(., latent_severe_strain_1, latent_severe_strain_2), na.rm= TRUE
     ),
   primary = rowSums(
-    select(., cases_observed_strain_1, cases_observed_strain_2), na.rm = TRUE
+    select(., primary_strain_1, primary_strain_2), na.rm = TRUE
     ),
   secondary = rowSums(
-    select(.,admissions_strain_1, admissions_strain_2), na.rm = TRUE
+    select(.,secondary_strain_1, secondary_strain_2), na.rm = TRUE
     )
 ) %>%
 select(time, latent_primary, latent_severe, primary, secondary)%>%
@@ -134,11 +145,11 @@ pivot_longer(cols = -c("time"))
 
 
 if(plot_synth_data){  
-  ts_plot <- ts_combined %>%
+  ts_plot_combo <- ts_combined %>%
     ggplot(aes(x = time, y = value, color = name))+
     geom_line() +
     labs(title = scenario_description)
-  print(ts_plot) 
+  print(ts_plot_combo) 
 }
 
 
