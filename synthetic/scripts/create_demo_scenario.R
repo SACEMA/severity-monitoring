@@ -33,9 +33,7 @@ strain_1_params <- data.frame(scenario_params$strain_1) %>%
 strain_2_params <- data.frame(scenario_params$strain_2) %>%
   mutate(across(.cols = everything(), .fns = ~as.numeric(.x)))
 
-#Global control params; We could put these in a separate global_params.RData creation script
-# ts_len <- 80
-# plot_synth_data <- TRUE
+
 
 #Get the scenario number
 # scenario_label <- sub(pattern = "(.*)\\..*$", replacement = "\\1", basename(.args[3])) %>%
