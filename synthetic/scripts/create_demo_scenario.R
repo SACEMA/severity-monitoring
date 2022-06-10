@@ -29,25 +29,13 @@ scenario_description <- scenario_params$scen_desc
 
 strain_1_params <- data.frame(scenario_params$strain_1) %>%
   mutate(across(.cols = everything(), .fns = ~as.numeric(.x)))
+
 strain_2_params <- data.frame(scenario_params$strain_2) %>%
   mutate(across(.cols = everything(), .fns = ~as.numeric(.x)))
 
 burnin_length = round(2 * (strain_1_params$mean_severe + strain_1_params$mean_severe_hosp))
 
 
-#Global control params; We could put these in a separate global_params.RData creation script
-# ts_len <- 80
-# plot_synth_data <- TRUE
-
-#Get the scenario number
-# scenario_label <- sub(pattern = "(.*)\\..*$", replacement = "\\1", basename(.args[3])) %>%
-#   sub(pattern = "scenario_", replacement = "") #' REMARK: if this is only to extract the 
-#' scenario number from .args[[3]], we could simply do <str_extract(basename(.args[3]), '\\d+')> but
-#' I guess this will change depending on how we decide to name the scenarios
-
-#Create the ts for each strain separately
-
-## common params
 ##  create TS for strain1 including true and observed cases and admissions
 ## pipe functions from synth data functions to one another
 dd_strain_1 <- generate_exponential_time_series(

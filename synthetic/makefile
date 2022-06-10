@@ -12,7 +12,7 @@ MAINDATADIR := ../main/data
 .PRECIOUS: ./data/%.rds
 
 
-$(FIGDIR)/scenario_%.png: $(SCRIPTDIR)/plot_scenario.R $(OUTDIR)/scenario_%.RData
+$(FIGDIR)/scenario_%.png: $(SCRIPTDIR)/plot_scenario.R $(OUTDIR)/scenario_%.RData $(INPUTSDIR)/scenario_%.json 
 	Rscript $^ $@
 
 $(OUTDIR)/scenario_%.RData: $(SCRIPTDIR)/create_demo_scenario.R $(DATADIR)/synth_data_functions.RData $(INPUTSDIR)/scenario_%.json
