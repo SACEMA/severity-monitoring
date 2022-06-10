@@ -1,8 +1,10 @@
-.args <- if(interactive()){
-  c('./synthetic/outputs/full/scenario_2.RData',
-    "./synthetic/inputs/scenario_2.json",
-    './synthetic/outputs/figures/scenario_2.png')
-}else{
+.args <- if (interactive()) {
+  c(
+    "./synthetic/outputs/full/scenario_1.RData",
+    "./synthetic/inputs/scenario_1.json",
+    "./synthetic/outputs/figures/scenario_1.png"
+  )
+} else {
   commandArgs(trailingOnly = TRUE)
 }
 
@@ -10,37 +12,55 @@
 suppressPackageStartupMessages({
   library(ggplot2)
   library(dplyr)
-  library(purrr)
+  library(stringr)
   library(patchwork)
   library(jsonlite)
+  library(geomtextpath)
 })
 
 load(.args[1])
 
-scenario_desc <- read_json(.args[2]) %>% 
-  pluck('scen_desc')
+scenario_desc <- read_json(.args[2])[["scen_desc"]]
 
-# scenario_number <- sub(pattern = "(.*)\\..*$", replacement = "\\1", basename(tail(.args,1)))  %>%
-#   sub(pattern = "scenario_", replacement = "")
+options(scipen = 9999)
 
-ts_tmp <- ts_combined %>%
-  ggplot(aes(x = time, y = value, color = name))+
-  geom_line() + 
-  labs(y = "Daily count", x = "Day",
-       title = scenario_desc,
-       color = "")
+plot_data <- ts_combined %>%
+  mutate(name = str_replace(name, "_", " "))
+
+# ts_tmp <- ggplot(plot_data, aes(x = time, y = value, label = name))+
+#   geom_labelpath(size = 3.5) +
+#   labs(y = "Daily count", x = "Day",
+#        title = scenario_desc,
+#        color = "") +
+#   theme_minimal()
 
 
-ts_tmp_log <- ts_combined %>%
-  ggplot(aes(x = time, y = value, color = name))+
-  geom_line() + 
+ts_tmp_log <- ggplot(
+  plot_data,
+  aes(
+    x = time,
+    y = value,
+    groups = name
+  )
+) +
+  geom_labelline(aes(label = name),
+    hjust = 0.6,
+    size = 3.5,
+    linewidth = 0.45,
+    straight = TRUE
+  ) +
   scale_y_log10() +
-  labs(y = "Daily count (log transformed)", x = "Day",
-       color = "")
+  labs(
+    y = "Daily count (log transformed)", x = "Day",
+    color = ""
+  ) +
+  theme_minimal()
 
-ggsave(plot = ts_tmp/ts_tmp_log,
-       filename = tail(.args,1),
-       device = 'png',
-       height = 10,
-       width = 14,
-       dpi = 320)
+ggsave(
+  plot = ts_tmp_log,
+  filename = tail(.args, 1),
+  device = "png",
+  height = 10,
+  width = 14,
+  dpi = 320
+)
