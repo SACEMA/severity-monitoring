@@ -32,8 +32,11 @@ strain_1_params <- data.frame(scenario_params$strain_1) %>%
 strain_2_params <- data.frame(scenario_params$strain_2) %>%
   mutate(across(.cols = everything(), .fns = ~as.numeric(.x)))
 
+burnin_length = round(2 * (strain_1_params$mean_severe + strain_1_params$mean_severe_hosp))
+
+
 #Global control params; We could put these in a separate global_params.RData creation script
-ts_len <- 80
+# ts_len <- 80
 # plot_synth_data <- TRUE
 
 #Get the scenario number
@@ -50,7 +53,8 @@ ts_len <- 80
 dd_strain_1 <- generate_exponential_time_series(
   initial_value = strain_1_params$initial_incidence,
   rate = strain_1_params$exp_growth_rate,
-  ts_length = ts_len
+  ts_length = ts_len,
+  burn_length = burnin_length
   ) %>%
   expand_ts() %>%
   sample_outcomes(
@@ -75,20 +79,23 @@ dd_strain_1 <- generate_exponential_time_series(
   ) %>%
   compute_event_times_from_delays() %>%
   compute_time_series_from_linelist() %>%
-  filter(time <= ts_len, time != 0) %>% 
+  filter(time <= (ts_len + burnin_length), time != 0) %>% 
   rename(
     primary = cases_observed,
     secondary = admissions,
     latent_primary = cases,
     latent_severe =  severe_cases
-  )
+  ) %>%
+  filter(time > burnin_length) %>%
+  mutate(time = 1 : nrow(.))
 
 ##  create TS for strain2 including true and observed cases and admissions
 
 dd_strain_2 <- generate_exponential_time_series(
   initial_value = strain_2_params$initial_incidence,
   rate = strain_2_params$exp_growth_rate,
-  ts_length = ts_len
+  ts_length = ts_len,
+  burn_length = burnin_length
   ) %>%
   expand_ts() %>%
   sample_outcomes(
@@ -113,14 +120,16 @@ dd_strain_2 <- generate_exponential_time_series(
   ) %>%
   compute_event_times_from_delays() %>%
   compute_time_series_from_linelist() %>%
-  filter(time <= ts_len, time != 0) %>% # note fix this probably replace_na plus non-severe cases
+  filter(time <= (ts_len + burnin_length), time != 0) %>% # note fix this probably replace_na plus non-severe cases
   ## add TS_1 + TS_2 and save to RDS file.
   rename(
     primary = cases_observed,
     secondary = admissions,
     latent_primary = cases,
     latent_severe =  severe_cases
-  )
+  )  %>%
+  filter(time > burnin_length) %>%
+  mutate(time = 1 : nrow(.))
 
 ts_combined <- left_join(dd_strain_1, dd_strain_2,
                        by = "time",
@@ -144,7 +153,7 @@ select(time, latent_primary, latent_severe, primary, secondary)%>%
 pivot_longer(cols = -c("time"))
 
 
-if(plot_synth_data){  
+if(interactive()){  
   ts_plot_combo <- ts_combined %>%
     ggplot(aes(x = time, y = value, color = name))+
     geom_line() +

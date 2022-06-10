@@ -224,9 +224,11 @@ compute_time_series_from_linelist <- function(times_df) {
 # ts must have colums tie and infections
 generate_exponential_time_series <- function(initial_value,
          ts_length,
-         rate) {
-  ts_out  <- data.frame(time = 1:ts_length) %>%
-    mutate(infections = round(initial_value * exp(rate*time)))
+         rate,
+         burn_length) {
+  burn_init <- initial_value * exp(-1 * rate * (burn_length + 1))
+  ts_out  <- data.frame(time = 1:(ts_length + burn_length)) %>%
+      mutate(infections = c(round(burn_init * exp(rate*time))))
   return(ts_out)
 }
 
