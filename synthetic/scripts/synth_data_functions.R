@@ -4,14 +4,15 @@
   commandArgs(trailingOnly = TRUE)
 }
 
+
 suppressPackageStartupMessages({
   library(tidyverse)
   library(EpiNow2)
 })
 
 # Helper functions (to be refactored)
-find_first_obs_time <- function(x, y, z) {
-  ifelse((is.na(x) & is.na(y) & is.na(z)), NA, min(x, y, z, na.rm = T))
+find_first_obs_time <- function(...) {
+  ifelse(all(is.na(c(...))), NA, min(..., na.rm = T))
 }
 
 find_hosp_admission_time <- function(x, y) {
@@ -35,13 +36,15 @@ expand_ts <- function(ts) {
 sample_outcomes <- function(ll,
                             p_severe,
                             p_hosp_if_severe,
-                            p_died_if_hosp) {
+                            p_died_if_hosp,
+                            p_seek_test) {
   obs_size <- nrow(ll)
   ll_outcomes <- ll %>%
     mutate(
       is_severe = rbinom(obs_size, 1, p_severe),
       is_severe_hosp = rbinom(obs_size, 1, p_hosp_if_severe),
-      is_severe_hosp_died = rbinom(obs_size, 1, p_died_if_hosp)
+      is_severe_hosp_died = rbinom(obs_size, 1, p_died_if_hosp),
+      seek_test = rbinom(obs_size, 1, p_seek_test)
     ) %>%
     mutate(
       is_severe_hosp = is_severe * is_severe_hosp,
@@ -52,12 +55,13 @@ sample_outcomes <- function(ll,
 }
 
 sample_delays <- function(infections, mean_bg_test, sd_bg_test,
-                                       rate_bg_hosp,
-                                       mean_hosp_test, sd_hosp_test,
-                                       mean_severe, sd_severe,
-                                       mean_severe_hosp, sd_severe_hosp,
-                                       mean_hosp_died, sd_hosp_died,
-                                       mean_resolve, sd_resolve
+                          rate_bg_hosp,
+                          mean_hosp_test, sd_hosp_test,
+                          mean_severe, sd_severe,
+                          mean_severe_hosp, sd_severe_hosp,
+                          mean_hosp_died, sd_hosp_died,
+                          mean_resolve, sd_resolve,
+                          mean_seek_test, sd_seek_test
                           ) {
   # we need to parameterise 7 lognormals and 1 exponential delay distribution
   # we need 6 pairs of meanlog and sdlog
@@ -118,6 +122,13 @@ sample_delays <- function(infections, mean_bg_test, sd_bg_test,
         meanlog = convert_to_logmean(mean_resolve, sd_resolve),
         sdlog = convert_to_logsd(mean_resolve, sd_resolve)
       )
+    ) %>%
+    mutate(
+      delay_seek_test = rlnorm(
+        n = n_case,
+        meanlog = convert_to_logmean(mean_seek_test, sd_seek_test),
+        sdlog = convert_to_logsd(mean_seek_test, sd_seek_test)
+      )
     )
 
   obs <- obs %>%
@@ -125,10 +136,11 @@ sample_delays <- function(infections, mean_bg_test, sd_bg_test,
       delay_severe = ifelse(is_severe, delay_severe, NA),
       delay_severe_hosp = ifelse(is_severe_hosp, delay_severe_hosp, NA),
       delay_severe_hosp_test = ifelse(is_severe_hosp, delay_severe_hosp_test, NA),
-      delay_severe_death = ifelse(is_severe_hosp_died, delay_severe_death, NA)
+      delay_severe_death = ifelse(is_severe_hosp_died, delay_severe_death, NA),
+      delay_seek_test = ifelse(seek_test, delay_seek_test, NA)
     ) %>%
     select(
-      c(-is_severe, -is_severe_hosp, -is_severe_hosp_died)
+      c(-is_severe, -is_severe_hosp, -is_severe_hosp_died, -seek_test)
     )
 }
 
@@ -137,6 +149,7 @@ compute_event_times_from_delays <- function(delays_df) { # Note: this function a
   times_df <- delays_df %>%
     mutate(
       time_bg_test = t0 + delay_bg_test,
+      time_seek_test = t0 + delay_seek_test,
       time_bg_hosp = t0 + delay_bg_hosp,
       time_bg_hosp_test = time_bg_hosp + delay_bg_hosp_test,
       time_severe = t0 + delay_severe,
@@ -157,10 +170,12 @@ compute_event_times_from_delays <- function(delays_df) { # Note: this function a
       ),
       time_severe_hosp_test = ifelse(time_severe_hosp_test <= time_resolve,
         time_severe_hosp_test, NA
-      )
+      ),
+      time_seek_test = ifelse(time_seek_test <= time_resolve,
+                              time_seek_test, NA)
     ) %>%
     mutate(
-      time_obs_case = pmap_dbl(list(time_bg_test, time_bg_hosp_test, time_severe_hosp_test), find_first_obs_time),
+      time_obs_case = pmap_dbl(list(time_bg_test, time_bg_hosp_test, time_severe_hosp_test, time_seek_test), find_first_obs_time),
       time_severe_hosp_obs = pmap_dbl(list(time_severe_hosp_test, time_severe_hosp), remove_nonsense_times),
       time_bg_hosp_obs = pmap_dbl(list(time_bg_hosp_test, time_bg_hosp), remove_nonsense_times),
       time_admission = pmap_dbl(list(time_severe_hosp_obs, time_bg_hosp_obs), find_hosp_admission_time)
@@ -228,7 +243,8 @@ generate_exponential_time_series <- function(initial_value,
          burn_length) {
   burn_init <- initial_value * exp(-1 * rate * (burn_length + 1))
   ts_out  <- data.frame(time = 1:(ts_length + burn_length)) %>%
-      mutate(infections = c(round(burn_init * exp(rate*time))))
+      mutate(infections = c((burn_init * exp(rate*time)))) %>%
+      mutate(infections = ifelse(infections<1, ceiling(infections), round(infections)))
   return(ts_out)
 }
 

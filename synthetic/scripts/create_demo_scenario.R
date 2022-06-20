@@ -1,16 +1,14 @@
-.args <- if (interactive()) {
+.args <- if(interactive()) {
   c(
     "./synthetic/data/synth_data_functions.RData",
     "./synthetic/inputs/scenario_1.json",
+    "FALSE", # set to "TRUE" to see burn-in
     "./synthetic/outputs/full/scenario_1.RData"
   )
-} else {
+}else {
   commandArgs(trailingOnly = TRUE)
 }
 
-# print(.args[1])
-# print(.args[2])
-# print(.args[3])
 
 suppressPackageStartupMessages({
   library(tidyverse)
@@ -24,7 +22,7 @@ scenario_params <- jsonlite::read_json(.args[2])
 
 ts_len <- as.numeric(scenario_params$ts_len)
 scenario_description <- scenario_params$scen_desc
-
+keep_burnin <- as.logical(.args[3])
 # str(scenario_params$strain_2)
 
 strain_1_params <- data.frame(scenario_params$strain_1) %>%
@@ -48,9 +46,12 @@ dd_strain_1 <- generate_exponential_time_series(
   sample_outcomes(
     p_severe = strain_1_params$p_severe,
     p_hosp_if_severe = strain_1_params$p_hosp_if_severe,
-    p_died_if_hosp = strain_1_params$p_died_if_hosp
+    p_died_if_hosp = strain_1_params$p_died_if_hosp,
+    p_seek_test = strain_1_params$p_seek_test
   ) %>%
   sample_delays(
+    mean_seek_test = strain_1_params$mean_seek_test,
+    sd_seek_test = strain_1_params$sd_seek_test,
     mean_bg_test = strain_1_params$mean_bg_test,
     sd_bg_test = strain_1_params$sd_bg_test,
     rate_bg_hosp = strain_1_params$rate_bg_hosp,
@@ -74,8 +75,17 @@ dd_strain_1 <- generate_exponential_time_series(
     latent_primary = cases,
     latent_severe =  severe_cases
   ) %>%
-  filter(time > burnin_length) %>%
-  mutate(time = 1 : nrow(.))
+  mutate(time = 1:nrow(.))
+
+
+
+dd_strain_1 <- if(!keep_burnin){
+  dd_strain_1 %>% filter(time > burnin_length) %>%
+    mutate(time = 1 : nrow(.))
+}else{
+  dd_strain_1
+  }
+  
 
 ##  create TS for strain2 including true and observed cases and admissions
 
@@ -89,9 +99,12 @@ dd_strain_2 <- generate_exponential_time_series(
   sample_outcomes(
     p_severe = strain_2_params$p_severe,
     p_hosp_if_severe = strain_2_params$p_hosp_if_severe,
-    p_died_if_hosp = strain_2_params$p_died_if_hosp
+    p_died_if_hosp = strain_2_params$p_died_if_hosp,
+    p_seek_test = strain_2_params$p_seek_test
   ) %>%
   sample_delays(
+    mean_seek_test = strain_2_params$mean_seek_test,
+    sd_seek_test = strain_2_params$sd_seek_test,
     mean_bg_test = strain_2_params$mean_bg_test,
     sd_bg_test = strain_2_params$sd_bg_test,
     rate_bg_hosp = strain_2_params$rate_bg_hosp,
@@ -116,17 +129,24 @@ dd_strain_2 <- generate_exponential_time_series(
     latent_primary = cases,
     latent_severe =  severe_cases
   )  %>%
-  filter(time > burnin_length) %>%
   mutate(time = 1 : nrow(.))
+
+dd_strain_2 <- if(!keep_burnin){
+  dd_strain_2 %>% filter(time > burnin_length) %>%
+    mutate(time = 1 : nrow(.))
+}else{
+  dd_strain_2
+}
+
 
 ts_combined <- left_join(dd_strain_1, dd_strain_2,
                        by = "time",
                        suffix = c("_strain_1", "_strain_2")
-) %>%
-mutate(
-  latent_primary = rowSums(
-    select(., latent_primary_strain_1, latent_primary_strain_2), na.rm = TRUE
-    ),
+                       ) %>%
+  mutate(
+    latent_primary = rowSums(
+      select(., latent_primary_strain_1, latent_primary_strain_2), na.rm = TRUE
+      ),
   latent_severe = rowSums(
     select(., latent_severe_strain_1, latent_severe_strain_2), na.rm= TRUE
     ),
@@ -136,16 +156,17 @@ mutate(
   secondary = rowSums(
     select(.,secondary_strain_1, secondary_strain_2), na.rm = TRUE
     )
-) %>%
-select(time, latent_primary, latent_severe, primary, secondary)%>%
-pivot_longer(cols = -c("time"))
+  ) %>%
+  select(time, latent_primary, latent_severe, primary, secondary) %>%
+  pivot_longer(cols = -c("time"))
 
 
 if(interactive()){  
   ts_plot_combo <- ts_combined %>%
     ggplot(aes(x = time, y = value, color = name))+
     geom_line() +
-    labs(title = scenario_description)
+    labs(title = scenario_description) +
+    scale_y_log10()
   print(ts_plot_combo) 
 }
 
