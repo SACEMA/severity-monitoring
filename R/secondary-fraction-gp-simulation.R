@@ -7,14 +7,24 @@
 #' Last modified: 2022-05-14
 
 #' load data.table for manipulation
-c("data.table") |> .req()
+c("data.table", "EpiNow2") |> .req()
+.args <- .fromArgs(
+  c(
+    here::here("data", "sf_gp_utils.rda"),
+    here::here("data", "example-incidence.rds")
+# here::here("data", "example-prevalence.rds"),
+  )
+)
+
+resultfile <- tail(.args, 1)
+load(.args[1])
 
 #' #### Incidence data example ####
 
 #' make some example secondary incidence data
-inc_cases <- as.data.table(EpiNow2::example_confirmed)
+cases <- as.data.table(EpiNow2::example_confirmed)
 
-inc_cases[, c(
+cases[, c(
   "primary",
   "scaling",
   "meanlog", "sdlog"
@@ -24,26 +34,16 @@ inc_cases[, c(
     1.8, 0.5 #' Parameters of the assumed log normal delay distribution
 )]
 
-#' TODO break up simulate, save steps
+#' sniff type
+
+simtype <- gsub(
+  ".*-(\\w+)\\.rds",
+  "\\1",
+  basename(resultfile),
+  ignore.case = TRUE
+)
 
 #' Simulate secondary cases
-inc_cases <- sf_gp_simulate(inc_cases, type = "incidence")
+sim_cases <- sf_gp_simulate(cases, type = simtype)
 
-saveRDS(inc_cases, here::here("data", "example-incidence.rds"))
-
-#' #### Prevalence data example ####
-
-#' make some example prevalence data
-prev_cases <- EpiNow2::example_confirmed
-prev_cases <- as.data.table(prev_cases)[, primary := confirm]
-
-#' Assume that only 30 percent of cases are reported
-prev_cases[, scaling := 0.3]
-
-# Parameters of the assumed log normal delay distribution
-prev_cases[, meanlog := 1.6][, sdlog := 0.8]
-
-# Simulate secondary cases
-prev_cases <- sf_gp_simulate(prev_cases, type = "prevalence")
-
-saveRDS(prev_cases, here::here("data", "example-prevalence.rds"))
+saveRDS(sim_cases, resultfile)

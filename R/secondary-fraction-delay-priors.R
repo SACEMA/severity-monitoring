@@ -7,7 +7,7 @@
 
 c("EpiNow2", "here") |> .req()
 
-resultfile <- fromArgs(
+resultfile <- .fromArgs(
   here::here("data", "weakly-informed-delays.rds")
 )
 
