@@ -8,11 +8,12 @@
 #' Licence: MIT
 #' Last modified: 2022-05-14
 
- #' Calculate the probability mass function of a discretised
- #' log normal distribution
- #' @author Sam Abbott
- sf_discretised_lognormal_pmf <- function(meanlog, sdlog, max_d,
-                                          reverse = FALSE) {
+#' Calculate the probability mass function of a discretised
+#' log normal distribution
+#' @author Sam Abbott
+sf_discretised_lognormal_pmf <- function(
+  meanlog, sdlog, max_d, reverse = FALSE
+) {
   pmf <- plnorm(1:max_d, meanlog, sdlog) -
     plnorm(0:(max_d - 1), meanlog, sdlog)
   pmf <- as.vector(pmf) / as.vector(plnorm(max_d, meanlog, sdlog))
@@ -25,7 +26,9 @@
 #' Calculate the convolution of a probability mass function of a 
 #' discretised log normal distribution and a vector of counts
 #' @author Sam Abbott
- sf_discretised_lognormal_pmf_conv <- function(x, meanlog, sdlog) {
+sf_discretised_lognormal_pmf_conv <- function(
+  x, meanlog, sdlog
+) {
   pmf <- sf_discretised_lognormal_pmf(meanlog, sdlog, length(x), reverse = TRUE)
   conv <- sum(x * pmf, na.rm = TRUE)
   return(conv)
@@ -84,28 +87,32 @@
 #' # Simulate secondary cases
 #' cases <- sf_gp_simulate(cases, type = "prevalence")
 #' cases
-sf_gp_simulate <- function(data, type = "incidence", family = "poisson",
-                               delay_max = 30, ...) {
-  type <- match.arg(type, choices = c("incidence", "prevalence"))
-  family <- match.arg(family, choices = c("none", "poisson", "negbin"))
-  data <- data.table::as.data.table(data)
-  data <- data.table::copy(data)
-  data <- data[, index := 1:.N]
+sf_gp_simulate <- function(
+  data,
+  type = c("incidence", "prevalence"),
+  family = c("poisson", "negbin", "none"),
+  delay_max = 30, ...
+) {
+  type <- match.arg(type)
+  family <- match.arg(family)
+  data <- data.table::copy(as.data.table(data))
+  data[, index := 1:.N]
   # apply scaling
-  data <- data[, scaled := scaling * primary]
+  data[, scaled := scaling * primary]
   # add convolution
-  data <- data[,
+  data[,
     conv := purrr::pmap_dbl(list(i = index, m = meanlog, s = sdlog),
      function(i, m, s) {
        sf_discretised_lognormal_pmf_conv(
          scaled[max(1, i - delay_max):i], meanlog = m, sdlog = s
         )
-     })]
+  })]
+  # TODO hand this off to distinct functions for incidence vs prevalence
   # build model
   if (type == "incidence") {
-    data <- data[, secondary := conv]
-  }else if (type == "prevalence") {
-    data <- data[1, secondary := scaled]
+    data[, secondary := conv ]
+  } else if (type == "prevalence") {
+    data[1, secondary := scaled ]
     for (i in 2:nrow(data)) {
       index <-
         data[c(i - 1, i)][, secondary := shift(secondary, 1) - conv]
@@ -114,18 +121,19 @@ sf_gp_simulate <- function(data, type = "incidence", family = "poisson",
     }
   }
   # check secondary is greater that zero
-  data <- data[secondary < 0, secondary := 0]
+  data[secondary < 0, secondary := 0]
   data <- data[!is.na(secondary)]
   # apply observation model
+  # TODO: DRY; construct function in if-else, then apply once
   if (family == "poisson") {
-    data <- data[, secondary := purrr::map_dbl(secondary, ~ rpois(1, .))]
-  }else if (family == "negbin") {
-    data <- data[, secondary := purrr::map_dbl(
-      secondary, ~ rnbinom(1, mu = .), ...)
-    ]
+    data[, secondary := purrr::map_dbl(secondary, ~ rpois(1, .)) ]
+  } else if (family == "negbin") {
+    data[, secondary := purrr::map_dbl(secondary, ~ rnbinom(1, mu = .), ...) ]
   }
-  data <- data[, secondary := as.integer(secondary)]
-  return(data[])
+
+  data[, secondary := as.integer(secondary)]
+
+  return(data)
 }
 
 #' Command line interface for secondary fraction estimation
@@ -808,3 +816,5 @@ sf_plot_pp <- function(predictions, ...) {
 
   return(plot)
 }
+
+save(list = ls(), file = .fromArgs(here::here("data", "sf_gp_utils.rda")))
