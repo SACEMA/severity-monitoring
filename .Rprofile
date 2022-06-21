@@ -6,7 +6,7 @@ source("renv/activate.R")
     all() |> stopifnot()
 }
 
-fromArgs <- function(
+.fromArgs <- function(
     defaults,
     useDefaults = interactive(),
     trailingOnly = TRUE
