@@ -1,3 +1,6 @@
+include makefiles/support.makefile
+
+DATADIR ?= data
 
 ./synthetic/outputs/figures/flat_constant.png : ./script/plot.R ./synthetic/outputs/full/flat_constant.rds
 	Rscript $^ $@ 
@@ -7,3 +10,15 @@
 
 ./synthetic/data/params.RData : ./synthetic/scripts/define_params.R
 	Rscript $^
+
+${DATADIR}/weakly-informed-delays.rds: R/secondary-fraction-delay-priors.R
+	$(call R)
+
+${DATADIR}/sf_gp_utils.rda: R/secondary-fraction-utils.R
+	$(call R)
+
+${DATADIR}/example-incidence.rds ${DATADIR}/example-prevalence.rds: R/secondary-fraction-gp-simulation.R ${DATADIR}/sf_gp_utils.rda
+	$(call R)
+
+
+test: ${DATADIR}/example-incidence.rds ${DATADIR}/example-prevalence.rds
