@@ -7,19 +7,24 @@
 #' Last modified: 2022-05-14
 
 #' load data.table for manipulation
-library(data.table)
+c("data.table") |> .req()
 
 #' #### Incidence data example ####
 
 #' make some example secondary incidence data
-inc_cases <- EpiNow2::example_confirmed
-inc_cases <- as.data.table(inc_cases)[, primary := confirm]
+inc_cases <- as.data.table(EpiNow2::example_confirmed)
 
-#' Assume that only 40 percent of cases are reported
-inc_cases[, scaling := 0.4]
+inc_cases[, c(
+  "primary",
+  "scaling",
+  "meanlog", "sdlog"
+) := .(
+    confirm,
+    0.4, #' Assume that only 40 percent of cases are reported
+    1.8, 0.5 #' Parameters of the assumed log normal delay distribution
+)]
 
-#' Parameters of the assumed log normal delay distribution
-inc_cases[, meanlog := 1.8][, sdlog := 0.5]
+#' TODO break up simulate, save steps
 
 #' Simulate secondary cases
 inc_cases <- sf_gp_simulate(inc_cases, type = "incidence")
