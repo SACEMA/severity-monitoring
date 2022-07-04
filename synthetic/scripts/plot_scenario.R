@@ -12,6 +12,7 @@
 suppressPackageStartupMessages({
   library(ggplot2)
   library(dplyr)
+  library(tidyr)
   library(stringr)
   library(patchwork)
   library(jsonlite)
