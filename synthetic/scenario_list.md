@@ -1,7 +1,6 @@
 # Synthetic data scenarios
-All data scenarios describe two strains, one of which is exponentially decaying
-and being replaced with the other, which is exponentially growing. This phenomenon
-is meant to represent the SARS-COV-2 beta to omicron strain evolution. 
+All data scenarios describe the interaction between two strains, one of which is exponentially decaying
+and being replaced with the other, which is exponentially growing. These scenarios represent plausible surveillance phenomenon leading to the replacement of SARS-COV-2 beta with the omicron variant. 
 
 Below, we describe each scenario, representing a change in an underlying process:
 severity, detection of primary outcomes, and mortality.
