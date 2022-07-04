@@ -12,6 +12,7 @@
 suppressPackageStartupMessages({
   library(ggplot2)
   library(dplyr)
+  library(tidyr)
   library(stringr)
   library(patchwork)
   library(jsonlite)
@@ -24,7 +25,7 @@ scenario_desc <- read_json(.args[2])[["scen_desc"]]
 
 options(scipen = 9999)
 
-plot_data <- ts_combined %>%
+plot_data <- sim_results %>%
   mutate(name = str_replace(name, "_", " "))
 
 # ts_tmp <- ggplot(plot_data, aes(x = time, y = value, label = name))+
@@ -34,27 +35,59 @@ plot_data <- ts_combined %>%
 #        color = "") +
 #   theme_minimal()
 
+plot_df <- plot_data %>% 
+  pivot_wider(names_from = name, values_from = value) %>%
+  janitor::clean_names()
 
 ts_tmp_log <- ggplot(
   plot_data,
   aes(
     x = time,
     y = value,
-    groups = name
+    groups = factor(sim_id),
+    color = name
   )
 ) +
-  geom_labelline(aes(label = name),
-    hjust = 0.6,
-    size = 3.5,
-    linewidth = 0.45,
-    straight = TRUE
-  ) +
+  geom_line() +
   scale_y_log10() +
-  labs(
-    y = "Daily count (log transformed)", x = "Day",
-    color = ""
-  ) +
-  theme_minimal()
+  theme_minimal() +
+  theme(legend.position = 'bottom') +
+  labs(color = '', title = scenario_desc)
+  # geom_labelline(aes(
+  #   label = name,
+  #   group = sim_id
+  # ),
+  # hjust = 0.6,
+  # size = 3.5,
+  # linewidth = 0.45,
+  # straight = TRUE
+  # ) +
+  # scale_y_log10() +
+  # labs(
+#   y = "Daily count (log transformed)", x = "Day",
+#   color = ""
+# ) +
+# theme_minimal()
+  # geom_line() +
+  # geom_line(aes(
+  #   x = time,
+  #   y = latent_primary,
+  #   group = factor(sim_id),
+  #   color = 'latent_primary'
+  # )) +
+  # geom_line(aes(
+  #   x = time,
+  #   y = primary,
+  #   group = factor(sim_id)
+  # )) +
+  # geom_line(aes(
+  #   x = time,
+  #   y = secondary,
+  #   group = factor(sim_id)
+  # )) +
+  # scale_y_log10() +
+  # theme_minimal()
+
 
 ggsave(
   plot = ts_tmp_log,

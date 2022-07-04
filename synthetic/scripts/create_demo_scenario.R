@@ -2,7 +2,7 @@
   c(
     "./synthetic/data/synth_data_functions.RData",
     "./synthetic/inputs/scenario_1.json",
-    "FALSE", # set to "TRUE" to see burn-in
+    10,
     "./synthetic/outputs/full/scenario_1.RData"
   )
 }else {
@@ -14,6 +14,7 @@ suppressPackageStartupMessages({
   library(tidyverse)
   library(EpiNow2)
   library(jsonlite)
+  library(doParallel)
 })
 
 load(.args[1])
@@ -22,159 +23,173 @@ scenario_params <- jsonlite::read_json(.args[2])
 
 ts_len <- as.numeric(scenario_params$ts_len)
 scenario_description <- scenario_params$scen_desc
-keep_burnin <- as.logical(.args[3])
-# str(scenario_params$strain_2)
+#keep_burnin <- as.logical(.args[3])
 
-strain_1_params <- data.frame(scenario_params$strain_1) %>%
-  mutate(across(.cols = everything(), .fns = ~as.numeric(.x)))
+generate_scenario <- function() {
+  strain_1_params <- data.frame(scenario_params$strain_1) %>%
+    mutate(across(.cols = everything(), .fns = ~ as.numeric(.x)))
 
-strain_2_params <- data.frame(scenario_params$strain_2) %>%
-  mutate(across(.cols = everything(), .fns = ~as.numeric(.x)))
+  strain_2_params <- data.frame(scenario_params$strain_2) %>%
+    mutate(across(.cols = everything(), .fns = ~ as.numeric(.x)))
 
-burnin_length = round(2 * (strain_1_params$mean_severe + strain_1_params$mean_severe_hosp))
+  burnin_length <- round(2 * (strain_1_params$mean_severe + strain_1_params$mean_severe_hosp))
 
 
-##  create TS for strain1 including true and observed cases and admissions
-## pipe functions from synth data functions to one another
-dd_strain_1 <- generate_exponential_time_series(
-  initial_value = strain_1_params$initial_incidence,
-  rate = strain_1_params$exp_growth_rate,
-  ts_length = ts_len,
-  burn_length = burnin_length
+  ##  create TS for strain1 including true and observed cases and admissions
+  ## pipe functions from synth data functions to one another
+  dd_strain_1 <- generate_exponential_time_series(
+    initial_value = strain_1_params$initial_incidence,
+    rate = strain_1_params$exp_growth_rate,
+    ts_length = ts_len,
+    burn_length = burnin_length
   ) %>%
-  expand_ts() %>%
-  sample_outcomes(
-    p_severe = strain_1_params$p_severe,
-    p_hosp_if_severe = strain_1_params$p_hosp_if_severe,
-    p_died_if_hosp = strain_1_params$p_died_if_hosp,
-    p_seek_test = strain_1_params$p_seek_test
+    expand_ts() %>%
+    sample_outcomes(
+      p_severe = strain_1_params$p_severe,
+      p_hosp_if_severe = strain_1_params$p_hosp_if_severe,
+      p_died_if_hosp = strain_1_params$p_died_if_hosp
+    ) %>%
+    sample_delays(
+      mean_bg_test = strain_1_params$mean_bg_test,
+      sd_bg_test = strain_1_params$sd_bg_test,
+      rate_bg_hosp = strain_1_params$rate_bg_hosp,
+      mean_hosp_test = strain_1_params$mean_hosp_test,
+      sd_hosp_test = strain_1_params$sd_hosp_test,
+      mean_severe = strain_1_params$mean_severe,
+      sd_severe = strain_1_params$sd_severe,
+      mean_severe_hosp = strain_1_params$mean_severe_hosp,
+      sd_severe_hosp = strain_1_params$sd_severe_hosp,
+      mean_hosp_died = strain_1_params$mean_hosp_died,
+      sd_hosp_died = strain_1_params$sd_hosp_died,
+      mean_resolve = strain_1_params$mean_resolve,
+      sd_resolve = strain_1_params$sd_resolve
+    ) %>%
+    compute_event_times_from_delays() %>%
+    compute_time_series_from_linelist() %>%
+    filter(time <= (ts_len + burnin_length), time != 0) %>%
+    rename(
+      primary = cases_observed,
+      secondary = admissions,
+      latent_primary = cases,
+      latent_severe = severe_cases
+    ) %>%
+    filter(time > burnin_length) %>%
+    mutate(time = 1:nrow(.))
+
+  ##  create TS for strain2 including true and observed cases and admissions
+
+  dd_strain_2 <- generate_exponential_time_series(
+    initial_value = strain_2_params$initial_incidence,
+    rate = strain_2_params$exp_growth_rate,
+    ts_length = ts_len,
+    burn_length = burnin_length
   ) %>%
-  sample_delays(
-    mean_seek_test = strain_1_params$mean_seek_test,
-    sd_seek_test = strain_1_params$sd_seek_test,
-    mean_bg_test = strain_1_params$mean_bg_test,
-    sd_bg_test = strain_1_params$sd_bg_test,
-    rate_bg_hosp = strain_1_params$rate_bg_hosp,
-    mean_hosp_test = strain_1_params$mean_hosp_test,
-    sd_hosp_test = strain_1_params$sd_hosp_test,
-    mean_severe = strain_1_params$mean_severe,
-    sd_severe = strain_1_params$sd_severe,
-    mean_severe_hosp = strain_1_params$mean_severe_hosp,
-    sd_severe_hosp = strain_1_params$sd_severe_hosp,
-    mean_hosp_died = strain_1_params$mean_hosp_died,
-    sd_hosp_died = strain_1_params$sd_hosp_died,
-    mean_resolve = strain_1_params$mean_resolve,
-    sd_resolve = strain_1_params$sd_resolve
+    expand_ts() %>%
+    sample_outcomes(
+      p_severe = strain_2_params$p_severe,
+      p_hosp_if_severe = strain_2_params$p_hosp_if_severe,
+      p_died_if_hosp = strain_2_params$p_died_if_hosp
+    ) %>%
+    sample_delays(
+      mean_bg_test = strain_2_params$mean_bg_test,
+      sd_bg_test = strain_2_params$sd_bg_test,
+      rate_bg_hosp = strain_2_params$rate_bg_hosp,
+      mean_hosp_test = strain_2_params$mean_hosp_test,
+      sd_hosp_test = strain_2_params$sd_hosp_test,
+      mean_severe = strain_2_params$mean_severe,
+      sd_severe = strain_2_params$sd_severe,
+      mean_severe_hosp = strain_2_params$mean_severe_hosp,
+      sd_severe_hosp = strain_2_params$sd_severe_hosp,
+      mean_hosp_died = strain_2_params$mean_hosp_died,
+      sd_hosp_died = strain_2_params$sd_hosp_died,
+      mean_resolve = strain_2_params$mean_resolve,
+      sd_resolve = strain_2_params$sd_resolve
+    ) %>%
+    compute_event_times_from_delays() %>%
+    compute_time_series_from_linelist() %>%
+    filter(time <= (ts_len + burnin_length), time != 0) %>% # note fix this probably replace_na plus non-severe cases
+    ## add TS_1 + TS_2 and save to RDS file.
+    rename(
+      primary = cases_observed,
+      secondary = admissions,
+      latent_primary = cases,
+      latent_severe = severe_cases
+    ) %>%
+    filter(time > burnin_length) %>%
+    mutate(time = 1:nrow(.))
+
+  ts_combined <- left_join(dd_strain_1, dd_strain_2,
+    by = "time",
+    suffix = c("_strain_1", "_strain_2")
   ) %>%
-  compute_event_times_from_delays() %>%
-  compute_time_series_from_linelist() %>%
-  filter(time <= (ts_len + burnin_length), time != 0) %>% 
-  rename(
-    primary = cases_observed,
-    secondary = admissions,
-    latent_primary = cases,
-    latent_severe =  severe_cases
-  ) %>%
-  mutate(time = 1:nrow(.))
-
-
-
-dd_strain_1 <- if(!keep_burnin){
-  dd_strain_1 %>% filter(time > burnin_length) %>%
-    mutate(time = 1 : nrow(.))
-}else{
-  dd_strain_1
-  }
-  
-
-##  create TS for strain2 including true and observed cases and admissions
-
-dd_strain_2 <- generate_exponential_time_series(
-  initial_value = strain_2_params$initial_incidence,
-  rate = strain_2_params$exp_growth_rate,
-  ts_length = ts_len,
-  burn_length = burnin_length
-  ) %>%
-  expand_ts() %>%
-  sample_outcomes(
-    p_severe = strain_2_params$p_severe,
-    p_hosp_if_severe = strain_2_params$p_hosp_if_severe,
-    p_died_if_hosp = strain_2_params$p_died_if_hosp,
-    p_seek_test = strain_2_params$p_seek_test
-  ) %>%
-  sample_delays(
-    mean_seek_test = strain_2_params$mean_seek_test,
-    sd_seek_test = strain_2_params$sd_seek_test,
-    mean_bg_test = strain_2_params$mean_bg_test,
-    sd_bg_test = strain_2_params$sd_bg_test,
-    rate_bg_hosp = strain_2_params$rate_bg_hosp,
-    mean_hosp_test = strain_2_params$mean_hosp_test,
-    sd_hosp_test = strain_2_params$sd_hosp_test,
-    mean_severe = strain_2_params$mean_severe,
-    sd_severe = strain_2_params$sd_severe,
-    mean_severe_hosp = strain_2_params$mean_severe_hosp,
-    sd_severe_hosp = strain_2_params$sd_severe_hosp,
-    mean_hosp_died = strain_2_params$mean_hosp_died,
-    sd_hosp_died = strain_2_params$sd_hosp_died,
-    mean_resolve = strain_2_params$mean_resolve,
-    sd_resolve = strain_2_params$sd_resolve
-  ) %>%
-  compute_event_times_from_delays() %>%
-  compute_time_series_from_linelist() %>%
-  filter(time <= (ts_len + burnin_length), time != 0) %>% # note fix this probably replace_na plus non-severe cases
-  ## add TS_1 + TS_2 and save to RDS file.
-  rename(
-    primary = cases_observed,
-    secondary = admissions,
-    latent_primary = cases,
-    latent_severe =  severe_cases
-  )  %>%
-  mutate(time = 1 : nrow(.))
-
-dd_strain_2 <- if(!keep_burnin){
-  dd_strain_2 %>% filter(time > burnin_length) %>%
-    mutate(time = 1 : nrow(.))
-}else{
-  dd_strain_2
-}
-
-
-ts_combined <- left_join(dd_strain_1, dd_strain_2,
-                       by = "time",
-                       suffix = c("_strain_1", "_strain_2")
-                       ) %>%
-  mutate(
-    latent_primary = rowSums(
-      select(., latent_primary_strain_1, latent_primary_strain_2), na.rm = TRUE
+    mutate(
+      latent_primary = rowSums(
+        select(., latent_primary_strain_1, latent_primary_strain_2),
+        na.rm = TRUE
       ),
-  latent_severe = rowSums(
-    select(., latent_severe_strain_1, latent_severe_strain_2), na.rm= TRUE
-    ),
-  primary = rowSums(
-    select(., primary_strain_1, primary_strain_2), na.rm = TRUE
-    ),
-  secondary = rowSums(
-    select(.,secondary_strain_1, secondary_strain_2), na.rm = TRUE
-    )
-  ) %>%
-  select(time, latent_primary, latent_severe, primary, secondary) %>%
-  pivot_longer(cols = -c("time"))
-
-
-if(interactive()){  
-  ts_plot_combo <- ts_combined %>%
-    ggplot(aes(x = time, y = value, color = name))+
-    geom_line() +
-    labs(title = scenario_description) +
-    scale_y_log10()
-  print(ts_plot_combo) 
+      latent_severe = rowSums(
+        select(., latent_severe_strain_1, latent_severe_strain_2),
+        na.rm = TRUE
+      ),
+      primary = rowSums(
+        select(., primary_strain_1, primary_strain_2),
+        na.rm = TRUE
+      ),
+      secondary = rowSums(
+        select(., secondary_strain_1, secondary_strain_2),
+        na.rm = TRUE
+      )
+    ) %>%
+    select(time, latent_primary, latent_severe, primary, secondary) %>%
+    pivot_longer(cols = -c("time"))
 }
 
+# Parallel run
+num_cores <- detectCores() - 2
 
-save(list= c("ts_combined", "dd_strain_1", "dd_strain_2"),
-   file = tail(.args, 1))
-  
-    
+doParallel::registerDoParallel(num_cores)
+
+cl <- makeCluster(num_cores)
+
+num_sims <- as.numeric(.args[[3]])
+
+# sims_per_job <- ceiling(num_sims/num_cores)
+#
+# num_of_jobs <- ceiling(num_sims/sims_per_job)
+
+start_time <- Sys.time()
+
+sim_results <- foreach(
+  sim_num = 1:num_sims,
+  .combine = rbind,
+  .packages = c("dplyr", "foreach"),
+  .errorhandling = "remove"
+) %dopar% {
+  generate_scenario() %>%
+    mutate(sim_id = sim_num)
+}
+
+end_time <- Sys.time()
+
+stopCluster(cl)
+
+print(end_time - start_time)
+
+
+if (interactive()) {
+  ts_plot_combo <- sim_results %>%
+    ggplot(aes(x = time, y = value, color = name, groups = sim_id)) +
+    geom_line() +
+    scale_y_log10() +
+    labs(title = scenario_description)
+  print(ts_plot_combo)
+}
+
+save(sim_results, file = tail(.args, 1))
+# save(list= c("ts_combined", "dd_strain_1", "dd_strain_2"),
+#    file = tail(.args, 1))
+
+
 
 
 ## note: do we want to generate true primary in a stochastic fashion? YEs

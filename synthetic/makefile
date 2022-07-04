@@ -16,7 +16,7 @@ $(FIGDIR)/scenario_%.png: $(SCRIPTDIR)/plot_scenario.R $(OUTDIR)/scenario_%.RDat
 	Rscript $^ $@
 
 $(OUTDIR)/scenario_%.RData: $(SCRIPTDIR)/create_demo_scenario.R $(DATADIR)/synth_data_functions.RData $(INPUTSDIR)/scenario_%.json
-	Rscript $^ FALSE $@
+	Rscript $^ 5 $@
 
 all_scenarios: $(OUTDIR)/scenario_1.RData $(OUTDIR)/scenario_2.RData $(OUTDIR)/scenario_3.RData $(OUTDIR)/scenario_4.RData $(OUTDIR)/scenario_5.RData
 
