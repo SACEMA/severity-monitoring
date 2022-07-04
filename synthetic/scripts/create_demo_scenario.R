@@ -43,6 +43,7 @@ generate_scenario <- function() {
     ts_length = ts_len,
     burn_length = burnin_length
   ) %>%
+    stochasticise_ts() %>%
     expand_ts() %>%
     sample_outcomes(
       p_severe = strain_1_params$p_severe,
@@ -84,6 +85,7 @@ generate_scenario <- function() {
     ts_length = ts_len,
     burn_length = burnin_length
   ) %>%
+    stochasticise_ts() %>%
     expand_ts() %>%
     sample_outcomes(
       p_severe = strain_2_params$p_severe,

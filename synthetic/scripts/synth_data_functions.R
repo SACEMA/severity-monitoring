@@ -248,6 +248,14 @@ generate_exponential_time_series <- function(initial_value,
   return(ts_out)
 }
 
+stochasticise_ts <- function(ts_in){
+  ts_out <- ts_in %>%
+    rowwise() %>%
+    mutate(infections = rpois(1, infections)) %>%
+    ungroup()
+  return(ts_out)
+}
+
 
 save(list=ls(), file = tail(.args, 1))
 
