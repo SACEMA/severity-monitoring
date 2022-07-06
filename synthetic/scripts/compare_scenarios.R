@@ -4,7 +4,7 @@
     "./synthetic/inputs/scenario_1.json",
     "./synthetic/outputs/full/scenario_2.RData",
     "./synthetic/inputs/scenario_2.json",
-    "./synthetic/outputs/figures/compare_scenario_1_scenario_2.png"
+    "./synthetic/outputs/figures/compare_scenarios_1-2.png"
   )
 } else {
   commandArgs(trailingOnly = TRUE)

@@ -2,7 +2,7 @@
   c(
     "./synthetic/outputs/full/scenario_1.RData",
     "./synthetic/inputs/scenario_1.json",
-    "./synthetic/outputs/figures/scenario_1.png"
+    "./synthetic/outputs/figures/scenario_1.pdf"
   )
 } else {
   commandArgs(trailingOnly = TRUE)
@@ -52,16 +52,16 @@ ts_tmp_log <- ggplot(
   scale_y_log10() +
   theme_minimal() +
   theme(legend.position = 'bottom') +
-  labs(color = '', title = scenario_desc)
-  # geom_labelline(aes(
-  #   label = name,
-  #   group = sim_id
-  # ),
-  # hjust = 0.6,
-  # size = 3.5,
-  # linewidth = 0.45,
-  # straight = TRUE
-  # ) +
+  labs(color = '', title = scenario_desc) +
+  geom_labelline(aes(
+    label = name,
+    group = interaction(sim_id, name)
+  ),
+  hjust = 0.6,
+  size = 3.5,
+  linewidth = 0.45,
+  straight = TRUE
+  ) #+
   # scale_y_log10() +
   # labs(
 #   y = "Daily count (log transformed)", x = "Day",
@@ -89,10 +89,11 @@ ts_tmp_log <- ggplot(
   # theme_minimal()
 
 
+
 ggsave(
   plot = ts_tmp_log,
   filename = tail(.args, 1),
-  device = "png",
+  device = "pdf",
   height = 10,
   width = 14,
   dpi = 320

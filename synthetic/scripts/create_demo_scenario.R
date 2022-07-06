@@ -2,7 +2,8 @@
   c(
     "./synthetic/data/synth_data_functions.RData",
     "./synthetic/inputs/scenario_1.json",
-    10,
+    "10",
+    "trashburn", #alternative "keepburn"
     "./synthetic/outputs/full/scenario_1.RData"
   )
 }else {
@@ -25,6 +26,8 @@ ts_len <- as.numeric(scenario_params$ts_len)
 scenario_description <- scenario_params$scen_desc
 #keep_burnin <- as.logical(.args[3])
 
+trash_burn <- .args[[4]] == "trashburn"
+
 generate_scenario <- function() {
   strain_1_params <- data.frame(scenario_params$strain_1) %>%
     mutate(across(.cols = everything(), .fns = ~ as.numeric(.x)))
@@ -43,14 +46,17 @@ generate_scenario <- function() {
     ts_length = ts_len,
     burn_length = burnin_length
   ) %>%
-    stochasticise_ts() %>%
+    sample_ts() %>%
     expand_ts() %>%
     sample_outcomes(
       p_severe = strain_1_params$p_severe,
       p_hosp_if_severe = strain_1_params$p_hosp_if_severe,
-      p_died_if_hosp = strain_1_params$p_died_if_hosp
+      p_died_if_hosp = strain_1_params$p_died_if_hosp,
+      p_seek_test = strain_1_params$p_seek_test
     ) %>%
     sample_delays(
+      mean_seek_test = strain_1_params$mean_seek_test,
+      sd_seek_test = strain_1_params$sd_seek_test,
       mean_bg_test = strain_1_params$mean_bg_test,
       sd_bg_test = strain_1_params$sd_bg_test,
       rate_bg_hosp = strain_1_params$rate_bg_hosp,
@@ -73,9 +79,14 @@ generate_scenario <- function() {
       secondary = admissions,
       latent_primary = cases,
       latent_severe = severe_cases
-    ) %>%
-    filter(time > burnin_length) %>%
-    mutate(time = 1:nrow(.))
+    ) 
+  
+  dd_strain_1 <- if(trash_burn){
+    dd_strain_1 %>% filter(time > burnin_length) %>%
+      mutate(time = 1 : nrow(.))
+  }else{
+    dd_strain_1
+  }
 
   ##  create TS for strain2 including true and observed cases and admissions
 
@@ -85,14 +96,17 @@ generate_scenario <- function() {
     ts_length = ts_len,
     burn_length = burnin_length
   ) %>%
-    stochasticise_ts() %>%
+    sample_ts() %>%
     expand_ts() %>%
     sample_outcomes(
       p_severe = strain_2_params$p_severe,
       p_hosp_if_severe = strain_2_params$p_hosp_if_severe,
-      p_died_if_hosp = strain_2_params$p_died_if_hosp
+      p_died_if_hosp = strain_2_params$p_died_if_hosp,
+      p_seek_test = strain_2_params$p_seek_test
     ) %>%
     sample_delays(
+      mean_seek_test = strain_2_params$mean_seek_test,
+      sd_seek_test = strain_2_params$sd_seek_test,
       mean_bg_test = strain_2_params$mean_bg_test,
       sd_bg_test = strain_2_params$sd_bg_test,
       rate_bg_hosp = strain_2_params$rate_bg_hosp,
@@ -116,10 +130,15 @@ generate_scenario <- function() {
       secondary = admissions,
       latent_primary = cases,
       latent_severe = severe_cases
-    ) %>%
-    filter(time > burnin_length) %>%
-    mutate(time = 1:nrow(.))
-
+    )
+  
+  dd_strain_2 <- if(trash_burn){
+    dd_strain_2 %>% filter(time > burnin_length) %>%
+      mutate(time = 1 : nrow(.))
+  }else{
+    dd_strain_2
+  }
+  
   ts_combined <- left_join(dd_strain_1, dd_strain_2,
     by = "time",
     suffix = c("_strain_1", "_strain_2")
