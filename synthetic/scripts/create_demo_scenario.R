@@ -2,8 +2,12 @@
   c(
     "./synthetic/data/synth_data_functions.RData",
     "./synthetic/inputs/scenario_1.json",
+<<<<<<< HEAD
     "10",
     "trashburn", #alternative "keepburn"
+=======
+    5,
+>>>>>>> james_dev
     "./synthetic/outputs/full/scenario_1.RData"
   )
 }else {
@@ -16,6 +20,7 @@ suppressPackageStartupMessages({
   library(EpiNow2)
   library(jsonlite)
   library(doParallel)
+  library(geomtextpath)
 })
 
 load(.args[1])
@@ -163,9 +168,16 @@ generate_scenario <- function() {
     ) %>%
     select(time, latent_primary, latent_severe, primary, secondary) %>%
     pivot_longer(cols = -c("time"))
+
+  return(ts_combined)
 }
 
+<<<<<<< HEAD
 # Parallel run
+=======
+
+# Parallelize the runs
+>>>>>>> james_dev
 num_cores <- detectCores() - 2
 
 doParallel::registerDoParallel(num_cores)
@@ -174,13 +186,9 @@ cl <- makeCluster(num_cores)
 
 num_sims <- as.numeric(.args[[3]])
 
-# sims_per_job <- ceiling(num_sims/num_cores)
-#
-# num_of_jobs <- ceiling(num_sims/sims_per_job)
-
 start_time <- Sys.time()
 
-sim_results <- foreach(
+scenario_data <- foreach(
   sim_num = 1:num_sims,
   .combine = rbind,
   .packages = c("dplyr", "foreach"),
@@ -198,20 +206,44 @@ print(end_time - start_time)
 
 
 if (interactive()) {
-  ts_plot_combo <- sim_results %>%
-    ggplot(aes(x = time, y = value, color = name, groups = sim_id)) +
+  options(scipen = 9999) # remove scientific notation
+  
+  labels_df <- scenario_data %>% 
+    group_by(name) %>% 
+    slice(1)
+  
+  ts_plot_combo <- ggplot(
+    scenario_data,
+    aes(
+      x = time,
+      y = value,
+      groups = factor(sim_id),
+      color = name
+    )
+  ) +
     geom_line() +
+    geom_labelline(data = labels_df, 
+                   aes(
+      label = name,
+      group = interaction(sim_id, name)
+    ),
+    hjust = 0,
+    size = 3.5,
+    linewidth = 0.45,
+    straight = TRUE
+    ) +
     scale_y_log10() +
-    labs(title = scenario_description)
+    theme_minimal() +
+    theme(legend.position = "none") +
+    labs(
+      x = "Day",
+      y = "Daily count (log transformed)",
+      color = "",
+      title = scenario_description
+    )
   print(ts_plot_combo)
 }
 
-save(sim_results, file = tail(.args, 1))
+save(scenario_data, file = tail(.args, 1))
 # save(list= c("ts_combined", "dd_strain_1", "dd_strain_2"),
 #    file = tail(.args, 1))
-
-
-
-
-## note: do we want to generate true primary in a stochastic fashion? YEs
-## when do we want to start doing this?
