@@ -1,14 +1,11 @@
 .args <- if(interactive()) {
   c(
     "./synthetic/data/synth_data_functions.RData",
-    "./synthetic/inputs/scenario_1.json",
-<<<<<<< HEAD
-    "10",
+    "./synthetic/inputs/scenario_5.json",
+    "./synthetic/data/utils.RData",
+    "2",
     "trashburn", #alternative "keepburn"
-=======
-    5,
->>>>>>> james_dev
-    "./synthetic/outputs/full/scenario_1.RData"
+    "./synthetic/outputs/full/scenario_5.RDS"
   )
 }else {
   commandArgs(trailingOnly = TRUE)
@@ -24,14 +21,16 @@ suppressPackageStartupMessages({
 })
 
 load(.args[1])
-
+load(.args[3])
 scenario_params <- jsonlite::read_json(.args[2])
 
 ts_len <- as.numeric(scenario_params$ts_len)
 scenario_description <- scenario_params$scen_desc
 #keep_burnin <- as.logical(.args[3])
 
-trash_burn <- .args[[4]] == "trashburn"
+trash_burn <- .args[[5]] == "trashburn"
+
+scenario_label <- extract_scenario_number_from_filename(.args[[2]])
 
 generate_scenario <- function() {
   strain_1_params <- data.frame(scenario_params$strain_1) %>%
@@ -172,19 +171,15 @@ generate_scenario <- function() {
   return(ts_combined)
 }
 
-<<<<<<< HEAD
-# Parallel run
-=======
 
 # Parallelize the runs
->>>>>>> james_dev
 num_cores <- detectCores() - 2
 
 doParallel::registerDoParallel(num_cores)
 
 cl <- makeCluster(num_cores)
 
-num_sims <- as.numeric(.args[[3]])
+num_sims <- as.numeric(.args[[4]])
 
 start_time <- Sys.time()
 
@@ -195,7 +190,8 @@ scenario_data <- foreach(
   .errorhandling = "remove"
 ) %dopar% {
   generate_scenario() %>%
-    mutate(sim_id = sim_num)
+    mutate(sim_id = sim_num,
+           scenario_id = scenario_label)
 }
 
 end_time <- Sys.time()
@@ -244,6 +240,6 @@ if (interactive()) {
   print(ts_plot_combo)
 }
 
-save(scenario_data, file = tail(.args, 1))
-# save(list= c("ts_combined", "dd_strain_1", "dd_strain_2"),
+saveRDS(scenario_data, file = tail(.args, 1))
+save(list= c("ts_combined", "dd_strain_1", "dd_strain_2"),
 #    file = tail(.args, 1))

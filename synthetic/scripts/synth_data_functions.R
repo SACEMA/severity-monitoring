@@ -250,7 +250,7 @@ generate_exponential_time_series <- function(initial_value,
 
 sample_ts <- function(ts_in){
   ts_out <- ts_in %>%
-    purr::map(.x = infections, .f = function(.x){rpois(1, .x)})
+    mutate(infections = purrr::map_dbl(.x = .$infections, .f = function(.x){rpois(1, .x)}))
   return(ts_out)
 }
 

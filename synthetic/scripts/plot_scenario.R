@@ -1,6 +1,6 @@
 .args <- if (interactive()) {
   c(
-    "./synthetic/outputs/full/scenario_1.RData",
+    "./synthetic/outputs/full/scenario_1.RDS",
     "./synthetic/inputs/scenario_1.json",
     "./synthetic/outputs/figures/scenario_1.pdf"
   )
@@ -19,7 +19,7 @@ suppressPackageStartupMessages({
   library(geomtextpath)
 })
 
-load(.args[1])
+scenario_data <- readRDS(.args[1])
 
 scenario_desc <- read_json(.args[2])[["scen_desc"]]
 
@@ -55,44 +55,6 @@ ts_tmp_log <- ggplot(
   ) +
   scale_y_log10() +
   theme_minimal() +
-<<<<<<< HEAD
-  theme(legend.position = 'bottom') +
-  labs(color = '', title = scenario_desc) +
-  geom_labelline(aes(
-    label = name,
-    group = interaction(sim_id, name)
-  ),
-  hjust = 0.6,
-  size = 3.5,
-  linewidth = 0.45,
-  straight = TRUE
-  ) #+
-  # scale_y_log10() +
-  # labs(
-#   y = "Daily count (log transformed)", x = "Day",
-#   color = ""
-# ) +
-# theme_minimal()
-  # geom_line() +
-  # geom_line(aes(
-  #   x = time,
-  #   y = latent_primary,
-  #   group = factor(sim_id),
-  #   color = 'latent_primary'
-  # )) +
-  # geom_line(aes(
-  #   x = time,
-  #   y = primary,
-  #   group = factor(sim_id)
-  # )) +
-  # geom_line(aes(
-  #   x = time,
-  #   y = secondary,
-  #   group = factor(sim_id)
-  # )) +
-  # scale_y_log10() +
-  # theme_minimal()
-=======
   theme(legend.position = "none") +
   labs(
     x = "Day",
@@ -100,7 +62,6 @@ ts_tmp_log <- ggplot(
     color = "",
     title = scenario_desc
   )
->>>>>>> james_dev
 
 
 

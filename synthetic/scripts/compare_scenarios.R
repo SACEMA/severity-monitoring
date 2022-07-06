@@ -1,14 +1,16 @@
 .args <- if (interactive()) {
   c(
     "./synthetic/outputs/full/scenario_1.RData",
-    "./synthetic/inputs/scenario_1.json",
     "./synthetic/outputs/full/scenario_2.RData",
-    "./synthetic/inputs/scenario_2.json",
-    "./synthetic/outputs/figures/compare_scenarios_1-2.png"
+    "./synthetic/outputs/figures/compare_scenarios_1_2.png"
   )
 } else {
   commandArgs(trailingOnly = TRUE)
 }
+
+
+second_scenario <- 
+
 
 ## how should we organise this stuff?
 ## how does one view changes by person in git? as in, add it to a view of a file?
