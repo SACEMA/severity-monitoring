@@ -241,5 +241,5 @@ if (interactive()) {
 }
 
 saveRDS(scenario_data, file = tail(.args, 1))
-save(list= c("ts_combined", "dd_strain_1", "dd_strain_2"),
+# save(list= c("ts_combined", "dd_strain_1", "dd_strain_2"),
 #    file = tail(.args, 1))
