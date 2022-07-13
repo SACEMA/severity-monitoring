@@ -30,15 +30,16 @@ plot_data <- scenario_data %>%
 
 plot_labels <- scenario_data %>% 
   group_by(name) %>% 
-  slice(1)
+  slice(1) %>% 
+  ungroup()
 
 ts_tmp_log <- ggplot(
-  plot_data,
+  data = plot_data,
   aes(
     x = time,
     y = value,
-    groups = factor(sim_id),
-    color = name
+    groups = interaction(sim_id, name),
+    color = factor(name)
   )
 ) +
   geom_line() +
@@ -46,8 +47,8 @@ ts_tmp_log <- ggplot(
     data = plot_labels,
     aes(
       label = name,
-      group = interaction(sim_id, name)
-    ),
+      colour = factor(name)
+      ),
     hjust = 0,
     size = 3.5,
     linewidth = 0.45,
@@ -55,6 +56,12 @@ ts_tmp_log <- ggplot(
   ) +
   scale_y_log10() +
   theme_minimal() +
+  # scale_color_manual(values = c('latent_primary' = 'blue', 
+  #                               'latent_severe' = 'navy', 
+  #                               'primary' = 'tomato3', 
+  #                               'secondary' = 'pink'
+  #                               )
+  #                    ) +
   theme(legend.position = "none") +
   labs(
     x = "Day",
