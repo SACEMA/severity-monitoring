@@ -16,7 +16,7 @@ $(FIGDIR)/scenario_%.pdf: $(SCRIPTDIR)/plot_scenario.R $(OUTDIR)/scenario_%.RDS 
 	Rscript $^ $@
 
 $(OUTDIR)/scenario_%.RDS: $(SCRIPTDIR)/create_demo_scenario.R $(DATADIR)/synth_data_functions.RData $(INPUTSDIR)/scenario_%.json $(DATADIR)/utils.RData
-	Rscript $^ 5 trashburn $@
+	Rscript $^ 1 trashburn $@
 
 all_scenarios: $(OUTDIR)/scenario_1.RDS $(OUTDIR)/scenario_2.RDS $(OUTDIR)/scenario_3.RDS $(OUTDIR)/scenario_4.RDS $(OUTDIR)/scenario_5.RDS
 
@@ -28,5 +28,5 @@ $(DATADIR)/synth_data_functions.RData: $(SCRIPTDIR)/synth_data_functions.R
 $(DATADIR)/utils.RData: $(SCRIPTDIR)/utils.R
 	Rscript $^ $@
 
-$(OUTDIR)/compare_scenarios_%.pdf: $(SCRIPTDIR)/compare_scenarios.R $(OUTDIR)/scenario_$$(firstword $$(subst _, ,$$*)).RDS $(OUTDIR)/scenario_$$(lastword $$(subst _, ,$$*)).RDS $(DATADIR)/utils.RData
+$(FIGDIR)/compare_scenarios_%.pdf: $(SCRIPTDIR)/compare_scenarios.R $(OUTDIR)/scenario_$$(firstword $$(subst _, ,$$*)).RDS $(OUTDIR)/scenario_$$(lastword $$(subst _, ,$$*)).RDS $(INPUTSDIR)/scenario_$$(firstword $$(subst _, ,$$*)).json $(INPUTSDIR)/scenario_$$(lastword $$(subst _, ,$$*)).json $(DATADIR)/utils.RData
 	Rscript $^ $@
