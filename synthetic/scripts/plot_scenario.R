@@ -1,8 +1,8 @@
 .args <- if (interactive()) {
   c(
-    "./synthetic/outputs/full/scenario_1.RDS",
-    "./synthetic/inputs/scenario_1.json",
-    "./synthetic/outputs/figures/scenario_1.pdf"
+    "./synthetic/outputs/full/scenario_3.RDS",
+    "./synthetic/inputs/scenario_3.json",
+    "./synthetic/outputs/figures/scenario_3.pdf"
   )
 } else {
   commandArgs(trailingOnly = TRUE)
@@ -28,40 +28,36 @@ options(scipen = 9999) # remove scientific notation
 plot_data <- scenario_data %>%
   mutate(name = str_replace(name, "_", " "))
 
-plot_labels <- scenario_data %>% 
+plot_labels <- plot_data %>% 
   group_by(name) %>% 
   slice(1) %>% 
   ungroup()
 
-ts_tmp_log <- ggplot(
-  data = plot_data,
-  aes(
-    x = time,
-    y = value,
-    groups = interaction(sim_id, name),
-    color = factor(name)
-  )
-) +
-  geom_line() +
+ts_tmp_log <- ggplot() +
+  geom_line(data = plot_data, 
+            aes(x = time,
+            y = value,
+            group = interaction(name, sim_id),
+            color = name
+            ),
+            size = 0.85
+            ) +
   geom_labelline(
     data = plot_labels,
-    aes(
-      label = name,
-      colour = factor(name)
+    aes(x = time,
+        y = value,
+       label = name,
+       colour = name
       ),
     hjust = 0,
     size = 3.5,
     linewidth = 0.45,
-    straight = TRUE
+    straight = TRUE,
+    fontface = "bold",
+    boxlinewidth = 1
   ) +
   scale_y_log10() +
-  theme_minimal() +
-  # scale_color_manual(values = c('latent_primary' = 'blue', 
-  #                               'latent_severe' = 'navy', 
-  #                               'primary' = 'tomato3', 
-  #                               'secondary' = 'pink'
-  #                               )
-  #                    ) +
+  theme_minimal(base_size = 16) +
   theme(legend.position = "none") +
   labs(
     x = "Day",
