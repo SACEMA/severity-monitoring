@@ -16,7 +16,7 @@ $(FIGDIR)/scenario_%.pdf: $(SCRIPTDIR)/plot_scenario.R $(OUTDIR)/scenario_%.RDS 
 	Rscript $^ $@
 
 $(OUTDIR)/scenario_%.RDS: $(SCRIPTDIR)/create_demo_scenario.R $(DATADIR)/synth_data_functions.RData $(INPUTSDIR)/scenario_%.json $(DATADIR)/utils.RData
-	Rscript $^ 1 trashburn $@
+	Rscript $^ 10 trashburn $@
 
 all_scenarios: $(OUTDIR)/scenario_1.RDS $(OUTDIR)/scenario_2.RDS $(OUTDIR)/scenario_3.RDS $(OUTDIR)/scenario_4.RDS $(OUTDIR)/scenario_5.RDS
 
