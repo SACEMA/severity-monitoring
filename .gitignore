@@ -1,10 +1,11 @@
 # History files
 .Rhistory
 .Rapp.history
-
+renv*
 # Session Data files
 .RData
-
+*.aux
+*.gz
 # User-specific files
 .Ruserdata
 
@@ -45,12 +46,14 @@ vignettes/*.pdf
 !docs/sf-methods.pdf
 
 # Raw data
-*.csv
 *.RDS
 *.rds
 *.RData
 *.html
 !data/*.rds
+*.zip
+*.mp4
+*.m4a
 
 # Test results
 test
@@ -59,3 +62,4 @@ test
 
 # Platform-specific files
 .DS_Store
+.vscode/

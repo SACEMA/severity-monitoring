@@ -1,10 +1,13 @@
+library(tidyverse)
+library(lubridate)
+
 .args <- if (interactive()) {
-    c("./synthetic/data/define_synth_params_mother_list.csv")
+    c("./synthetic/data/define_synth_params_mother_list.csv",
+      "./synthetic/inputs/param_combos.rds"
+      )
 } else {
   commandArgs(trailingOnly = TRUE)
 }
-
-library(tidyverse)
 
 
 #Get param specifications
@@ -12,7 +15,7 @@ mother_params_raw <- read_csv(.args[[1]])
 
 
 #Extract start date
-start_date <- as.Date((mother_params_raw %>% tail(1))$min)
+start_date <- dmy((mother_params_raw %>% tail(1))$min)
 
 
 #Create column of vectors for grid
@@ -36,7 +39,11 @@ for (i in 1:nrow(mother_params)) {
                                           )
 }
 
-#Generate the parameter combinations
-param_combos <- expand.grid(mother_param_vec_list)
 
+
+#Generate the parameter combinations
+param_combos <- (expand.grid(mother_param_vec_list)
+	%>% mutate(start_date = start_date, 
+	           experiment = paste0("experiment_", row_number()))
+	)
 saveRDS(param_combos, file = tail(.args, 1))

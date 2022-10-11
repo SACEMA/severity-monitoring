@@ -1,0 +1,188 @@
+
+notes
+
+
+:= sets fixed global variable see stackoverflow answer
+
+
+Current state: 28/04/2022
+
+Generating and saving to (rds) file a dataframe containing one parameter combination per row.
+
+e.g. (~/severity-monitoring/synthetic) make ./data/param_combos.rds
+
+need to think about how we store scenario outputs:
+- raw size ~ 25Mb
+[] - can we reduce what we save? - necessary
+- should we write to file?
+
+[] - let's add stochasticity!
+
+- write script that take param combos and estimates secondary and saves sub-output to file
+
+Note: for now we are putting all scenarios in same mother list (so it's huge but overall technically smaller)
+
+-----
+
+how to specify parameters
+how to generate parameter grid
+
+then we set up running experiments *on* the parameter grid (:= a parameter-combinations list, which is structured like the output of expand_grid)
+
+then we set up how to collate results of experiment on subsets of the parameter-combinations list
+
+Q1: if you were a user, how would you want to specify the sample for each parameter?
+e.g. would you want to specify min max n; or mean sd n; mean; params for hypercube (e.g. sobol sequence or latin hypercube)
+
+
+
+R package randtoolbox::sobol(n, dim, seed)
+
+runiform
+
+each fxn takes number of arguments, and we want to generate a grid
+if fxn 1 takes x number of inputs
+
+let's call choices of functions from each dimension [i.e. one fxn from each dimension] a scenario type
+
+at the moment, the suggestion is to generate the target names within a loop:
+e.g.
+up_const_twovals_const.png
+3,2,3,2
+const_twovals_twovals_twovals.png
+2,3,3,3
+
+
+[idea] parameter combinations live in M by N matrix-like object where each row contains one parameter combination (i.e. one value for each parameter). Each scenario needs only 1 such object so long as we keep track of which rows correspond with varying which parameters.
+
+
+<specification for parameter combos> e.g. = $exp1_min $exp1_max $exp2_min $exp2_max $up1_start $up1_duration
+
+VARIABLENAME_min := 10
+VARIABLENAME_max := 48
+
+if we store the mother-table in an rds file containing a dataframe, we have the advantage that we can name all the columns and pass that one simple file between other files
+
+
+
+M = 1000
+{for all dimension types for d1-d4} (i.e. for each possible value of % such as up_const_const_const or up_const_twovals_const)
+	%: 
+		mkdir $(%)
+	param_combos_%: create_param_combo.R
+		Rscript $^ <specification for parameter combos> $M $@
+	{for m = 1:M}
+			%_${m}.rds: run_experiment.R param_combos_% ${m}
+				Rscript $^ $@
+
+{for each scenario type}
+	scenario_summary_%.rds: collate_experiments_for_scenario.R %[=scenario type] <details about params>
+		Rscript $^ $@
+
+collate_experiments_for_scenario uses <details about params> to identify which results files (corresponding to rows in param_combos_%) to use and how to arrange them appropriately
+
+{for all dimension types for d1-d4}
+		%.rds: run_experiment_grid.R param_combos_% m_min m_max
+			Rscript $^ $@
+
+
+
+
+pass the Rscript d1_exp_growth_rate d3_max_obs
+
+within d1_exp_growth_rate d3_max_obs
+# want to lookup directly in the results table, which is structures like expand_grid
+we need to be holding the other parameters constant 
+
+
+
+{for all parameter combos in m by n matrix}
+	{create target}
+		up_const_const_const.png: dependencies
+			Rscript $^ $@ parameter_combo_m
+
+% := e.g. up_const_const_const 
+param_combos_%: create_params.R inputs_% param_combos_%
+	Rscript $^ $@
+
+
+to achieve full flexibility requires a LOT of thinking
+e.g. being able to explore all parameter space arbitrarily-ish
+
+
+there will be a mother table which is expanded to get param_combos_%
+this will have columns that look like:
+parameter param_min param_max resolution
+and one row per parameter
+
+R script for collating results will take paramname_1 and paramname_2 and p1_min p1_max m2_min p2_max:
+then use the mother table to compute which rows to include in this calculation
+
+within R, we can: 
+
+1: varying between scenarios, doing 1 experiment per scenario
+2: specify a few scenarios to explore, and do many experiments [explore parameter space] for each of these specific scenarios
+
+[definition] up_const_const_const is a scenario
+[definition] up_const_const_const + params specified is an experiment
+	- result of this single parameter combination is an experiment-result
+[definition] with each scenario, we will run experiments using different parameter combinations. we call the results of all the experiments associated with a set of parameter combinations a scenario-results.
+
+[implementation suggestion] scenario-results := scenario
+
+
+
+individual [word] for a set of parameter combinations (in our case, this will translate into 
+[assumption] we want to do a "meta table parameter " for many different scenario types
+
+
+note: some parameters aren't changing between runs.
+
+
+take inputs from user:
+create small grid of parameter combinations
+meta-table of input variables
+then: generate "real" grid of scenarios
+i.e. use the grid we created to provide inputs to individual experiments and to provide names for the outputs of these experiments.
+
+
+
+D1:
+f1
+f2
+f3
+D2:
+f1
+f2
+f3
+D3:
+f1
+f2
+D4:
+f1
+f3
+
+
+
+
+
+main:
+- decide upon [an] engineering strategy for parameter space sampling
+	- need: way to feed varying-number of inputs to scenario-creation functions
+		[alternative is] to 
+		if dim1 takes in rate at which something ischanging, what we want is different values for that input?
+	
+	- need: loops to generate parameter combinations and associated targets in the makefile
+	- need: [dummy] output to compare between paratemeter combinations [error metric?]
+		idea: [error metric] how about the difference between the fitted ratio and the true ratio?
+			this_step_should: take in info about which scenario output files to use
+			this_step_should: go through scenario files and compute a matrix-type object of the summary errors for each scenario (i.e. each parameter combination)
+			this_step_should: plot param values vs summary "error" number
+		idea: [more sensitive] [change detection sensitivity]
+			needs: definition of change detection method, including some sort of threshhold
+	- decide: how many parameters to sample at a time? i.e. do we just want 2-deep loops in the makefile? do we want to compare parameters independently in pairs? 
+		a: yes and yes
+- 
+also:
+- check-in/state of affairs
+- [i/o decisions] idea: create database per scenario-type and table per scenario output

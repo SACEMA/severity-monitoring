@@ -9,7 +9,7 @@ DATADIR ?= data
 	RScript $^ $@
 
 ./synthetic/data/params.RData : ./synthetic/scripts/define_params.R
-	Rscript $^
+	$(call R)
 
 ${DATADIR}/weakly-informed-delays.rds: R/secondary-fraction-delay-priors.R
 	$(call R)
