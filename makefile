@@ -20,5 +20,7 @@ ${DATADIR}/sf_gp_utils.rda: R/secondary-fraction-utils.R
 ${DATADIR}/example-incidence.rds ${DATADIR}/example-prevalence.rds: R/secondary-fraction-gp-simulation.R ${DATADIR}/sf_gp_utils.rda
 	$(call R)
 
+${DATADIR}/example-sf.rds: R/secondary-fraction.R ${DATADIR}/sf_gp_utils.rda ${DATADIR}/example-incidence.rds
+	$(call R)
 
 test: ${DATADIR}/example-incidence.rds ${DATADIR}/example-prevalence.rds

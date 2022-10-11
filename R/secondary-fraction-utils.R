@@ -14,9 +14,8 @@
 sf_discretised_lognormal_pmf <- function(
   meanlog, sdlog, max_d, reverse = FALSE
 ) {
-  pmf <- plnorm(1:max_d, meanlog, sdlog) -
-    plnorm(0:(max_d - 1), meanlog, sdlog)
-  pmf <- as.vector(pmf) / as.vector(plnorm(max_d, meanlog, sdlog))
+  r <- plnorm(1:max_d, meanlog, sdlog)
+  pmf <- (r - plnorm(0:(max_d - 1), meanlog, sdlog)) / r[max_d]
   if (reverse) {
     pmf <- rev(pmf)
   }

@@ -17,7 +17,7 @@
 #' Last modified: 2022-05-14
 
 #' Source tools
-source(here::here("R", "secondary-fraction-utils.R"))
+load(here::here("data", "sf_gp_utils.rda"))
 
 #' Set up command line arguments (or use defaults when interactive)
 args <- sf_cli_interface()
@@ -68,8 +68,7 @@ if (is.null(args$observations)) {
 if (args$verbose) {
   message("Reading in observations from: ", args$observations)
 }
-observations <- readRDS(args$observations)
-observations <- data.table::as.data.table(observations)
+observations <- readRDS(args$observations) |> data.table::as.data.table()
 
 #' Filter for target date
 if (!is.null(args$target_date)) {
