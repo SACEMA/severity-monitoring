@@ -248,11 +248,9 @@ generate_exponential_time_series <- function(initial_value,
   return(ts_out)
 }
 
-stochasticise_ts <- function(ts_in){
+sample_ts <- function(ts_in){
   ts_out <- ts_in %>%
-    rowwise() %>%
-    mutate(infections = rpois(1, infections)) %>%
-    ungroup()
+    mutate(infections = purrr::map_dbl(.x = .$infections, .f = function(.x){rpois(1, .x)}))
   return(ts_out)
 }
 

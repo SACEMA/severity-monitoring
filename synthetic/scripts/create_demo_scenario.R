@@ -1,9 +1,11 @@
 .args <- if(interactive()) {
   c(
     "./synthetic/data/synth_data_functions.RData",
-    "./synthetic/inputs/scenario_1.json",
-    10,
-    "./synthetic/outputs/full/scenario_1.RData"
+    "./synthetic/inputs/scenario_5.json",
+    "./synthetic/data/utils.RData",
+    "2",
+    "trashburn", #alternative "keepburn"
+    "./synthetic/outputs/full/scenario_5.RDS"
   )
 }else {
   commandArgs(trailingOnly = TRUE)
@@ -15,15 +17,20 @@ suppressPackageStartupMessages({
   library(EpiNow2)
   library(jsonlite)
   library(doParallel)
+  library(geomtextpath)
 })
 
 load(.args[1])
-
+load(.args[3])
 scenario_params <- jsonlite::read_json(.args[2])
 
 ts_len <- as.numeric(scenario_params$ts_len)
 scenario_description <- scenario_params$scen_desc
 #keep_burnin <- as.logical(.args[3])
+
+trash_burn <- .args[[5]] == "trashburn"
+
+scenario_label <- extract_scenario_number_from_filename(.args[[2]])
 
 generate_scenario <- function() {
   strain_1_params <- data.frame(scenario_params$strain_1) %>%
@@ -43,14 +50,17 @@ generate_scenario <- function() {
     ts_length = ts_len,
     burn_length = burnin_length
   ) %>%
-    stochasticise_ts() %>%
+    sample_ts() %>%
     expand_ts() %>%
     sample_outcomes(
       p_severe = strain_1_params$p_severe,
       p_hosp_if_severe = strain_1_params$p_hosp_if_severe,
-      p_died_if_hosp = strain_1_params$p_died_if_hosp
+      p_died_if_hosp = strain_1_params$p_died_if_hosp,
+      p_seek_test = strain_1_params$p_seek_test
     ) %>%
     sample_delays(
+      mean_seek_test = strain_1_params$mean_seek_test,
+      sd_seek_test = strain_1_params$sd_seek_test,
       mean_bg_test = strain_1_params$mean_bg_test,
       sd_bg_test = strain_1_params$sd_bg_test,
       rate_bg_hosp = strain_1_params$rate_bg_hosp,
@@ -73,9 +83,14 @@ generate_scenario <- function() {
       secondary = admissions,
       latent_primary = cases,
       latent_severe = severe_cases
-    ) %>%
-    filter(time > burnin_length) %>%
-    mutate(time = 1:nrow(.))
+    ) 
+  
+  dd_strain_1 <- if(trash_burn){
+    dd_strain_1 %>% filter(time > burnin_length) %>%
+      mutate(time = 1 : nrow(.))
+  }else{
+    dd_strain_1
+  }
 
   ##  create TS for strain2 including true and observed cases and admissions
 
@@ -85,14 +100,17 @@ generate_scenario <- function() {
     ts_length = ts_len,
     burn_length = burnin_length
   ) %>%
-    stochasticise_ts() %>%
+    sample_ts() %>%
     expand_ts() %>%
     sample_outcomes(
       p_severe = strain_2_params$p_severe,
       p_hosp_if_severe = strain_2_params$p_hosp_if_severe,
-      p_died_if_hosp = strain_2_params$p_died_if_hosp
+      p_died_if_hosp = strain_2_params$p_died_if_hosp,
+      p_seek_test = strain_2_params$p_seek_test
     ) %>%
     sample_delays(
+      mean_seek_test = strain_2_params$mean_seek_test,
+      sd_seek_test = strain_2_params$sd_seek_test,
       mean_bg_test = strain_2_params$mean_bg_test,
       sd_bg_test = strain_2_params$sd_bg_test,
       rate_bg_hosp = strain_2_params$rate_bg_hosp,
@@ -116,10 +134,15 @@ generate_scenario <- function() {
       secondary = admissions,
       latent_primary = cases,
       latent_severe = severe_cases
-    ) %>%
-    filter(time > burnin_length) %>%
-    mutate(time = 1:nrow(.))
-
+    )
+  
+  dd_strain_2 <- if(trash_burn){
+    dd_strain_2 %>% filter(time > burnin_length) %>%
+      mutate(time = 1 : nrow(.))
+  }else{
+    dd_strain_2
+  }
+  
   ts_combined <- left_join(dd_strain_1, dd_strain_2,
     by = "time",
     suffix = c("_strain_1", "_strain_2")
@@ -144,31 +167,31 @@ generate_scenario <- function() {
     ) %>%
     select(time, latent_primary, latent_severe, primary, secondary) %>%
     pivot_longer(cols = -c("time"))
+
+  return(ts_combined)
 }
 
-# Parallel run
+
+# Parallelize the runs
 num_cores <- detectCores() - 2
 
 doParallel::registerDoParallel(num_cores)
 
 cl <- makeCluster(num_cores)
 
-num_sims <- as.numeric(.args[[3]])
-
-# sims_per_job <- ceiling(num_sims/num_cores)
-#
-# num_of_jobs <- ceiling(num_sims/sims_per_job)
+num_sims <- as.numeric(.args[[4]])
 
 start_time <- Sys.time()
 
-sim_results <- foreach(
+scenario_data <- foreach(
   sim_num = 1:num_sims,
   .combine = rbind,
   .packages = c("dplyr", "foreach"),
   .errorhandling = "remove"
 ) %dopar% {
   generate_scenario() %>%
-    mutate(sim_id = sim_num)
+    mutate(sim_id = sim_num,
+           scenario_id = scenario_label)
 }
 
 end_time <- Sys.time()
@@ -179,20 +202,44 @@ print(end_time - start_time)
 
 
 if (interactive()) {
-  ts_plot_combo <- sim_results %>%
-    ggplot(aes(x = time, y = value, color = name, groups = sim_id)) +
+  options(scipen = 9999) # remove scientific notation
+  
+  labels_df <- scenario_data %>% 
+    group_by(name) %>% 
+    slice(1)
+  
+  ts_plot_combo <- ggplot(
+    scenario_data,
+    aes(
+      x = time,
+      y = value,
+      groups = factor(sim_id),
+      color = name
+    )
+  ) +
     geom_line() +
+    geom_labelline(data = labels_df, 
+                   aes(
+      label = name,
+      group = interaction(sim_id, name)
+    ),
+    hjust = 0,
+    size = 3.5,
+    linewidth = 0.45,
+    straight = TRUE
+    ) +
     scale_y_log10() +
-    labs(title = scenario_description)
+    theme_minimal() +
+    theme(legend.position = "none") +
+    labs(
+      x = "Day",
+      y = "Daily count (log transformed)",
+      color = "",
+      title = scenario_description
+    )
   print(ts_plot_combo)
 }
 
-save(sim_results, file = tail(.args, 1))
+saveRDS(scenario_data, file = tail(.args, 1))
 # save(list= c("ts_combined", "dd_strain_1", "dd_strain_2"),
 #    file = tail(.args, 1))
-
-
-
-
-## note: do we want to generate true primary in a stochastic fashion? YEs
-## when do we want to start doing this?

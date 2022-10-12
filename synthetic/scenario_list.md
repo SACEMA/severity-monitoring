@@ -1,23 +1,23 @@
 # Synthetic data scenarios
-All data scenarios describe the interaction between two strains, one of which is exponentially decaying
-and being replaced with the other, which is exponentially growing. These scenarios represent plausible surveillance phenomenon leading to the replacement of SARS-COV-2 beta with the omicron variant. 
+The synthetic data scenarios represented here form part of the evaluation framework of the tool. Each scenario represents an expected true or false change/no-change situation, which we expect the tool to detect.
 
-Below, we describe each scenario, representing a change in an underlying process:
-severity, detection of primary outcomes, and mortality.
+All the data scenarios describe two interacting strains, one of which is exponentially decaying
+and being replaced with another, which is exponentially growing. The scenarios are characterized by one or more relative changes in severity, detection of primary outcomes, and mortality.
+
+An example of this phenomenon is the gradual replacement of the SARS-COV-2 beta variant by the omicron variant.
 
 
 ## Scenario 1 (True negative)
-This scenario describes a situation where there is no change in severity.
+No change in severity.
 
 ## Scenario 2 (False positive)
-This scenario describes a situation where there is a decrease in dectection of primary outcomes.
+A decrease in detection of primary outcomes.
 
 ## Scenario 3 (True positive downward)
-This scenario describes a situation where there is a relative decrease in mortality.
+A decrease in mortality.
 
 ## Scenario 4 (True positive upward)
-This scenario describes a situation where there is a relative increase in mortality.
+An increase in mortality.
 
 ## Scenario 5 (False negative)
-This scenario describes a situation where there is relatively higher severity and a higher detection of
-primary outcomes.
+A higher severity and primary outcome detection.
