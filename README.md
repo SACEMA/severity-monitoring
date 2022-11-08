@@ -1,3 +1,7 @@
+# Manuscript writing
+
+Use [trackdown](https://cran.r-project.org/web/packages/trackdown/vignettes/trackdown-workflow.html).
+
 # COVID-19 severity routine monitoring
 
 ## Project description
