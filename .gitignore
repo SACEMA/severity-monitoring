@@ -54,6 +54,7 @@ vignettes/*.pdf
 *.zip
 *.mp4
 *.m4a
+*.rda
 
 # Test results
 test

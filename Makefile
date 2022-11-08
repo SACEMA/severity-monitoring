@@ -13,7 +13,12 @@ MAKEDIRS := ${DATADIR} ${FIGDIR} ${OUTDIR} ${SYNDIR}
 include makefiles/support.make
 
 ${FIGDIR}/%.png: R/plot_scenario.R ${OUTDIR}/synthetic/%.rds
-	Rscript $^ $@ 
+	$(call R)
+
+${SYNDIR}/%.rds: R/generate_synthetic.R ${SYNDIR}/%_params.rds
+	$(call R)
+
+${SYNDIR}/%_params.rds: R/parse_params.R ${DATADIR}/%.json
 
 ./synthetic/outputs/full/flat_constant.rds : ./scripts/estimate_secondary.R ./synthetic/data/flat_constant.rds ./synthetic/data/params.RData
 	RScript $^ $@
