@@ -1,8 +1,18 @@
-include makefiles/support.makefile
+
+# define local paths, settings, etc IFF local.make exists
+-include local.make
 
 DATADIR ?= data
+FIGDIR ?= figs
+OUTDIR ?= output
+SYNDIR := ${OUTDIR}/synthetic
 
-./synthetic/outputs/figures/flat_constant.png : ./script/plot.R ./synthetic/outputs/full/flat_constant.rds
+# enables directory manufacturing rules from support.make
+MAKEDIRS := ${DATADIR} ${FIGDIR} ${OUTDIR} ${SYNDIR}
+
+include makefiles/support.make
+
+${FIGDIR}/%.png: R/plot_scenario.R ${OUTDIR}/synthetic/%.rds
 	Rscript $^ $@ 
 
 ./synthetic/outputs/full/flat_constant.rds : ./scripts/estimate_secondary.R ./synthetic/data/flat_constant.rds ./synthetic/data/params.RData

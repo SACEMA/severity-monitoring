@@ -1,4 +1,7 @@
 
+${MAKEDIRS}:
+	mkdir -p $@
+
 # use in rule as $(call R) or $(call R,${SOMETHING}) to insert atypical arguments
 R = $(strip Rscript $^ $(1) $@)
 
