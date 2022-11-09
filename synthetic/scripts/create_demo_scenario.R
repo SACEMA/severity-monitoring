@@ -1,36 +1,23 @@
-.args <- if(interactive()) {
+
+c("EpiNow2", "jsonlite", "doParallel") |> .req()
+
+.args <- .fromArgs(
   c(
-    "./synthetic/data/synth_data_functions.RData",
-    "./synthetic/inputs/scenario_5.json",
-    "./synthetic/data/utils.RData",
-    "2",
-    "trashburn", #alternative "keepburn"
+    file.path("output", "synthetic", "synthetic_funs.rda"),
+    file.path("data", "scenario_5.json"),
     "./synthetic/outputs/full/scenario_5.RDS"
   )
-}else {
-  commandArgs(trailingOnly = TRUE)
-}
-
-
-suppressPackageStartupMessages({
-  library(tidyverse)
-  library(EpiNow2)
-  library(jsonlite)
-  library(doParallel)
-  library(geomtextpath)
-})
+)
 
 load(.args[1])
-load(.args[3])
 scenario_params <- jsonlite::read_json(.args[2])
+load(.args[3])
 
 ts_len <- as.numeric(scenario_params$ts_len)
 scenario_description <- scenario_params$scen_desc
 #keep_burnin <- as.logical(.args[3])
 
-trash_burn <- .args[[5]] == "trashburn"
-
-scenario_label <- extract_scenario_number_from_filename(.args[[2]])
+trash_burn <- as.logical(scenario_params$trashburn)
 
 generate_scenario <- function() {
   strain_1_params <- data.frame(scenario_params$strain_1) %>%
@@ -179,7 +166,7 @@ doParallel::registerDoParallel(num_cores)
 
 cl <- makeCluster(num_cores)
 
-num_sims <- as.numeric(.args[[4]])
+num_sims <- scenario_params$num_sims
 
 start_time <- Sys.time()
 

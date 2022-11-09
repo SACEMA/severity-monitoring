@@ -5,13 +5,11 @@
 #' Licence: MIT
 #' Last modified: 2022-05-14
 
-c("EpiNow2", "here") |> .req()
+c("EpiNow2") |> .req()
 
-resultfile <- .fromArgs(
-  here::here("data", "weakly-informed-delays.rds")
-)
+.args <- .fromArgs(file.path("data", "weakly-informed-delays.rds"))
 
-weak_delays <- EpiNow2::delay_opts(
+EpiNow2::delay_opts(
   list(
     mean = EpiNow2::convert_to_logmean(10, 5),
     mean_sd = 0.5,
@@ -19,6 +17,4 @@ weak_delays <- EpiNow2::delay_opts(
     sd_sd = 0.25,
     max = 30
   )
-)
-
-saveRDS(weak_delays, resultfile)
+) |> saveRDS(file = tail(.args, 1))

@@ -1,4 +1,6 @@
 
+default: targ
+
 # define local paths, settings, etc IFF local.make exists
 -include local.make
 
@@ -12,8 +14,16 @@ MAKEDIRS := ${DATADIR} ${FIGDIR} ${OUTDIR} ${SYNDIR}
 
 include makefiles/support.make
 
-${FIGDIR}/%.png: R/plot_scenario.R ${OUTDIR}/synthetic/%.rds
+${FIGDIR}/%.png: R/plot_scenario.R ${OUTDIR}/synthetic/%.rds | ${FIGDIR}
 	$(call R)
+
+${SYNDIR}/synthetic_funs.rda: R/synthetic_funs.R | ${SYNDIR}
+	$(call R)
+
+${DATADIR}/utils.rda: R/utils.R
+	$(call R)
+
+targ: ${SYNDIR}/synthetic_funs.rda
 
 ${SYNDIR}/%.rds: R/generate_synthetic.R ${SYNDIR}/%_params.rds
 	$(call R)
