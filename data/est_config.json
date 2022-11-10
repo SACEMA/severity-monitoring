@@ -1,4 +1,14 @@
 {
   "cores" : 8,
-  "start_date": "2020-04-01"
+  "start_date": "2020-04-01",
+  "observation_type": "incidence",
+  "dow": false,
+  "family": "negbin",
+  "scale_mean": 0.5, "scale_sd": 0.25,
+  "baseline_window": 14, "window": 14,
+  "windows_overlap": false,
+  "independent": false,
+  "prior_inflation": 1,
+  "loud": false,
+  "adapt_delta": 0.99, "max_treedepth": 12
 }
