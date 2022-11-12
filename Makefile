@@ -34,7 +34,7 @@ ${ESTDIR}/scenario_%.rds: R/sf_evaluate.R $(addprefix ${DATADIR}/,sf_gp_utils.rd
 
 ${ESTDIR}/scenario_%_score.rds: ${ESTDIR}/scenario_%.rds
 
-${ESTDIR}/plot_%.png: R/sf_plot.R ${DATADIR}/sf_gp_utils.rda ${DATADIR}/scenario_%.json ${ESTDIR}/scenario_%.rds | ${ESTDIR}
+${ESTDIR}/plot_%.png: R/sf_plot.R ${DATADIR}/sf_gp_utils.rda ${DATADIR}/scenario_%.json ${SYNDIR}/scenario_%.rds ${ESTDIR}/scenario_%.rds | ${ESTDIR}
 	$(call R)
 
 ${ESTDIR}/score_plot.png: R/score_plot.R $(wildcard ${ESTDIR}/scenario_*_score.rds) $(wildcard ${DATADIR}/scenario_*.json) | ${ESTDIR}

@@ -18,11 +18,12 @@
 
 #' Source tools
 
-c("ggplot2") |> .req()
+c("ggplot2", "data.table") |> .req()
 
 .args <- .fromArgs(c(
   file.path("data", "sf_gp_utils.rda"),
   file.path("data", "scenario_5.json"),
+  file.path("output", "synthetic", "scenario_5.rds"),
   file.path("output", "analysis", "scenario_5.rds"),
   file.path("output", "analysis", "plot_5.png")
 ))
@@ -31,11 +32,46 @@ load(.args[1])
 
 # TODO a with-defaults-json config reader
 jargs <- jsonlite::read_json(.args[2])
-res <- readRDS(.args[3])
+syn <- readRDS(.args[3])[sim_id == 1]
+syn$sim_id <- NULL
+res <- readRDS(.args[4])
 
-p <- sf_plot_pp(res, fill = model) + facet_grid(. ~ type) +
+sf_plot_pp2 <- function(predictions, ...) {
+  plot <- 
+    ggplot2::ggplot(
+      predictions[!is.na(mean)]
+    ) +
+    ggplot2::aes(x = date, y = secondary, ...)
+  
+  plot <- EpiNow2:::plot_CrIs(
+    plot, EpiNow2:::extract_CrIs(predictions), alpha = 0.4, size = 1
+  )
+  
+  plot <- plot +
+    ggplot2::theme_bw() +
+    ggplot2::labs(y = "Notifications", x = "Date") +
+    ggplot2::scale_x_date(date_breaks = "week", date_labels = "%b %d") +
+    ggplot2::scale_y_continuous(labels = scales::comma) +
+    ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90))
+  
+  return(plot)
+}
+
+p <- sf_plot_pp2(res, fill = model) + facet_grid(. ~ type) +
   ggtitle(label = jargs$scen_desc) + ggplot2::theme(legend.position  = "bottom") +
-  ggplot2::guides(fill = ggplot2::guide_legend(title = "Model")) +
-  ggplot2::scale_fill_brewer(palette = "Dark2")
+  ggplot2::guides(fill = ggplot2::guide_legend(title = "Model"), color = guide_legend(override.aes = list(fill = NA))) +
+  ggplot2::scale_fill_brewer(palette = "Dark2") +
+  geom_point(
+    aes(x=time-1+res[, min(date)], y=value, color = variable),
+    data = melt.data.table(syn, id.vars = c("time"))[!(variable %like% "primary")], inherit.aes = FALSE,
+    alpha = 0.2
+  ) +
+  geom_point(
+    aes(x=time-1+res[, min(date)], y=value/100, color = variable),
+    data = melt.data.table(syn, id.vars = c("time"))[(variable %like% "primary")], inherit.aes = FALSE,
+    alpha = 0.2
+  ) + scale_y_log10(
+    name = "Secondary", sec.axis = dup_axis(trans = ~ 100*., name = "Primary (100x)"), labels = scales::label_number(scale_cut = scales::cut_short_scale())
+  )
 
 ggsave(tail(.args, 1), p, width = 10, height = 6)
