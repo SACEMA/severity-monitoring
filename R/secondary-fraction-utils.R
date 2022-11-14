@@ -643,7 +643,9 @@ sf_estimate <- function(reports,
                         CrIs = c(0.2, 0.5, 0.9),
                         model = NULL,
                         verbose = interactive(),
+                        browser = verbose,
                         ...) {
+  if (browser) browser()
   if (!length(windows) == 2) {
     stop("Currently only the use of two fitting windows is supported")
   }
@@ -701,7 +703,7 @@ sf_estimate <- function(reports,
     out$forecast_secondary <- list("baseline" = long_fit)
     out$posterior_predictions <- list(
       "baseline" = sf_extract_secondary_samples(
-        long_fit, long_reports[date > (min(date) + long_burn_in)]
+        long_fit, long_reports[date >= (min(date) + long_burn_in)]
       )[
         date > (max(date) - windows[2])
       ]

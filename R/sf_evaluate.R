@@ -24,8 +24,8 @@ c("data.table") |> .req()
   file.path("data", "sf_gp_utils.rda"),
   file.path("data", "est_config.json"),
   file.path("data", "weakly-informed-delays.rds"),
-  file.path("output", "synthetic", "scenario_5.rds"),
-  file.path("output", "analysis", "scenario_5.rds")
+  file.path("output", "synthetic", "scenario_2.rds"),
+  file.path("output", "analysis", "scenario_2.rds")
 ))
 
 load(.args[1])
@@ -65,15 +65,24 @@ res <- observations[sim_id == 1] |> sf_estimate(
 
 summ <- res |> sf_extract_summarised_predictions()
 
-rel_score <- observations[
+res$posterior_predictions[model == "baseline", range(date)]
+
+scores <- observations[
   sim_id == 1
 ][
   res$posterior_predictions, on =.(date)][,
   .(date, model, sample, true_value = secondary, prediction = value)
 ] |> scoringutils::score() |>
   scoringutils::summarise_scores(by = "model") |>
-  DT(, relative_performance := crps / data.table::shift(crps, 1)) |>
-  subset(model != "baseline")
+  DT(, .(model, crps))
+scores[, compbaseline := 1]
+
+rel_score <- scores[
+  model != "baseline"
+][
+  scores[model == "baseline", .SD, .SDcols = -c("model")],
+  on=.(compbaseline)
+][, relative_performance := crps / i.crps ]
 
 saveRDS(summ, tail(.args, 1))
 saveRDS(rel_score, gsub("\\.", "_score.", tail(.args, 1)))

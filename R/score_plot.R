@@ -1,5 +1,5 @@
 
-c("ggplot2") |> .req()
+c("ggplot2", "data.table") |> .req()
 
 .args <- .fromArgs(c(
   file.path("data", "sf_gp_utils.rda"),
@@ -18,11 +18,12 @@ dt[(.args |> grep(pattern = "\\.json$", x = _, value = TRUE) |>
 load(.args[1])
 
 p <- ggplot(dt) + aes(x=factor(scenario), y = relative_performance, color = desc) + 
-  geom_point() + theme_minimal() + coord_cartesian(ylim = c(0, 1)) +
+  geom_point() + theme_minimal() + coord_cartesian(ylim = c(1, NA)) +
   theme(legend.position = "bottom", legend.direction = "vertical") +
-  scale_color_discrete(name = NULL) + scale_y_continuous(name = NULL) +
-  scale_x_discrete(name = NULL) +
-  annotate("text", x = 3, y = 0.95, vjust = 1, label = "\u2191 NO CHANGE \u2191") +
-  annotate("text", x = 3, y = 0.05, vjust = 0, label = "\u2193 LOTS OF CHANGE \u2193")
+  scale_color_discrete(name = NULL) + scale_y_continuous(name = "Relative Performance,\nOnly Window vs with Baseline") +
+  scale_x_discrete(name = NULL)
+# +
+#   annotate("text", x = 3, y = 1, vjust = 0, label = "\u2193 NO CHANGE \u2193") +
+#   annotate("text", x = 3, y = 1.5, label = "\u2191 LOTS OF CHANGE \u2191")
 
 ggsave(tail(.args, 1), p, width = 6, height = 5, bg = "white")

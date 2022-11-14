@@ -37,9 +37,11 @@ syn$sim_id <- NULL
 res <- readRDS(.args[4])
 
 sf_plot_pp2 <- function(predictions, ...) {
+  ooscut <- predictions[type == "out of sample", min(date[!is.na(mean)]), by=.(model)][, max(V1)]
+  
   plot <- 
     ggplot2::ggplot(
-      predictions[!is.na(mean)]
+      predictions[!is.na(mean)][(type == "in sample") | date >= ooscut]
     ) +
     ggplot2::aes(x = date, y = secondary, ...)
   
@@ -72,6 +74,6 @@ p <- sf_plot_pp2(res, fill = model) + facet_grid(. ~ type) +
     alpha = 0.2
   ) + scale_y_log10(
     name = "Secondary", sec.axis = dup_axis(trans = ~ 100*., name = "Primary (100x)"), labels = scales::label_number(scale_cut = scales::cut_short_scale())
-  )
+  ) + coord_cartesian(ylim = c(30, 3000), expand = FALSE)
 
 ggsave(tail(.args, 1), p, width = 10, height = 6)
