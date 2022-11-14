@@ -18,7 +18,7 @@ strain_1_params <- scenario_params$strain_1
 strain_2_params <- scenario_params$strain_2
 
 strain_series <- function(
-    pars, burnin_length
+  pars, burnin_length
 ) with(pars, generate_exponential_time_series(
   initial_value = initial_incidence,
   rate = exp_growth_rate,
@@ -28,27 +28,18 @@ strain_series <- function(
   sample_ts() |>
   expand_ts() |>
   sample_outcomes(
-    p_severe = p_severe,
-    p_hosp_if_severe = p_hosp_if_severe,
-    p_died_if_hosp = p_died_if_hosp,
-    p_seek_test = p_seek_test
+    p_severe, p_hosp_if_severe, p_died_if_hosp,
+    p_seek_test
   ) |>
   sample_delays(
-    mean_seek_test = mean_seek_test,
-    sd_seek_test = sd_seek_test,
-    mean_bg_test = mean_bg_test,
-    sd_bg_test = sd_bg_test,
-    rate_bg_hosp = rate_bg_hosp,
-    mean_hosp_test = mean_hosp_test,
-    sd_hosp_test = sd_hosp_test,
-    mean_severe = mean_severe,
-    sd_severe = sd_severe,
-    mean_severe_hosp = mean_severe_hosp,
-    sd_severe_hosp = sd_severe_hosp,
-    mean_hosp_died = mean_hosp_died,
-    sd_hosp_died = sd_hosp_died,
-    mean_resolve = mean_resolve,
-    sd_resolve = sd_resolve
+    mean_bg_test, sd_bg_test,
+    rate_bg_hosp,
+    mean_hosp_test, sd_hosp_test,
+    mean_severe, sd_severe,
+    mean_severe_hosp, sd_severe_hosp,
+    mean_hosp_died, sd_hosp_died,
+    mean_resolve, sd_resolve,
+    mean_seek_test, sd_seek_test
   ) |>
   compute_event_times_from_delays() |>
   compute_time_series_from_linelist() |>

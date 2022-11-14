@@ -14,11 +14,13 @@ find_first_time <- function(...) {
 
 remove_nonsense_times <- function(x, y) { fifelse(!is.na(x), y, NA_real_) }
 
+sample_ts <- function(dt) { return(dt[, infections := rpois(.N, infections)]) }
+
 expand_ts <- function(dt) {
   return(dt[,
      .(tmp = 1:infections),
      by=.(t0=time)
-  ][, .(t0, case = 1:.N)])
+  ][, .(t0)])
 }
 
 #' @param ll linelist?
@@ -48,8 +50,7 @@ optrlnorm <- function(n, mn, sd, tst = rep(TRUE, n)) fifelse(tst, rlnorm(
   sdlog = convert_to_logsd(mn, sd)
 ), NA_real_)
 
-sample_delays <- function(
-    dt,
+sample_delays <- function(dt,
     mean_bg_test, sd_bg_test,
     rate_bg_hosp,
     mean_hosp_test, sd_hosp_test,
@@ -103,10 +104,10 @@ compute_event_times_from_delays <- function(delays_df) { # Note: this function a
       time_severe_hosp +delay_severe_death
    )]
   
-   delays_df[time_bg_test <= time_resolve, time_bg_test := NA]
-   delays_df[time_bg_hosp_test <= time_resolve, time_bg_hosp_test := NA]
-   delays_df[time_severe_hosp_test <= time_resolve, time_severe_hosp_test := NA]
-   delays_df[time_seek_test <= time_resolve, time_seek_test := NA]
+   delays_df[time_bg_test > time_resolve, time_bg_test := NA]
+   delays_df[time_bg_hosp_test > time_resolve, time_bg_hosp_test := NA]
+   delays_df[time_severe_hosp_test > time_resolve, time_severe_hosp_test := NA]
+   delays_df[time_seek_test > time_resolve, time_seek_test := NA]
 
    delays_df[,c(
      "time_obs_case", "time_severe_hosp_obs", "time_bg_hosp_obs"
@@ -176,9 +177,6 @@ generate_exponential_time_series <- function(
     infections := round(burn_init * exp(rate*time))
   ])
 }
-
-sample_ts <- function(dt) { return(dt[, infections := rpois(.N, infections)]) }
-
 
 save(list=ls(), file = tail(.args, 1))
 
