@@ -13,15 +13,19 @@ dt <- .args |> grep(pattern = "_score\\.rds$", x = _, value = TRUE) |>
 
 dt[(.args |> grep(pattern = "\\.json$", x = _, value = TRUE) |>
   lapply(jsonlite::read_json) |> lapply(\(j) data.table(desc = j$scen_desc)) |>
-  rbindlist(idcol = "scenario")), on=.(scenario), desc := desc]
+  rbindlist(idcol = "scenario")), on=.(scenario), desc := gsub("Scenario ", "", gsub("severity ->", "->", desc))]
 
 load(.args[1])
 
 p <- ggplot(dt) + aes(x=factor(scenario), y = relative_performance, color = desc) + 
-  geom_point() + theme_minimal() + coord_cartesian(ylim = c(1, NA)) +
+  geom_hline(yintercept = 1, linetype = "dashed", color = "grey80") +
+  geom_point() + theme_minimal() + coord_cartesian(ylim = c(0.5, 2)) +
   theme(legend.position = "bottom", legend.direction = "vertical") +
-  scale_color_discrete(name = NULL) + scale_y_continuous(name = "Relative Performance,\nOnly Window vs with Baseline") +
-  scale_x_discrete(name = NULL)
+  scale_color_discrete(name = NULL) + scale_y_continuous(
+    name = "Relative Performance,\nOnly Window vs with Baseline",
+    trans = "log2", breaks = c(0.5, 1, 2), labels = c("1/2x", "1x", "2x")
+  ) +
+  scale_x_discrete(name = "Scenario")
 # +
 #   annotate("text", x = 3, y = 1, vjust = 0, label = "\u2193 NO CHANGE \u2193") +
 #   annotate("text", x = 3, y = 1.5, label = "\u2191 LOTS OF CHANGE \u2191")
