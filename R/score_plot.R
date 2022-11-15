@@ -19,7 +19,11 @@ load(.args[1])
 
 p <- ggplot(dt) + aes(x=factor(scenario), y = relative_performance, color = desc) + 
   geom_hline(yintercept = 1, linetype = "dashed", color = "grey80") +
-  geom_point() + theme_minimal() + coord_cartesian(ylim = c(0.5, 2)) +
+  geom_point() + geom_text(
+    aes(y = relative_performance^(4/5), label = signif(relative_performance, 3),
+    hjust = ifelse(relative_performance < 1, 0, 1)
+  ), angle = 90) +
+  theme_minimal() + coord_cartesian(ylim = c(0.5, 2)) +
   theme(legend.position = "bottom", legend.direction = "vertical") +
   scale_color_discrete(name = NULL) + scale_y_continuous(
     name = "Relative Performance,\nOnly Window vs with Baseline",
