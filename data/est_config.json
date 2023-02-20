@@ -6,6 +6,7 @@
   "family": "negbin",
   "scale_mean": 0.5, "scale_sd": 0.25,
   "baseline_window": 21, "window": 7,
+  "stride" : 7,
   "windows_overlap": false,
   "independent": false,
   "prior_inflation": 1,

@@ -44,7 +44,9 @@ if (!is.null(jargs$target_date)) {
   observations <- observations[date <= as.Date(jargs$target_date)]
 }
 
-res <- observations[sim_id == 1] |> sf_estimate(
+strides <- seq(...) |> lapply(
+  \(end_time) observations[sim_id == 1][time <= end_time]
+) |> lapply(sf_estimate,
   secondary = EpiNow2::secondary_opts(jargs$observation_type),
   delays = delay,
   obs = EpiNow2::obs_opts(
@@ -61,28 +63,67 @@ res <- observations[sim_id == 1] |> sf_estimate(
   control = list(
     adapt_delta = jargs$adapt_delta, max_treedepth = jargs$max_treedepth
   )
-)
+) 
 
-summ <- res |> sf_extract_summarised_predictions()
+summ <- strides |> lapply(sf_extract_summarised_predictions) |> rbindlist(id.col = "stride")
 
-res$posterior_predictions[model == "baseline", range(date)]
+finres <- strides |> lapply(\(res) {
+  scores <- observations[sim_id == 1][
+    res$posterior_predictions, on =.(date)
+  ][,
+    .(date, model, sample, true_value = secondary, prediction = value)
+  ] |> scoringutils::score() |>
+    scoringutils::summarise_scores(by = "model") |>
+    DT(, .(model, crps))
+  scores[, compbaseline := 1]
+  return(scores[
+    model != "baseline"
+  ][
+    scores[model == "baseline", .SD, .SDcols = -c("model")],
+    on=.(compbaseline)
+  ][, relative_performance := crps / i.crps ])
+}) |> rbindlist(id.col = "stride")
 
-scores <- observations[
-  sim_id == 1
-][
-  res$posterior_predictions, on =.(date)][,
-  .(date, model, sample, true_value = secondary, prediction = value)
-] |> scoringutils::score() |>
-  scoringutils::summarise_scores(by = "model") |>
-  DT(, .(model, crps))
-scores[, compbaseline := 1]
 
-rel_score <- scores[
-  model != "baseline"
-][
-  scores[model == "baseline", .SD, .SDcols = -c("model")],
-  on=.(compbaseline)
-][, relative_performance := crps / i.crps ]
+# res <- observations[sim_id == 1] |> sf_estimate(
+#   secondary = EpiNow2::secondary_opts(jargs$observation_type),
+#   delays = delay,
+#   obs = EpiNow2::obs_opts(
+#     week_effect = jargs$dow,
+#     family = jargs$family,
+#     scale = list(mean = jargs$scale_mean, sd = jargs$scale_sd)
+#   ),
+#   windows = c(jargs$baseline_window, jargs$window),
+#   window_overlap = jargs$windows_overlap,
+#   priors = if (!is.null(jargs$priors)) readRDS(jargs$priors) else NULL,
+#   prior_from_posterior = jargs$independent,
+#   prior_inflation = jargs$prior_inflation,
+#   verbose = jargs$loud,
+#   control = list(
+#     adapt_delta = jargs$adapt_delta, max_treedepth = jargs$max_treedepth
+#   )
+# )
+
+# summ <- res |> sf_extract_summarised_predictions()
+# 
+# res$posterior_predictions[model == "baseline", range(date)]
+
+# scores <- observations[
+#   sim_id == 1
+# ][
+#   res$posterior_predictions, on =.(date)][,
+#   .(date, model, sample, true_value = secondary, prediction = value)
+# ] |> scoringutils::score() |>
+#   scoringutils::summarise_scores(by = "model") |>
+#   DT(, .(model, crps))
+# scores[, compbaseline := 1]
+# 
+# rel_score <- scores[
+#   model != "baseline"
+# ][
+#   scores[model == "baseline", .SD, .SDcols = -c("model")],
+#   on=.(compbaseline)
+# ][, relative_performance := crps / i.crps ]
 
 saveRDS(summ, tail(.args, 1))
 saveRDS(rel_score, gsub("\\.", "_score.", tail(.args, 1)))
