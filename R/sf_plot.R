@@ -46,7 +46,7 @@ sf_plot_pp2 <- function(predictions, ...) {
     ggplot2::aes(x = date, y = secondary, ...)
   
   plot <- EpiNow2:::plot_CrIs(
-    plot, EpiNow2:::extract_CrIs(predictions), alpha = 0.4, size = 1
+    plot, EpiNow2:::extract_CrIs(predictions), alpha = 0.4, linewidth = 1
   )
   
   plot <- plot +

@@ -27,10 +27,10 @@ ${DATADIR}/utils.rda: R/utils.R | ${DATADIR}
 ${SYNDIR}/scenario_%.rds: R/create_demo_scenario.R ${SYNDIR}/synthetic_funs.rda ${DATADIR}/scenario_%.json | ${SYNDIR}
 	$(call R)
 
-.PRECIOUS: ${SYNDIR}/scenario_%.rds
-
 ${ESTDIR}/scenario_%.rds: R/sf_evaluate.R $(addprefix ${DATADIR}/,sf_gp_utils.rda est_config.json weakly-informed-delays.rds) ${SYNDIR}/scenario_%.rds | ${ESTDIR}
 	$(call R)
+
+.PRECIOUS: ${SYNDIR}/scenario_%.rds ${ESTDIR}/scenario_%.rds
 
 ${ESTDIR}/scenario_%_score.rds: ${ESTDIR}/scenario_%.rds
 

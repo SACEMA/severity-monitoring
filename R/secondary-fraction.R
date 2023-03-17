@@ -180,7 +180,7 @@ if (args$summary) {
     sf_summarise_posterior
   )
   names(posterior_summary) <- names(estimates$estimate_secondary)
-  # posterior_summary <- data.table::rbindlist(
+  posterior_summary <- data.table::rbindlist(
     posterior_summary, idcol = "model"
   )
   saveRDS(

@@ -24,8 +24,8 @@ c("data.table") |> .req()
   file.path("data", "sf_gp_utils.rda"),
   file.path("data", "est_config.json"),
   file.path("data", "weakly-informed-delays.rds"),
-  file.path("output", "synthetic", "scenario_2.rds"),
-  file.path("output", "analysis", "scenario_2.rds")
+  file.path("output", "synthetic", "scenario_3.rds"),
+  file.path("output", "analysis", "scenario_3.rds")
 ))
 
 load(.args[1])
@@ -73,9 +73,9 @@ scores <- observations[
   res$posterior_predictions, on =.(date)][,
   .(date, model, sample, true_value = secondary, prediction = value)
 ] |> scoringutils::score() |>
-  scoringutils::summarise_scores(by = "model") |>
-  DT(, .(model, crps))
-scores[, compbaseline := 1]
+  scoringutils::summarise_scores(by = "model")
+
+scores <- scores[, .(model, crps) ][, compbaseline := 1]
 
 rel_score <- scores[
   model != "baseline"
