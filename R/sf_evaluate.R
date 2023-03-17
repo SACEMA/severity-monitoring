@@ -44,6 +44,35 @@ if (!is.null(jargs$target_date)) {
   observations <- observations[date <= as.Date(jargs$target_date)]
 }
 
+rolling_window_starts <- seq(
+  observations[, min(time)],
+  observations[, max(time) - sum(jargs$baseline_window, jargs$window)],
+  by = 1
+)
+rolling_window_ends <- rolling_window_starts + sum(jargs$baseline_window, jargs$window)
+
+# TODO: currently reporting burn-in error?
+res <- mapply(function(s, e, dt) {
+  dt[sim_id == 1][between(time, s, e)] |> sf_estimate(
+    secondary = EpiNow2::secondary_opts(jargs$observation_type),
+    delays = delay,
+    obs = EpiNow2::obs_opts(
+      week_effect = jargs$dow,
+      family = jargs$family,
+      scale = list(mean = jargs$scale_mean, sd = jargs$scale_sd)
+    ),
+    windows = c(jargs$baseline_window, jargs$window),
+    window_overlap = jargs$windows_overlap,
+    priors = if (!is.null(jargs$priors)) readRDS(jargs$priors) else NULL,
+    prior_from_posterior = jargs$independent,
+    prior_inflation = jargs$prior_inflation,
+    verbose = jargs$loud,
+    control = list(
+      adapt_delta = jargs$adapt_delta, max_treedepth = jargs$max_treedepth
+    )
+  )
+}, s = rolling_window_starts, e = rolling_window_ends, MoreArgs = list(dt = observations), SIMPLIFY = FALSE)
+
 res <- observations[sim_id == 1] |> sf_estimate(
   secondary = EpiNow2::secondary_opts(jargs$observation_type),
   delays = delay,
@@ -63,29 +92,48 @@ res <- observations[sim_id == 1] |> sf_estimate(
   )
 )
 
-summ <- res |> sf_extract_summarised_predictions()
+summs <- res |> lapply(sf_extract_summarised_predictions) |> rbindlist(idcol = "startIdx")
 
-res$posterior_predictions[model == "baseline", range(date)]
+# res$posterior_predictions[model == "baseline", range(date)]
 
-scores <- observations[
-  sim_id == 1
-][
-  res$posterior_predictions, on =.(date)][,
-  .(date, model, sample, true_value = secondary, prediction = value)
-] |> scoringutils::score() |>
-  scoringutils::summarise_scores(by = "model")
+rel_scores <- res |> lapply(\(inc.dt) {
+  scores <- (observations[
+    sim_id == 1
+  ][
+    inc.dt$posterior_predictions, on =.(date)][,
+      .(date, model, sample, true_value = secondary, prediction = value)
+    ] |> scoringutils::score() |>
+    scoringutils::summarise_scores(by = "model"))[,
+      .(model, crps)
+    ][, 
+      compbaseline := 1
+    ]
+  return(scores[
+    model != "baseline"
+  ][
+    scores[model == "baseline", .SD, .SDcols = -c("model")],
+    on=.(compbaseline)
+  ][, relative_performance := crps / i.crps ]
+  )
+}) |> rbindlist(idcol = "startIdx")
 
-scores <- scores[, .(model, crps) ][, compbaseline := 1]
+# scores <- observations[
+#   sim_id == 1
+# ][
+#   res$posterior_predictions, on =.(date)][,
+#   .(date, model, sample, true_value = secondary, prediction = value)
+# ] |> scoringutils::score() |>
+#   scoringutils::summarise_scores(by = "model")
+# scores <- scores[, .(model, crps) ][, compbaseline := 1]
+# rel_score <- scores[
+#   model != "baseline"
+# ][
+#   scores[model == "baseline", .SD, .SDcols = -c("model")],
+#   on=.(compbaseline)
+# ][, relative_performance := crps / i.crps ]
 
-rel_score <- scores[
-  model != "baseline"
-][
-  scores[model == "baseline", .SD, .SDcols = -c("model")],
-  on=.(compbaseline)
-][, relative_performance := crps / i.crps ]
-
-saveRDS(summ, tail(.args, 1))
-saveRDS(rel_score, gsub("\\.", "_score.", tail(.args, 1)))
+saveRDS(summs, tail(.args, 1))
+saveRDS(rel_scores, gsub("\\.", "_score.", tail(.args, 1)))
 
 # res <- observations[,
 #                     .SD[,.(date, primary, secondary)] |> sf_estimate(
